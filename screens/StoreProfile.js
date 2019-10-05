@@ -9,6 +9,7 @@ import {
     Image,
 } from 'react-native';
 import MainProfile from '../components/StoreProfile/MainProfile';
+import Review from '../components/StoreProfile/Review'
 
 import HeaderTitle from '../components/HeaderTitle';
 import Colors from '../constants/Colors';
@@ -29,9 +30,8 @@ class StoreProfile extends Component {
                                 address={info.address}
                                 distance={distance}  />
                 </View>
-
                 <View style={styles.review}>
-
+                    <Review />
                 </View>
             </View>
         );
@@ -45,10 +45,12 @@ const styles = StyleSheet.create({
     },
     storeProfile: {
         flex: 0.5,
-        backgroundColor: 'white',
+        backgroundColor: 'white'
     },
     review: {
-        flex: 0.5,
+        flex: 1,
+        backgroundColor: 'white',
+        marginTop: 20
     },
 });
 

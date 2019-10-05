@@ -56,6 +56,7 @@ const data = [
 ];
 
 class StoreList extends Component {
+
     renderList = ({ item }) => (
         <ListItem
             containerStyle={styles.listItem}
@@ -78,7 +79,6 @@ class StoreList extends Component {
             <View style={styles.separator} />
         );
     };
-    
     render() {
         return (
             <Card containerStyle={styles.container}>
