@@ -19,8 +19,8 @@ export default function ProductsContainer(props) {
                 renderItem={({ item }) => 
                 <ProductElement 
                     style={styles.products} 
-                    content={item.description} 
-                    source={{uri: item.image}}/>
+                    item={item}
+                    navigation={props.navigation} />
                 }
                 keyExtractor={item => item.topServiceId}
                 horizontal={true} 

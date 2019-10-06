@@ -20,15 +20,15 @@ class StoreProfile extends Component {
     };
 
     render() {
-        const { info } = this.props.navigation.state.params;
+        const info = this.props.navigation.getParam('info', 'No info');
         const distance = '3km từ vị trí hiện tại'
         return(
             <View style={styles.container}>
                 <View style={styles.storeProfile}>
-                    <MainProfile name={info.name} 
+                    <MainProfile name={info.storeName} 
                                 star={info.star}
-                                address={info.address}
-                                distance={distance}  />
+                                address={info.storeAddress}
+                                distance={distance}/>
                 </View>
                 <View style={styles.review}>
                     <Review />
@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'white'
     },
     review: {
-        flex: 1,
+        flex: 0.5,
         backgroundColor: 'white',
         marginTop: 20
     },

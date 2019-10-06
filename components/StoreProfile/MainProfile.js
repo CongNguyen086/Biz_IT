@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { StyleSheet, Text, View, ImageBackground, Dimensions, Alert, Image } from 'react-native';
 import { Rating, Icon, Button } from 'react-native-elements'
-
+import { withNavigation } from 'react-navigation';
 import Colors from '../../constants/Colors';
 
 class MainProfile extends Component {
@@ -59,7 +59,8 @@ class MainProfile extends Component {
                         <Button type='solid' 
                                 title='Thanh toán ngay' 
                                 buttonStyle={styles.button}
-                                titleStyle={{fontSize:18}} />
+                                titleStyle={{fontSize:18}}
+                                onPress={() => this.props.navigation.navigate('Payment')} />
                     </View>
                 </View>
             </View>
@@ -118,7 +119,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     name: {
-        fontSize: 18,
+        fontSize: 15,
         textTransform: 'uppercase',
         // backgroundColor: 'red',
     },
@@ -151,6 +152,7 @@ const styles = StyleSheet.create({
     },
     distanceView: {
         flex: 0.9,
+        paddingLeft: 20,
     },
     distanceIcon: {
         flex: 0.1,
@@ -182,4 +184,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default MainProfile;
+export default withNavigation(MainProfile);

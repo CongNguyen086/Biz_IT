@@ -1,11 +1,12 @@
 import React from 'react';
-import { StyleSheet, Image, View, Text } from 'react-native';
+import { StyleSheet, Image, View, Text, FlatList } from 'react-native';
+// import { ListItem } from 'react-native-elements';
 
-export default function MemberList() {
+export default function MemberList(props) {
     return (
         <View style={styles.member}>
             <Image source={require('../../assets/avatars/avatar.png')} />
-            <Text>Khang</Text>
+            <Text>{props.name}</Text>
         </View>
     );
 }

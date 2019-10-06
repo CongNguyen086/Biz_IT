@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View, TextInput } from 'react-native';
-import { Rating, Button } from 'react-native-elements'
+import { StyleSheet, Text, View, TextInput, Alert } from 'react-native';
+import { Rating, AirbnbRating, Button } from 'react-native-elements'
 
 import Colors from '../../constants/Colors';
 import Layout from '../../constants/Layout'
@@ -9,6 +9,12 @@ const width = Layout.width;
 const height = Layout.height;
 
 class ReviewProfile extends Component {
+
+    clearText() {
+        Alert.alert('Cảm ơn bạn','Góp ý của bạn đã được ghi nhận')
+        this.textInput.clear();
+    }
+
     render() {
         const { name, star, address, distance } = this.props;
         return (
@@ -17,17 +23,17 @@ class ReviewProfile extends Component {
                     <Text style={styles.headerLabel}>Trải nghiệm tại quán của bạn {'\n'} như thế nào</Text>
                 </View>
                 <View style={styles.rateGroup}>
-                    <Rating
+                    {/* <Rating
                         // showRating
                         type="star"
                         fractions={1}
                         startingValue={5}
-                        readonly
                         imageSize={30}
                         onFinishRating={this.ratingCompleted}
                         style={styles.rate}
                         ratingColor='#40E247'
-                    />
+                    /> */}
+                    <AirbnbRating showRating={false} defaultRating={0} />
                 </View>
                 <View style={styles.inputContainer}>
                     <TextInput
@@ -37,14 +43,17 @@ class ReviewProfile extends Component {
                         numberOfLines={5}
                         maxLength={500}
                         placeholder='Hãy nói lên những suy nghĩ của bạn về chúng tôi'
+                        ref={input => { this.textInput = input }}
                     />
                 </View>
                 <View style={styles.footerContainer}>
                     <View style={styles.importImage}>
-                        <Text style={{ color: '#AE2070' }} >+Thêm{'\n'}Hình Ảnh</Text>
+                        <Text style={{ color: '#AE2070' }}>+Thêm{'\n'}Hình Ảnh</Text>
                     </View>
                     <View style={styles.buttonSendContainer}>
-                        <Button title='Gửi' titleStyle={{ fontSize: 18 }} buttonStyle={styles.buttonSend} />
+                        <Button title='Gửi' titleStyle={{ fontSize: 18 }} 
+                                buttonStyle={styles.buttonSend}
+                                onPress={() => this.clearText()} />
                     </View>
                 </View>
             </View>

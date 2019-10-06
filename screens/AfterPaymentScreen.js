@@ -7,6 +7,7 @@ import {
     Dimensions,
     Alert,
     Image,
+    AsyncStorage,
 } from 'react-native';
 import { Button } from 'react-native-elements';
 
@@ -27,6 +28,16 @@ class AfterPaymentScreen extends Component {
         headerTitle: <HeaderTitle title='Thanh Toán' />,
     };
 
+    inviteFriend() {
+        try {
+            const list = [];
+            AsyncStorage.setItem('friendList', JSON.stringify(list))
+            this.props.navigation.navigate('SendCode')
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     render() {
         return (
             <View style={styles.container}>
@@ -43,7 +54,8 @@ class AfterPaymentScreen extends Component {
                     <Button type='solid'
                         title='Rủ bạn bè ngay'
                         buttonStyle={styles.button}
-                        titleStyle={{ fontSize: 18 }} />
+                        titleStyle={{ fontSize: 18 }}
+                        onPress={() => this.inviteFriend()} />
                 </View>
             </View>
         );

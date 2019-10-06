@@ -6,7 +6,7 @@ const height = Dimensions.get('screen').height;
 
 export default function Categories_HomePage() {
     return (
-        <Image style={styles.container} source={require('../assets/Categories_HomePage/Body.png')} />
+        <Image style={styles.container} source={require('../../assets/Categories_HomePage/Body.png')} />
     );
 }
 
@@ -15,9 +15,12 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'white',
-        borderRadius: 12,
-        marginTop: 10,
-        width: width,
+        // backgroundColor: 'white',
+        // borderRadius: 12,
+        // marginTop: 10,
+        width: null,
+        height: null,
+        resizeMode: 'contain',
+        // width: width,
     },   
 });

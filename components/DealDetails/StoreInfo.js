@@ -8,15 +8,15 @@ import Colors from '../../constants/Colors';
 
 export class StoreInfo extends Component {
     render() {
-        const { data: { name, star, promotion, description } } = this.props;
+        const { data: { storeName, description, distance } } = this.props;
         return (
             <View style={styles.container}>
                 <View style={styles.mainInfo}>
                     <View style={styles.storeInfo}>
-                        <Text style={styles.name}>{name}</Text>
+                        <Text style={styles.name}>{storeName}</Text>
                         <View style={styles.details}>
                             <FontAwesome name='star' size={15} color='#FFC601' />
-                            <Text style={styles.extraText}>{star}</Text>
+                            <Text style={styles.extraText}>4.5</Text>
                             <FontAwesome name='circle' size={15} color='#40E247' />
                             <Text style={styles.extraText}>8:00 - 22:00</Text>
                             <Text style={styles.extraText}>Cafe/MilkTea</Text>
@@ -28,7 +28,7 @@ export class StoreInfo extends Component {
                 </View>
 
                 <View style={styles.distanceView}>
-                    <Text style={styles.distance}>3km</Text>
+                    <Text style={styles.distance}>100m</Text>
                 </View>
             </View>
         );
@@ -37,10 +37,10 @@ export class StoreInfo extends Component {
 
 export class Avatar extends Component {
     render() {
-        const { data: { avatar } } = this.props;
+        const { data: { icon } } = this.props;
         return (
             <View style={styles.imageContainer}>
-                <Image source={avatar} style={styles.image} />
+                <Image source={{uri: icon}} style={styles.image} />
             </View>
         );
     }
@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
         // backgroundColor: 'black',
     },
     name: {
-        fontSize: 15,
+        fontSize: 12,
         fontWeight: 'bold',
         textTransform: 'uppercase',
         lineHeight: 25,

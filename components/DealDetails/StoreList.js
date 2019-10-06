@@ -7,7 +7,9 @@ import Layout from '../../constants/Layout';
 import Colors from '../../constants/Colors';
 import { StoreInfo, Avatar  } from './StoreInfo';
 
-const data = [
+// import domain from '../../utils/domain';
+
+const testData = [
     {
         name: 'The Coffee House-D2',
         avatar: require('../../assets/avatars/TCH_avatar.png'),
@@ -56,7 +58,6 @@ const data = [
 ];
 
 class StoreList extends Component {
-
     renderList = ({ item }) => (
         <ListItem
             containerStyle={styles.listItem}
@@ -80,6 +81,7 @@ class StoreList extends Component {
         );
     };
     render() {
+        const { data } = this.props;
         return (
             <Card containerStyle={styles.container}>
                 <FlatList

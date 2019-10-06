@@ -32,7 +32,7 @@ class PaymentScreen extends Component {
                 <View style={styles.headerContainer}>
                     <Image source={require('../assets/images/headerPayment.png')} style={styles.headerImage} />  
                 </View>
-                <TouchableOpacity style={styles.bodyContainer}>
+                <TouchableOpacity style={styles.bodyContainer} onPress={() => this.props.navigation.navigate('AfterPayment')}>
                     <Image source={require('../assets/images/bodyPayment.png')} style={styles.bodyImage} />
                 </TouchableOpacity>
                 <View style={styles.footerContainer}>

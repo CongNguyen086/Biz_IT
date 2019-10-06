@@ -1,11 +1,13 @@
 import React, { Component, useState } from 'react';
-import { StyleSheet, Text, View, Dimensions, Image } from 'react-native';
+import { StyleSheet, Text, View, Dimensions, Image, TouchableHighlight } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+// import { withNavigation } from 'react-navigation';
 
 const width = Dimensions.get('screen').width;
 const height = Dimensions.get('screen').height;
 
 export default function ElementProducts(props) {
+    const { item } = props;
     const [heart, setHeart] = useState('ios-heart-empty')
     const [heartColor, setHeartColor] = useState('black')
     const Like = () => {
@@ -19,23 +21,25 @@ export default function ElementProducts(props) {
         }
     }
     return (
-        <View style={styles.container}>
-            <Image
-                style={styles.imageContainer}
-                source={props.source}
-            />
-            <View style={styles.labelContainer}>
-                <Text style={{ fontSize: 17, flex: 0.9, paddingLeft: 8 }}>{props.content}</Text>
-                <View style={styles.iconContainer}>
-                    <Ionicons
-                        style={styles.heartIcon}
-                        name={heart} size={28}
-                        color={heartColor}
-                        onPress={() => Like()}
-                    />
+        <TouchableHighlight onPress={() => props.navigation.navigate('DealDetails', {info: item})}>
+            <View style={styles.container}>
+                <Image
+                    style={styles.imageContainer}
+                    source={{uri: item.image}}
+                />
+                <View style={styles.labelContainer}>
+                    <Text style={{ fontSize: 17, flex: 0.9, paddingLeft: 8 }}>{item.description}</Text>
+                    <View style={styles.iconContainer}>
+                        <Ionicons
+                            style={styles.heartIcon}
+                            name={heart} size={28}
+                            color={heartColor}
+                            onPress={() => Like()}
+                        />
+                    </View>
                 </View>
-            </View>
-        </View>
+            </View> 
+        </TouchableHighlight>
     );
 }
 

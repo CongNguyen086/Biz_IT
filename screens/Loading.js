@@ -9,9 +9,9 @@ import {
 import Colors from '../constants/Colors'
 
 class Loading extends Component {
-
     componentDidMount = async () => {
-        const token = await AsyncStorage.getItem('@token');
+        const token = await AsyncStorage.getItem('@userToken');
+        console.log(token)
         if(token !== null) {
             this.props.navigation.navigate('App');
         } else {
@@ -23,7 +23,7 @@ class Loading extends Component {
         return (
             <View style={styles.activityIndicatorWrapper}>
                 <ActivityIndicator
-                    animating={loading} />
+                    animating={true} />
             </View>
         );
     }

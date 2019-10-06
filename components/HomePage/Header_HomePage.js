@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, ImageBackground, Dimensions, TouchableOpacity, 
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 
 //Component
-import Search_HomePage from '../components/Search_HomePage'
+import Search_HomePage from './Search_HomePage'
 
 const width = Dimensions.get('screen').width;
 const height = Dimensions.get('screen').height;
@@ -11,7 +11,7 @@ const height = Dimensions.get('screen').height;
 export default function Header_HomePage() {
     return (
         <View style={styles.container}>
-            <ImageBackground style={styles.header} source={require('../assets/Header_HomePage/leaves.jpg')}>
+            <ImageBackground style={styles.header} source={require('../../assets/Header_HomePage/leaves.jpg')}>
                 <View style={styles.searchContainer} opacity={0.7}>
                     <Search_HomePage />
                     <TouchableOpacity>
@@ -24,25 +24,25 @@ export default function Header_HomePage() {
                 <View style={styles.toolsContainer}>
                     <View style={styles.tool}>
                         <TouchableOpacity>
-                            <Image source={require('../assets/Header_HomePage/deposit.png')} style={styles.imageTools} />
+                            <Image source={require('../../assets/Header_HomePage/deposit.png')} style={styles.imageTools} />
                         </TouchableOpacity>
                         <Text style={styles.toolLabel}>NẠP TIỀN {'\n'}VÀO VÍ</Text>
                     </View>
                     <View style={styles.tool}>
                         <TouchableOpacity>
-                            <Image source={require('../assets/Header_HomePage/withdraw.png')} style={styles.imageTools} />
+                            <Image source={require('../../assets/Header_HomePage/withdraw.png')} style={styles.imageTools} />
                         </TouchableOpacity>
                         <Text style={styles.toolLabel}>RÚT TIỀN {'\n'}</Text>
                     </View>
                     <View style={styles.tool}>
                         <TouchableOpacity>
-                            <Image source={require('../assets/Header_HomePage/qrCode.png')} style={styles.imageTools} />
+                            <Image source={require('../../assets/Header_HomePage/qrCode.png')} style={styles.imageTools} />
                         </TouchableOpacity>
                         <Text style={styles.toolLabel}>MÃ {'\n'}THANH TOÁN</Text>
                     </View>
                     <View style={styles.tool}>
                         <TouchableOpacity>
-                            <Image source={require('../assets/Header_HomePage/scan.png')} style={styles.imageTools} />
+                            <Image source={require('../../assets/Header_HomePage/scan.png')} style={styles.imageTools} />
                         </TouchableOpacity>
                         <Text style={styles.toolLabel}>QUÉT MÃ {'\n'}</Text>
                     </View>

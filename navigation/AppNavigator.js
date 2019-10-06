@@ -3,9 +3,13 @@ import { createAppContainer, createStackNavigator, createSwitchNavigator } from 
 import { Icon } from 'react-native-elements'
 
 import Login from '../screens/Login';
-// import HomePage from '../screens/HomePage'
+import HomePage from '../screens/HomePage';
+import Loading from '../screens/Loading';
 import DealDetails from '../screens/DealDetails';
 import StoreProfile from '../screens/StoreProfile';
+import PaymentScreen from '../screens/PaymentScreen';
+import AfterPaymentScreen from '../screens/AfterPaymentScreen';
+import SendCodeScreen from '../screens/SendCodeScreen';
 
 import Colors from '../constants/Colors';
 
@@ -13,12 +17,15 @@ import Colors from '../constants/Colors';
 
 const App = createStackNavigator(
   { 
-    // Home: HomePage,
+    Home: HomePage,
     DealDetails: DealDetails,
     StoreProfile: StoreProfile,
+    Payment: PaymentScreen,
+    AfterPayment: AfterPaymentScreen,
+    SendCode: SendCodeScreen,
   },
   {
-    initialRouteName: 'DealDetails',
+    initialRouteName: 'Home',
     /* The header config from HomeScreen is now here */
     defaultNavigationOptions: {
       headerStyle: {

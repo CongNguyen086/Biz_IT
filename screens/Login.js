@@ -47,27 +47,29 @@ export default class LoginScreen extends Component {
 
   async _signInAsync(userId) {
     // const { userId } = this.state;
-    await AsyncStorage.setItem('userToken', userId);
-    this.props.navigation.navigate('App');
+    await AsyncStorage.removeItem('@userToken')
+    await AsyncStorage.setItem('@userToken', userId);
+    this.props.navigation.navigate('Loading');
   };
   
   async _checkLogin() {
-    // const { phone, password, showLoading } = this.state;
-    // this.setState({ showLoading: !showLoading });
-    // const response = await fetch(`http://192.168.1.15:3000/login?phone=${phone}&password=${password}`);
-    // const jsonData = await response.json();
-    // console.log(jsonData[0])
-    // if (jsonData[0] != null) {
-    //   this._signInAsync(jsonData[0].userId);
-    // } else {
-    //   Alert.alert('Logged in failed', `Please check your phone/password`);
-    // }
-    this._signInAsync('abc');
+    const { phone, password, showLoading } = this.state;
+    this.setState({ showLoading: !showLoading });
+    const response = await fetch(`http://192.168.1.15:3000/login?phone=${phone}&password=${password}`);
+    const jsonData = await response.json();
+    console.log(jsonData[0])
+    if (jsonData[0] != null) {
+      this._signInAsync(jsonData[0].userId);
+    } else {
+      this.setState({
+        showLoading: false,
+      }, () => Alert.alert('Logged in failed', `Please check your phone/password`));
+    }
+    
   };
 
   async loginFacebook() {
     try {
-      this._signInAsync('abc');
       const {
         type,
         token,
@@ -80,8 +82,8 @@ export default class LoginScreen extends Component {
       if (type === 'success') {
         // Get the user's name using Facebook's Graph API
         const response = await fetch(`https://graph.facebook.com/me?access_token=${token}`);
-        // Alert.alert('Logged in!', `Hi ${(await response.json()).name}, you're such a handsome guy!`);
-        
+        Alert.alert('Đăng nhập thành công!', `Xin chào ${(await response.json()).name}!`);
+        // this.props.navigation.navigate('Loading');
       } else {
         // type === 'cancel'
         Alert.alert('Failed!', `Check your info`);
@@ -195,7 +197,7 @@ export default class LoginScreen extends Component {
                 </View>
               </View>
               <View style={styles.signUpView}>
-                <Text style={styles.signUpText}>Đăng nhập</Text>
+                <Text style={styles.signUpText}>Đăng Ký</Text>
               </View>
             </View>
           </View>

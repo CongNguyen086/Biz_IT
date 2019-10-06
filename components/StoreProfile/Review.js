@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
         color: 'grey'
     },
     reviewElementContainer: {
-        flex: 0.5,
+        flex: 0.8,
         borderBottomWidth: 1,
         borderBottomColor: 'grey'
     }

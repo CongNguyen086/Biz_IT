@@ -1,15 +1,23 @@
-import React, {useState} from 'react';
-import { StyleSheet, Image, View, Text, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, Image, View, Text, TouchableOpacity, AsyncStorage } from 'react-native';
 import { ListItem } from 'react-native-elements';
 import { Ionicons } from '@expo/vector-icons';
 
 export default function ListElement(props) {
     const [radio, setRadio] = useState('md-radio-button-off')
-    const getStatus = () => {
-        if(radio == 'md-radio-button-off') {
-            setRadio('md-radio-button-on')
-        } else setRadio('md-radio-button-off')
-    } 
+    const getStatus = async () => {
+        try {
+            if (radio == 'md-radio-button-off') {
+                // const newFriend = JSON.parse(await AsyncStorage.getItem('friendList'))
+                // newFriend.push(props.name)
+                // await AsyncStorage.setItem('friendList', JSON.stringify(newFriend))
+                setRadio('md-radio-button-on')
+            } else setRadio('md-radio-button-off')    
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     return (
         <TouchableOpacity onPress={getStatus} >
             <ListItem
