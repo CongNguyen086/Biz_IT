@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import {
+  AsyncStorage,
   StyleSheet,
   Text,
   View,
@@ -21,6 +22,7 @@ export default class LoginScreen extends Component {
     super(props);
 
     this.state = {
+      userId: '',
       phone: '',
       phone_valid: true,
       password: '',
@@ -29,10 +31,10 @@ export default class LoginScreen extends Component {
     };
   }
 
-  validateEmail(email) {
-    var re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  validatePhone(phone) {
+    var re = /^\d*$/;
 
-    return re.test(email);
+    return re.test(phone);
   }
 
   submitLoginCredentials() {
@@ -43,8 +45,29 @@ export default class LoginScreen extends Component {
     });
   }
 
+  async _signInAsync(userId) {
+    // const { userId } = this.state;
+    await AsyncStorage.setItem('userToken', userId);
+    this.props.navigation.navigate('App');
+  };
+  
+  async _checkLogin() {
+    // const { phone, password, showLoading } = this.state;
+    // this.setState({ showLoading: !showLoading });
+    // const response = await fetch(`http://192.168.1.15:3000/login?phone=${phone}&password=${password}`);
+    // const jsonData = await response.json();
+    // console.log(jsonData[0])
+    // if (jsonData[0] != null) {
+    //   this._signInAsync(jsonData[0].userId);
+    // } else {
+    //   Alert.alert('Logged in failed', `Please check your phone/password`);
+    // }
+    this._signInAsync('abc');
+  };
+
   async loginFacebook() {
     try {
+      this._signInAsync('abc');
       const {
         type,
         token,
@@ -57,7 +80,8 @@ export default class LoginScreen extends Component {
       if (type === 'success') {
         // Get the user's name using Facebook's Graph API
         const response = await fetch(`https://graph.facebook.com/me?access_token=${token}`);
-        Alert.alert('Logged in!', `Hi ${(await response.json()).name}, you're such a handsome guy!`);
+        // Alert.alert('Logged in!', `Hi ${(await response.json()).name}, you're such a handsome guy!`);
+        
       } else {
         // type === 'cancel'
         Alert.alert('Failed!', `Check your info`);
@@ -68,7 +92,7 @@ export default class LoginScreen extends Component {
   }
 
   render() {
-    const { phone: email, password, phone_valid: email_valid, showLoading } = this.state;
+    const { phone, password, phone_valid, showLoading } = this.state;
     console.log(SCREEN_HEIGHT);
     return (
       <View style={styles.container}>
@@ -85,26 +109,26 @@ export default class LoginScreen extends Component {
                   />
                 }
                 containerStyle={{ marginVertical: 10 }}
-                onChangeText={email => this.setState({ email })}
-                value={email}
+                onChangeText={phone => this.setState({ phone: phone })}
+                value={phone}
                 inputStyle={{ marginLeft: 10, color: 'white' }}
                 keyboardAppearance="light"
                 placeholder="Số điện thoại"
                 autoFocus={false}
                 autoCapitalize="none"
                 autoCorrect={false}
-                keyboardType="email-address"
+                keyboardType="number-pad"
                 returnKeyType="next"
                 ref={input => (this.emailInput = input)}
                 onSubmitEditing={() => {
-                  this.setState({ email_valid: this.validateEmail(email) });
+                  this.setState({ phone_valid: this.validatePhone(phone) });
                   this.passwordInput.focus();
                 }}
                 blurOnSubmit={false}
                 placeholderTextColor="#E5E5E5"
                 errorStyle={{ textAlign: 'center', fontSize: 12 }}
                 errorMessage={
-                  email_valid ? null : 'Please enter a valid email address'
+                  phone_valid ? null : 'Please enter a valid email address'
                 }
               />
               <Input
@@ -125,7 +149,7 @@ export default class LoginScreen extends Component {
                 placeholder="Mật khẩu"
                 autoCapitalize="none"
                 autoCorrect={false}
-                keyboardType="default"
+                keyboardType="number-pad"
                 returnKeyType="done"
                 ref={input => (this.passwordInput = input)}
                 blurOnSubmit={true}
@@ -146,10 +170,10 @@ export default class LoginScreen extends Component {
               title="TIẾP TỤC"
               activeOpacity={1}
               underlayColor="transparent"
-              onPress={this.submitLoginCredentials.bind(this)}
+              onPress={() => this._checkLogin()}
               loading={showLoading}
               loadingProps={{ size: 'small', color: 'white' }}
-              disabled={!email_valid && password.length < 8}
+              disabled={!phone_valid && password.length < 8}
               buttonStyle={{
                 height: 50,
                 width: 300,

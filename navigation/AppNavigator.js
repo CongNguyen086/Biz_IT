@@ -1,13 +1,18 @@
 import React from 'react';
-import { createAppContainer, createStackNavigator } from 'react-navigation';
+import { createAppContainer, createStackNavigator, createSwitchNavigator } from 'react-navigation';
+import { Icon } from 'react-native-elements'
+
+import Login from '../screens/Login';
+// import HomePage from '../screens/HomePage'
 import DealDetails from '../screens/DealDetails';
 import StoreProfile from '../screens/StoreProfile';
+
 import Colors from '../constants/Colors';
-import { Icon } from 'react-native-elements'
+
 // import MainTabNavigator from './MainTabNavigator';
 
-const AppNavigator = createStackNavigator(
-  {
+const App = createStackNavigator(
+  { 
     // Home: HomePage,
     DealDetails: DealDetails,
     StoreProfile: StoreProfile,
@@ -26,6 +31,18 @@ const AppNavigator = createStackNavigator(
       headerRight: <Icon name='info-circle' type='font-awesome' color='white' />,
       headerRightContainerStyle: {marginRight: 15},
     },
+  }
+);
+// const AuthStack = createStackNavigator({ Login: Login, });
+
+const AppNavigator = createSwitchNavigator(
+  {
+    Loading: Loading,
+    Login: Login,
+    App: App,
+  },
+  {
+    initialRouteName: 'Login',
   }
 );
 
