@@ -22,7 +22,7 @@ import HeaderTitle from '../components/HeaderTitle';
 import Colors from '../constants/Colors';
 import MemberList from '../components/SendCode/MemberList';
 import ListElement from '../components/SendCode/ListElement';
-import sendCodeData from '../utils/sendCodeData';
+import SendCodeData from '../utils/SendCodeData';
 
 class SendCodeScreen extends Component {
     static navigationOptions = {
@@ -84,7 +84,7 @@ class SendCodeScreen extends Component {
                 </View>
                 <View style={styles.listContainer} >
                     <FlatList
-                        data={sendCodeData}
+                        data={SendCodeData}
                         renderItem={({ item }) =>
                             <ListElement
                                 name={item.name}
