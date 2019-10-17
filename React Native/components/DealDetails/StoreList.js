@@ -7,8 +7,6 @@ import Layout from '../../constants/Layout';
 import Colors from '../../constants/Colors';
 import { StoreInfo, Avatar  } from './StoreInfo';
 
-// import domain from '../../utils/domain';
-
 const testData = [
     {
         name: 'The Coffee House-D2',
@@ -98,10 +96,11 @@ class StoreList extends Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        borderTopRightRadius: 10,
-        borderTopLeftRadius: 10,
         margin: -1,
         padding: 0,
+        borderTopRightRadius: 10,
+        borderTopLeftRadius: 10,
+        
         shadowColor: "#000",
         shadowOffset: {
             width: 0,

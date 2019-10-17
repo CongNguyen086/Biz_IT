@@ -1,7 +1,8 @@
-import React, { Component, useState, useEffect } from 'react';
-import { StyleSheet, AsyncStorage, Text, View, SafeAreaView, Platform, Dimensions, ScrollView } from 'react-native';
-
-//Components
+import React, { Component, useState, useEffect } from 'react'
+import { StyleSheet, AsyncStorage, Text, View, SafeAreaView, Platform, Dimensions, ScrollView } from 'react-native'
+// Constants
+import ROOT from '../constants/Root'
+// Components
 import Header_HomePage from '../components/HomePage/Header_HomePage'
 import Categories_HomePage from '../components/HomePage/Categories_HomePage'
 import ProductsContainer from '../components/HomePage/ProductsContainer'
@@ -17,7 +18,7 @@ export default function HomePage(props) {
   getTimeRecommendation = async () => {
     try {
       const token = await AsyncStorage.getItem('@userToken');
-      const response = await fetch(`http://192.168.1.4:3000/gettimerecommendationdeal?userId=${token}`);
+      const response = await fetch(ROOT + `/gettimerecommendationdeal?userId=${token}`);
       const jsonData = await response.json();
       setTimeData(jsonData[0])
     } catch (error) {
@@ -27,7 +28,7 @@ export default function HomePage(props) {
   getRecommendation = async () => {
     try {
       const token = await AsyncStorage.getItem('@userToken');
-      const response = await fetch(`http://192.168.1.4:3000/getrecommendeddeal?userId=${token}`);
+      const response = await fetch(ROOT + `/getrecommendeddeal?userId=${token}`);
       const jsonData = await response.json();
       setRecommendData(jsonData[0])
     } catch (error) {
@@ -36,7 +37,7 @@ export default function HomePage(props) {
   }
   getPopular = async () => {
     try {
-      const response = await fetch(`http://192.168.1.4:3000/getpopulardeal`);
+      const response = await fetch(ROOT + `/getpopulardeal`);
       const jsonData = await response.json();
       setPopularData(jsonData[0])
     } catch (error) {
@@ -108,13 +109,23 @@ const styles = StyleSheet.create({
   },
   categories: {
     flex: 1 / 3,
-    height: height / 3.5,
+    height: height / 4,
     backgroundColor: 'white',
-    borderRadius: 12,  
-    marginTop: 10,
+    borderRadius: 10,  
+    marginTop: 20,
+
+    shadowColor: "#000",
+    shadowOffset: {
+        width: 0,
+        height: 1,
+    },
+    shadowOpacity: 0.22,
+    shadowRadius: 2.22,
+    elevation: 3,
   },
   bodyElement: {
     flex: 1 / 3,
-    height: height / 2.8
+    height: height / 2.8,
+    marginTop: 20,
   }
 });

@@ -7,7 +7,7 @@ const findTransactionOfUserId = require('./modules/get_recommendation.js')
 
 const geolib = require('geolib');
 
-//
+// mysql://bb0fa2c19d3675:8fbf3bba@us-cdbr-iron-east-05.cleardb.net/heroku_35c3d24bcc95fd7?reconnect=true
 
 const app = express()
 

@@ -15,7 +15,7 @@ export default function App() {
   const [popularData, setPopularData] = useState([])
   getTimeRecommendation = async () => {
     try {
-      const response = await fetch('http://192.168.1.15:3000/gettimerecommendationdeal/8159657106479438377');
+      const response = await fetch('http://192.168.1.13:3000/gettimerecommendationdeal/8159657106479438377');
       const jsonData = await response.json();
       setTimeData(jsonData[0])
     } catch (error) {

@@ -45,12 +45,34 @@ const styles = StyleSheet.create({
     },
     storeProfile: {
         flex: 0.5,
-        backgroundColor: 'white'
+        backgroundColor: 'white',
+        borderBottomRightRadius: 10,
+        borderBottomLeftRadius: 10,
+
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 4,
+        },
+        shadowOpacity: 0.32,
+        shadowRadius: 5.46,
+        elevation: 3,
     },
     review: {
         flex: 0.5,
         backgroundColor: 'white',
-        marginTop: 20
+        marginTop: 20,
+        borderTopLeftRadius: 10,
+        borderTopRightRadius: 10,
+        
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 4,
+            height: 4,
+        },
+        shadowOpacity: 0.32,
+        shadowRadius: 5.46,
+        elevation: 10,
     },
 });
 

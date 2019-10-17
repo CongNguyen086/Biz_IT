@@ -13,7 +13,7 @@ export class StoreInfo extends Component {
             <View style={styles.container}>
                 <View style={styles.mainInfo}>
                     <View style={styles.storeInfo}>
-                        <Text style={styles.name}>{storeName}</Text>
+                        <Text style={styles.name} numberOfLines={1} ellipsizeMode='tail'>{storeName}</Text>
                         <View style={styles.details}>
                             <FontAwesome name='star' size={15} color='#FFC601' />
                             <Text style={styles.extraText}>4.5</Text>
@@ -53,10 +53,10 @@ const styles = StyleSheet.create({
         alignItems: 'flex-start',
     },
     mainInfo: {
-        flex: 0.85,
+        flex: 0.8,
     },
     distanceView: {
-        flex: 0.15,
+        flex: 0.2,
         // backgroundColor: 'green',
     },
     storeInfo: {
@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
         // backgroundColor: 'black',
     },
     name: {
-        fontSize: 12,
+        fontSize: 13,
         fontWeight: 'bold',
         textTransform: 'uppercase',
         lineHeight: 25,
@@ -84,10 +84,9 @@ const styles = StyleSheet.create({
         marginLeft: 3,
         marginRight: 8,
     },
-
     distance: {
         color: Colors.extraText,
-        fontSize: 15,
+        fontSize: 13,
         textAlign: 'right',
         lineHeight: 25,
     },

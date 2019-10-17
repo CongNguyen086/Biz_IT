@@ -1,4 +1,4 @@
-const ReviewData = [
+const reviewData = [
     {
         'name': 'Nguyen Vi Khang',
         'star': 5,
@@ -19,4 +19,4 @@ const ReviewData = [
     },
 ]
 
-export default ReviewData
+export default reviewData

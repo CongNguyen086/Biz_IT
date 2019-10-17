@@ -7,17 +7,16 @@ import {
     Alert,
 } from 'react-native';
 import { Icon } from 'react-native-elements'
-
-import HeaderTitle from '../components/HeaderTitle';
-import Colors from '../constants/Colors';
-
-import DealInfo from '../components/DealDetails/DealInfo';
-import StoreList from '../components/DealDetails/StoreList';
-
 import { getDistance } from 'geolib';
-import Constants from 'expo-constants';
 import * as Location from 'expo-location';
 import * as Permissions from 'expo-permissions';
+// Constants
+import HeaderTitle from '../components/HeaderTitle';
+import Colors from '../constants/Colors';
+import ROOT from '../constants/Root';
+// Components
+import DealInfo from '../components/DealDetails/DealInfo';
+import StoreList from '../components/DealDetails/StoreList';
 
 class DealDetails extends Component {
     constructor(props) {
@@ -31,19 +30,14 @@ class DealDetails extends Component {
 
     componentDidMount() {
         const { navigation } = this.props;
-        if (Platform.OS === 'android' && !Constants.isDevice) {
-            Alert.alert('This will not work on Sketch in an Android emulator. Try it on your device!')
-        } else {
-            this.getPosition();
-            this.getStoreDealList(navigation.getParam('info', 'No info'));
-            // console.log()
-        }
+        this.getPosition();
+        this.getStoreDealList(navigation.getParam('info', 'No info'));
     }
 
     getStoreDealList = async () => {
         const { navigation } = this.props;
         const passedData = navigation.getParam('info', 'No info');
-        const response = await fetch(`http://192.168.1.15:3000/getstorepromotion?dealId=${passedData.dealId}`)
+        const response = await fetch(ROOT + `/getstorepromotion?dealId=${passedData.dealId}`)
         const jsonData = await response.json();
         this.setState({ data: jsonData });
     }
@@ -176,8 +170,6 @@ const styles = StyleSheet.create({
     },
     dealInfo: {
         flex: 0.32,
-        // borderWidth: 1,
-        // borderColor: 'black',
     },
     filterView: {
         flex: 0.07,

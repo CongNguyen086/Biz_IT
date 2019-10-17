@@ -11,6 +11,8 @@ import {
 import { Input, Button, Icon } from 'react-native-elements';
 import FBLoginButton from '../components/FBLoginButton';
 import * as Facebook from 'expo-facebook';
+// Constants
+import ROOT from '../constants/Root';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -55,7 +57,9 @@ export default class LoginScreen extends Component {
   async _checkLogin() {
     const { phone, password, showLoading } = this.state;
     this.setState({ showLoading: !showLoading });
-    const response = await fetch(`http://192.168.1.15:3000/login?phone=${phone}&password=${password}`);
+    console.log(AsyncStorage.getItem('@userToken'));
+    await AsyncStorage.clear();
+    const response = await fetch(ROOT + `/login?phone=${phone}&password=${password}`);
     const jsonData = await response.json();
     console.log(jsonData[0])
     if (jsonData[0] != null) {

@@ -11,7 +11,7 @@ import Colors from '../constants/Colors'
 class Loading extends Component {
     componentDidMount = async () => {
         const token = await AsyncStorage.getItem('@userToken');
-        console.log(token)
+        console.log('Token:',token)
         if(token !== null) {
             this.props.navigation.navigate('App');
         } else {

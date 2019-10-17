@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import { StyleSheet, Text, View, FlatList } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
-import { Rating, Icon, Button } from 'react-native-elements'
+// import { Rating, Icon, Button } from 'react-native-elements'
 
 import ReviewElement from '../StoreProfile/ReviewElement';
-import ReviewData from '../../utils/ReviewData';
+import reviewData from '../../utils/reviewData';
 
 class Review extends Component {
     render() {
@@ -17,7 +17,7 @@ class Review extends Component {
                 </View>
                 <View style={styles.reviewElementContainer}>
                     <FlatList 
-                    data={ReviewData}
+                    data={reviewData}
                     renderItem={({item}) => <ReviewElement name={item.name} star={item.star} comment={item.comment}  link={{uri: item.link}}/>}
                     keyExtractor={item => item.name}
                     />
@@ -38,8 +38,8 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.32,
         shadowRadius: 5.46,
         elevation: 3,
-        borderTopLeftRadius: 10,
-        borderTopRightRadius: 10
+        // borderTopLeftRadius: 10,
+        // borderTopRightRadius: 10,
     },
     header: {
         flex: 0.2,

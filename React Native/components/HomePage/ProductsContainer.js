@@ -16,14 +16,14 @@ export default function ProductsContainer(props) {
             </View>
             <FlatList
                 data={props.data}
-                renderItem={({ item }) => 
-                <ProductElement 
-                    style={styles.products} 
-                    item={item}
-                    navigation={props.navigation} />
+                renderItem={({ item }) =>
+                    <ProductElement
+                        style={styles.products}
+                        item={item}
+                        navigation={props.navigation} />
                 }
                 keyExtractor={item => item.topServiceId}
-                horizontal={true} 
+                horizontal={true}
             />
         </View>
     );
@@ -33,11 +33,19 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: 'white',
-        borderRadius: 12,
-        marginTop: 10,
+        borderRadius: 10,
         width: width,
         justifyContent: 'center',
-        paddingBottom: 15
+        paddingBottom: 15,
+
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowOpacity: 0.22,
+        shadowRadius: 2.22,
+        elevation: 3,
     },
     labelContainer: {
         flex: 0.2,

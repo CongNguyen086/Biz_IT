@@ -42,9 +42,11 @@ class MainProfile extends Component {
                         <View style={styles.distanceView}>
                             <View style={styles.address}>
                                 <Icon name='map-marker-radius' type='material-community' size={20} color={Colors.extraText} />
-                                <Text style={styles.extraValue, {color: Colors.extraText,marginLeft: 3}}>{address}</Text>
+                                <Text style={styles.extraValue, {color: Colors.extraText,marginLeft: 3}}>
+                                    {address}
+                                </Text>
                             </View>
-                            <View style={styles.address}>
+                            <View style={styles.distance}>
                                 <Icon name='crosshairs' type='font-awesome' size={22} color={Colors.extraText} />
                                 <Text style={styles.extraValue, {color: Colors.extraText,marginLeft: 5}}>{distance}</Text>
                             </View>
@@ -71,16 +73,6 @@ class MainProfile extends Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        borderBottomRightRadius: 10,
-        borderBottomLeftRadius: 10,
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 4,
-        },
-        shadowOpacity: 0.32,
-        shadowRadius: 5.46,
-        elevation: 3,
     },
     photoView: {
         flex: 0.5,
@@ -98,9 +90,13 @@ const styles = StyleSheet.create({
     topView: {
         flex: 0.3,
         flexDirection: 'row',
+        alignItems: 'flex-start',
+        paddingTop: 10,
+        // borderWidth: 1,
+        // borderColor: 'red',
     },
     middleView: {
-        flex: 0.3,
+        flex: 0.35,
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
@@ -110,13 +106,13 @@ const styles = StyleSheet.create({
         // backgroundColor: 'red',
     },
     bottomView: {
-        flex: 0.4,
+        flex: 0.35,
         justifyContent: 'center',
         // backgroundColor: 'black',
     },
     mainInfo: {
         flex: 0.7,
-        justifyContent: 'center',
+        justifyContent: 'flex-start',
     },
     name: {
         fontSize: 15,
@@ -138,8 +134,8 @@ const styles = StyleSheet.create({
     },
     timeView: {
         flex: 0.3,
-        justifyContent: 'center',
-        alignItems: 'center',
+        justifyContent: 'flex-start',
+        alignItems: 'flex-end',
         // backgroundColor: 'green',
     },
     status: {
@@ -152,7 +148,7 @@ const styles = StyleSheet.create({
     },
     distanceView: {
         flex: 0.9,
-        paddingLeft: 20,
+        paddingRight: 50,
     },
     distanceIcon: {
         flex: 0.1,
@@ -160,9 +156,14 @@ const styles = StyleSheet.create({
         // justifyContent: 'center',
     },
     address: {
-        flex: 0.5,
+        flex: 0.6,
         flexDirection: 'row',
-        alignItems: 'center',
+        alignItems: 'flex-start',
+    },
+    distance: {
+        flex: 0.4,
+        flexDirection: 'row',
+        alignItems: 'flex-start',
     },
     icon: {
         flex: 1,
