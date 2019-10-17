@@ -7,6 +7,7 @@ import {
   ImageBackground,
   Dimensions,
   Alert,
+  Keyboard
 } from 'react-native';
 import { Input, Button, Icon } from 'react-native-elements';
 import FBLoginButton from '../components/FBLoginButton';
@@ -57,8 +58,8 @@ export default class LoginScreen extends Component {
   async _checkLogin() {
     const { phone, password, showLoading } = this.state;
     this.setState({ showLoading: !showLoading });
-    console.log(AsyncStorage.getItem('@userToken'));
-    await AsyncStorage.clear();
+    Keyboard.dismiss();
+    // await AsyncStorage.clear();
     const response = await fetch(ROOT + `/login?phone=${phone}&password=${password}`);
     const jsonData = await response.json();
     console.log(jsonData[0])

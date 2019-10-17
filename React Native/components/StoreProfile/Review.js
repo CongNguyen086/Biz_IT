@@ -4,7 +4,7 @@ import { FontAwesome } from '@expo/vector-icons';
 // import { Rating, Icon, Button } from 'react-native-elements'
 
 import ReviewElement from '../StoreProfile/ReviewElement';
-import reviewData from '../../utils/reviewData';
+import ReviewData from '../../utils/ReviewData';
 
 class Review extends Component {
     render() {
@@ -17,7 +17,7 @@ class Review extends Component {
                 </View>
                 <View style={styles.reviewElementContainer}>
                     <FlatList 
-                    data={reviewData}
+                    data={ReviewData}
                     renderItem={({item}) => <ReviewElement name={item.name} star={item.star} comment={item.comment}  link={{uri: item.link}}/>}
                     keyExtractor={item => item.name}
                     />

@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View, TextInput, Alert } from 'react-native';
-import { Rating, AirbnbRating, Button } from 'react-native-elements'
-
+import { StyleSheet, Text, View, TextInput, Alert, Keyboard } from 'react-native';
+import { Rating, AirbnbRating, Button } from 'react-native-elements';
 import Colors from '../../constants/Colors';
 import Layout from '../../constants/Layout'
 
@@ -13,6 +12,7 @@ class ReviewProfile extends Component {
     clearText() {
         Alert.alert('Cảm ơn bạn','Góp ý của bạn đã được ghi nhận')
         this.textInput.clear();
+        Keyboard.dismiss();
     }
 
     render() {

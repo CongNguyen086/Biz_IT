@@ -42,7 +42,9 @@ class MainProfile extends Component {
                         <View style={styles.distanceView}>
                             <View style={styles.address}>
                                 <Icon name='map-marker-radius' type='material-community' size={20} color={Colors.extraText} />
-                                <Text style={styles.extraValue, {color: Colors.extraText,marginLeft: 3}}>
+                                <Text style={styles.extraValue, {color: Colors.extraText,marginLeft: 3}}
+                                        ellipsizeMode='tail'
+                                        numberOfLines={2}>
                                     {address}
                                 </Text>
                             </View>
@@ -148,7 +150,7 @@ const styles = StyleSheet.create({
     },
     distanceView: {
         flex: 0.9,
-        paddingRight: 50,
+        paddingRight: 70,
     },
     distanceIcon: {
         flex: 0.1,

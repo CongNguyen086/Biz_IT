@@ -4,7 +4,7 @@ import {
     StyleSheet,
     Text,
     View,
-    Alert,
+    Alert
 } from 'react-native';
 import { Icon } from 'react-native-elements'
 import { getDistance } from 'geolib';
@@ -26,17 +26,17 @@ class DealDetails extends Component {
             latitude: null,
             longitude: null,
         }
+        passedData = this.props.navigation.getParam('info', 'No info');
     }
 
-    componentDidMount() {
-        const { navigation } = this.props;
-        this.getPosition();
-        this.getStoreDealList(navigation.getParam('info', 'No info'));
+    async componentDidMount() {
+        await this.getPosition();
+        await this.getStoreDealList();
+        this.storeInSort();
     }
 
     getStoreDealList = async () => {
-        const { navigation } = this.props;
-        const passedData = navigation.getParam('info', 'No info');
+        // const passedData = navigation.getParam('info', 'No info');
         const response = await fetch(ROOT + `/getstorepromotion?dealId=${passedData.dealId}`)
         const jsonData = await response.json();
         this.setState({ data: jsonData });
@@ -52,15 +52,14 @@ class DealDetails extends Component {
         this.setState({
             latitude: location.coords.latitude,
             longitude: location.coords.longitude,
-        });
+        }, () => console.log('Current location: ', location.coords));
     };
 
-    storeInSort = (topServiceId) => {
+    storeInSort = async () => {
         const { data } = this.state;
-        let fullList = data;
 
         // Sort data by distance
-        // this.sortData(fullList);
+        this.sortData(data);
         // fullList.sort((a, b) => {
         //     console.log(a.latitude)
         //     const aDist = getDistance(
@@ -102,49 +101,57 @@ class DealDetails extends Component {
         // )
 
         // Move the top store of Top Service list to top of full list
-        let top = fullList.find(store => store.serviceId == topServiceId);
-        let sortedStoreList = fullList.sort((x, y) => { return x == top ? -1 : y == top ? 1 : 0; });
+        let top = data.find(store => store.serviceId == passedData.topServiceId);
+        let sortedStoreList = data.sort((x, y) => { return x == top ? -1 : y == top ? 1 : 0; });
         console.log(top)
-        return sortedStoreList;
+        const aDist = getDistance(
+            {
+                latitude: top.latitude,
+                longitude: top.longitude
+            },
+            {
+                latitude: this.state.latitude,
+                longitude: this.state.longitude
+            }
+        )
+        console.log(top)
+        this.setState({ data: sortedStoreList })
     }
 
     // Sort data by distance
-    // sortData(data) {
-    //     data.sort((a, b) => {
-    //         const aDist = getDistance(
-    //             {
-    //                 latitude: a.latitude,
-    //                 longitude: a.longitude
-    //             },
-    //             {
-    //                 latitude: this.state.latitude,
-    //                 longitude: this.state.longitude
-    //             }
-    //         )
-    //         console.log(aDist)
-    //         const bDist = getDistance(
-    //             {
-    //                 latitude: b.latitude,
-    //                 longitude: b.longitude
-    //             },
-    //             {
-    //                 latitude: this.state.latitude,
-    //                 longitude: this.state.longitude
-    //             }
-    //         )
-    //         a.distance = aDist
-    //         b.distance = bDist
-    //         return aDist - bDist;
-    //     })
-    // }
+    sortData(data) {
+        data.sort((a, b) => {
+            const aDist = getDistance(
+                {
+                    latitude: a.latitude,
+                    longitude: a.longitude
+                },
+                {
+                    latitude: this.state.latitude,
+                    longitude: this.state.longitude
+                }
+            )
+            const bDist = getDistance(
+                {
+                    latitude: b.latitude,
+                    longitude: b.longitude
+                },
+                {
+                    latitude: this.state.latitude,
+                    longitude: this.state.longitude
+                }
+            )
+            a.distance = aDist
+            b.distance = bDist
+            return aDist - bDist;
+        })
+    }
 
     static navigationOptions = {
         headerTitle: <HeaderTitle title='Ưu đãi' />,
     };
 
     render() {
-        const { navigation } = this.props;
-        const passedData = navigation.getParam('info', 'No info');
         return (
             <View style={styles.container}>
                 <View style={styles.dealInfo}>
@@ -156,7 +163,7 @@ class DealDetails extends Component {
                     <Icon name='angle-down' type='font-awesome' size={17} color={Colors.extraText} />
                 </View>
                 <View style={styles.storeList}>
-                    <StoreList data={this.storeInSort(passedData.topServiceId)} />
+                    <StoreList data={this.state.data} />
                 </View>
             </View>
         );

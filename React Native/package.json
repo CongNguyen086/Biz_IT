@@ -14,6 +14,7 @@
   "dependencies": {
     "@expo/samples": "~3.0.3",
     "@expo/vector-icons": "^10.0.3",
+    "@react-native-community/geolocation": "^2.0.2",
     "@react-navigation/web": "^1.0.0-alpha.9",
     "expo": "^35.0.0",
     "expo-asset": "^7.0.0",

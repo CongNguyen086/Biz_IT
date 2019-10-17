@@ -28,7 +28,7 @@ export class StoreInfo extends Component {
                 </View>
 
                 <View style={styles.distanceView}>
-                    <Text style={styles.distance}>100m</Text>
+                    <Text style={styles.distance}>{distance}m</Text>
                 </View>
             </View>
         );
