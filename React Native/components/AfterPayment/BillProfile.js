@@ -46,15 +46,15 @@ class BillProfile extends Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        borderRadius: 10,
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 4,
-        },
-        shadowOpacity: 0.32,
-        shadowRadius: 5.46,
-        elevation: 3,
+        // borderRadius: 10,
+        // shadowColor: "#000",
+        // shadowOffset: {
+        //     width: 0,
+        //     height: 4,
+        // },
+        // shadowOpacity: 0.32,
+        // shadowRadius: 5.46,
+        // elevation: 3,
     },
     header: {
         flex: 0.25
@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
         fontSize: 20,
         fontWeight: 'bold',
         borderBottomColor: 'grey',
-        borderBottomWidth: 1,
+        borderBottomWidth: 0.5,
         padding: 20,
         paddingTop: 25
     },

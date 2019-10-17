@@ -1,4 +1,4 @@
-const sendCodeData = [
+const SendCodeData = [
     {
         'name': 'Luật',
         'phone': '0928820535'
@@ -25,4 +25,4 @@ const sendCodeData = [
     }
 ]
 
-export default sendCodeData
+export default SendCodeData

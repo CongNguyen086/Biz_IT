@@ -17,7 +17,9 @@ class ReviewElement extends Component {
                     subtitle={
                         <Rating
                             imageSize={20}
-                            style={{ paddingVertical: 10 }}
+                            style={styles.rate}
+                            readonly
+                            startingValue={4}
                         />
                     }
                     style={styles.list}

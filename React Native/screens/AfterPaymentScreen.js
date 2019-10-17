@@ -74,7 +74,17 @@ const styles = StyleSheet.create({
     bill: {
         flex: 0.4,
         backgroundColor: 'white',
-        marginTop: 17
+        marginTop: 20,
+        borderRadius: 10,
+        
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 4,
+        },
+        shadowOpacity: 0.32,
+        shadowRadius: 5.46,
+        elevation: 3,
     },
     buttonContainer: {
         flex: 0.1,

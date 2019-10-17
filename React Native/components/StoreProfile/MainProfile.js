@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { StyleSheet, Text, View, ImageBackground, Dimensions, Alert, Image } from 'react-native';
 import { Rating, Icon, Button } from 'react-native-elements'
 import { withNavigation } from 'react-navigation';
+// Contants
 import Colors from '../../constants/Colors';
 
 class MainProfile extends Component {
@@ -29,7 +30,7 @@ class MainProfile extends Component {
                                     style={styles.rate}
                                     ratingColor='#40E247'
                                 />
-                                <Text style={styles.value}>{star}</Text>
+                                <Text style={styles.value}>4.5</Text>
                             </View>
                         </View>
                         <View style={styles.timeView}>
@@ -77,10 +78,10 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     photoView: {
-        flex: 0.5,
+        flex: 0.45,
     },
     content: {
-        flex: 0.5,
+        flex: 0.55,
         marginHorizontal: 15,
     },
     photo: {
@@ -92,25 +93,22 @@ const styles = StyleSheet.create({
     topView: {
         flex: 0.3,
         flexDirection: 'row',
-        alignItems: 'flex-start',
-        paddingTop: 10,
+        alignItems: 'center',
         // borderWidth: 1,
         // borderColor: 'red',
     },
     middleView: {
-        flex: 0.35,
+        flex: 0.33,
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-        paddingTop: 5,
+        paddingTop: 10,
         borderTopWidth: 1,
         borderColor: '#E8E9E9',
-        // backgroundColor: 'red',
     },
     bottomView: {
-        flex: 0.35,
+        flex: 0.37,
         justifyContent: 'center',
-        // backgroundColor: 'black',
     },
     mainInfo: {
         flex: 0.7,
@@ -165,7 +163,7 @@ const styles = StyleSheet.create({
     distance: {
         flex: 0.4,
         flexDirection: 'row',
-        alignItems: 'flex-start',
+        // alignItems: 'flex-start',
     },
     icon: {
         flex: 1,

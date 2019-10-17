@@ -16,7 +16,7 @@ app.use(bodyParser.json());
 const connection = mysql.createConnection({
     host: '127.0.0.1',
     user: 'root',
-    password: 'Khang20.09',
+    password: 'sa123',
     database: 'bit_system',
     port: '3306',
     multipleStatements: true
@@ -157,8 +157,6 @@ app.get('/getstorepromotion', (req, res) => {
         if (!error) {
             var string = JSON.stringify(rows);
             var jsonRows = JSON.parse(string);
-            var string2 = JSON.stringify(rows);
-            var jsonRows2 = JSON.parse(string);
             res.send(jsonRows[0])
         } else console.log(error);
     })

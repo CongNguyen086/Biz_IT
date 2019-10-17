@@ -101,20 +101,9 @@ class DealDetails extends Component {
         // )
 
         // Move the top store of Top Service list to top of full list
-        let top = data.find(store => store.serviceId == passedData.topServiceId);
+        let top = await data.find(store => store.serviceId == passedData.topServiceId);
         let sortedStoreList = data.sort((x, y) => { return x == top ? -1 : y == top ? 1 : 0; });
-        console.log(top)
-        const aDist = getDistance(
-            {
-                latitude: top.latitude,
-                longitude: top.longitude
-            },
-            {
-                latitude: this.state.latitude,
-                longitude: this.state.longitude
-            }
-        )
-        console.log(top)
+        console.log(passedData.topServiceId)
         this.setState({ data: sortedStoreList })
     }
 

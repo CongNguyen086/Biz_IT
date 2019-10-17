@@ -23,16 +23,6 @@ class ReviewProfile extends Component {
                     <Text style={styles.headerLabel}>Trải nghiệm tại quán của bạn {'\n'} như thế nào</Text>
                 </View>
                 <View style={styles.rateGroup}>
-                    {/* <Rating
-                        // showRating
-                        type="star"
-                        fractions={1}
-                        startingValue={5}
-                        imageSize={30}
-                        onFinishRating={this.ratingCompleted}
-                        style={styles.rate}
-                        ratingColor='#40E247'
-                    /> */}
                     <AirbnbRating showRating={false} defaultRating={0} />
                 </View>
                 <View style={styles.inputContainer}>

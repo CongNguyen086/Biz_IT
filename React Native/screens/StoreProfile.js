@@ -21,7 +21,7 @@ class StoreProfile extends Component {
 
     render() {
         const info = this.props.navigation.getParam('info', 'No info');
-        const distance = '3km từ vị trí hiện tại'
+        const distance = info.distance + 'm từ vị trí hiện tại'
         return(
             <View style={styles.container}>
                 <View style={styles.storeProfile}>
@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.bgColor,
     },
     storeProfile: {
-        flex: 0.5,
+        flex: 0.55,
         backgroundColor: 'white',
         borderBottomRightRadius: 10,
         borderBottomLeftRadius: 10,
@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
         elevation: 3,
     },
     review: {
-        flex: 0.5,
+        flex: 0.45,
         backgroundColor: 'white',
         marginTop: 20,
         borderTopLeftRadius: 10,

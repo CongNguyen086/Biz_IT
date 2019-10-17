@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
 import { StyleSheet, Text, View, ImageBackground, Dimensions, TouchableOpacity, Image } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-
+import { withNavigation } from 'react-navigation';
 //Component
 import Search_HomePage from './Search_HomePage'
 
 const width = Dimensions.get('screen').width;
 const height = Dimensions.get('screen').height;
 
-export default function Header_HomePage() {
+function Header_HomePage(props) {
     return (
         <View style={styles.container}>
             <ImageBackground style={styles.header} source={require('../../assets/Header_HomePage/leaves.jpg')}>
@@ -22,39 +22,31 @@ export default function Header_HomePage() {
                     </TouchableOpacity>
                 </View>
                 <View style={styles.toolsContainer}>
-                    <View style={styles.tool}>
-                        <TouchableOpacity>
-                            <Image source={require('../../assets/Header_HomePage/deposit.png')} style={styles.imageTools} />
-                        </TouchableOpacity>
+                    <TouchableOpacity style={styles.tool}>
+                        <Image source={require('../../assets/Header_HomePage/deposit.png')} style={styles.imageTools} />
                         <Text style={styles.toolLabel}>NẠP TIỀN {'\n'}VÀO VÍ</Text>
-                    </View>
-                    <View style={styles.tool}>
-                        <TouchableOpacity>
-                            <Image source={require('../../assets/Header_HomePage/withdraw.png')} style={styles.imageTools} />
-                        </TouchableOpacity>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.tool}>
+                        <Image source={require('../../assets/Header_HomePage/withdraw.png')} style={styles.imageTools} />
                         <Text style={styles.toolLabel}>RÚT TIỀN {'\n'}</Text>
-                    </View>
-                    <View style={styles.tool}>
-                        <TouchableOpacity>
-                            <Image source={require('../../assets/Header_HomePage/qrCode.png')} style={styles.imageTools} />
-                        </TouchableOpacity>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.tool} onPress={() => props.navigation.navigate('Payment')}>
+                        <Image source={require('../../assets/Header_HomePage/qrCode.png')} style={styles.imageTools} />
                         <Text style={styles.toolLabel}>MÃ {'\n'}THANH TOÁN</Text>
-                    </View>
-                    <View style={styles.tool}>
-                        <TouchableOpacity>
-                            <Image source={require('../../assets/Header_HomePage/scan.png')} style={styles.imageTools} />
-                        </TouchableOpacity>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.tool}>
+                        <Image source={require('../../assets/Header_HomePage/scan.png')} style={styles.imageTools} />
                         <Text style={styles.toolLabel}>QUÉT MÃ {'\n'}</Text>
-                    </View>
+                    </TouchableOpacity>
                 </View>
             </ImageBackground>
             <View style={styles.amountContainer}>
                 <View>
-                    <MaterialCommunityIcons name='eye-outline' size={20} color="white" style={{ marginLeft: 10 }} color="gray"/>
-                    <Text style={{color: 'gray', marginLeft: 10}}>Số dư trong ví</Text>
+                    <MaterialCommunityIcons name='eye-outline' size={20} color="white" style={{ marginLeft: 10 }} color="gray" />
+                    <Text style={{ color: 'gray', marginLeft: 10 }}>Số dư trong ví</Text>
                 </View>
                 <View style={styles.amountMoney}>
-                    <Text style={{fontSize: 28, marginRight: 10}} >7.200đ</Text>
+                    <Text style={{ fontSize: 28, marginRight: 10 }} >7.200đ</Text>
                 </View>
             </View>
         </View>
@@ -82,7 +74,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between'
     },
     toolsContainer: {
-        flex: 2.5/4,
+        flex: 2.5 / 4,
         justifyContent: 'space-around',
         flexDirection: 'row'
     },
@@ -121,3 +113,5 @@ const styles = StyleSheet.create({
         elevation: 3,
     },
 });
+
+export default withNavigation(Header_HomePage)

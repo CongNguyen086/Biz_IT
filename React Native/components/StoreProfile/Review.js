@@ -18,7 +18,7 @@ class Review extends Component {
                 <View style={styles.reviewElementContainer}>
                     <FlatList 
                     data={ReviewData}
-                    renderItem={({item}) => <ReviewElement name={item.name} star={item.star} comment={item.comment}  link={{uri: item.link}}/>}
+                    renderItem={({item}) => <ReviewElement name={item.name} star={item.star} comment={item.comment} link={{uri: item.link}}/>}
                     keyExtractor={item => item.name}
                     />
                 </View>
@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
         flex: 0.2,
         flexDirection: 'row',
         borderBottomWidth: 1,
-        borderBottomColor: 'grey',
+        borderBottomColor: '#E8E9E9',
         alignItems: 'center'
     },
     headerIcon: {
@@ -53,7 +53,6 @@ const styles = StyleSheet.create({
     },
     headerLabel: {
         fontSize: 20,
-        color: 'grey'
     },
     reviewElementContainer: {
         flex: 0.8,
