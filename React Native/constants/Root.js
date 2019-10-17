@@ -1,1 +1,1 @@
-export default ROOT = 'http://10.230.128.104:3000'
+export default ROOT = 'http://192.168.1.6:3000'
