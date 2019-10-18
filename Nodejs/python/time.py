@@ -3,7 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import sys
 
-transactions = pd.read_csv('transactions.csv')
+transactions = pd.read_csv('./data/transactions.csv')
 # merchants = pd.read_csv('merchants.csv')
 transactions['date'] = pd.to_datetime(transactions['timestamp'] + 68400000, utc = True,unit='ms', origin='unix')
 
@@ -48,4 +48,4 @@ rem = recommendation_hour(int(inp), int(when))
 print(rem)
 output = pd.DataFrame(rem, columns =['recommend'])
 # output['recommend'] = output['recommend'].apply(lambda x : ',' + str(x))
-output.to_csv('time.csv', index = False)
+output.to_csv('./output/time.csv', index = False)

@@ -1,5 +1,6 @@
 import React from 'react';
-import { createAppContainer, createStackNavigator, createSwitchNavigator } from 'react-navigation';
+import { Image } from 'react-native';
+import { createAppContainer, createStackNavigator, createSwitchNavigator, createBottomTabNavigator } from 'react-navigation';
 import { Icon } from 'react-native-elements'
 
 import Login from '../screens/Login';
@@ -10,14 +11,74 @@ import StoreProfile from '../screens/StoreProfile';
 import PaymentScreen from '../screens/PaymentScreen';
 import AfterPaymentScreen from '../screens/AfterPaymentScreen';
 import SendCodeScreen from '../screens/SendCodeScreen';
+import { Ionicons } from '@expo/vector-icons';
+import TabBarIcon from '../components/TabBarIcon';
 
 import Colors from '../constants/Colors';
 
 // import MainTabNavigator from './MainTabNavigator';
 
-const App = createStackNavigator(
-  { 
+const HomeStack = createStackNavigator(
+  {
     Home: HomePage,
+  }
+);
+
+HomeStack.navigationOptions = {
+  header: null,
+  tabBarLabel: 'Ưu Đãi',
+  tabBarIcon: (<Image  style={{width: 25, height: 25}} source={require('../assets/icons/deal.png')} />),
+  tabBarOptions: {
+    activeTintColor: '#AE2027',
+    inactiveTintColor: 'gray',
+  },
+};
+
+const HistoryStack = createStackNavigator(
+  {
+    Home: HomePage,
+  }
+);
+
+HistoryStack.navigationOptions = {
+  tabBarLabel: 'Lịch sử GD',
+  tabBarIcon: (<Image  style={{width: 25, height: 25}} source={require('../assets/icons/history.png')} />),
+  tabBarOptions: {
+    activeTintColor: '#AE2027',
+    inactiveTintColor: 'gray',
+  },
+};
+
+const WalletStack = createStackNavigator(
+  {
+    Home: HomePage,
+  }
+);
+
+WalletStack.navigationOptions = {
+  tabBarLabel: 'Ví Của Tôi',
+  tabBarIcon: (<Image  style={{width: 25, height: 25}} source={require('../assets/icons/wallet.png')} />),
+  tabBarOptions: {
+    activeTintColor: '#AE2027',
+    inactiveTintColor: 'gray',
+  },
+};
+
+const TabNavigator = createBottomTabNavigator({
+  HomeStack,
+  HistoryStack,
+  WalletStack
+},
+{
+  navigationOptions: {
+    header: null
+  }
+}
+);
+
+const App = createStackNavigator(
+  {
+    HomePage: TabNavigator,
     DealDetails: DealDetails,
     StoreProfile: StoreProfile,
     Payment: PaymentScreen,
@@ -25,18 +86,18 @@ const App = createStackNavigator(
     SendCode: SendCodeScreen,
   },
   {
-    initialRouteName: 'Home',
+    initialRouteName: 'HomePage',
     /* The header config from HomeScreen is now here */
     defaultNavigationOptions: {
       headerStyle: {
-          backgroundColor: '#325340',
+        backgroundColor: '#325340',
       },
       headerTintColor: Colors.tintColor,
       headerTitleStyle: {
-          fontWeight: 'bold',
+        fontWeight: 'bold',
       },
       headerRight: <Icon name='info-circle' type='font-awesome' color='white' />,
-      headerRightContainerStyle: {marginRight: 15},
+      headerRightContainerStyle: { marginRight: 15 },
     },
   }
 );

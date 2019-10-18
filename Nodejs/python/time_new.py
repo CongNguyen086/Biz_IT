@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import sys
 
 s=time.time()
-transactions = pd.read_csv('./transactions.csv')
+transactions = pd.read_csv('./data/transactions.csv')
 transactions = transactions.tail(1000000)
 transactions['date'] = pd.to_datetime(transactions['timestamp'] + 68400000, utc = True,unit='ms', origin='unix')
 #pd.to_datetime([1564597378535 + 68400000], unit = 'ms', origin = 'unix') #Example
@@ -56,6 +56,6 @@ output['recommend'] = output['recommend'].apply(lambda x : ',' + str(x))
 output['start'] = clusters[where][0]
 output['end'] = clusters[where][2]
 output['rank'] = [1,2,3,4,5]
-output.to_csv('time.csv', index = False)
+output.to_csv('./output/time.csv', index = False)
 
 print("Execution time:", round((time.time()-s)/60,2), "minutes")
