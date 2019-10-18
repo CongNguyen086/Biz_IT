@@ -26,8 +26,8 @@ const HomeStack = createStackNavigator(
 
 HomeStack.navigationOptions = {
   header: null,
-  tabBarLabel: 'Home',
-  tabBarIcon: (<Image  style={{width: 25, height: 25}} source={require('../assets/icons/momo.png')} />),
+  tabBarLabel: 'Ưu Đãi',
+  tabBarIcon: (<Image  style={{width: 25, height: 25}} source={require('../assets/icons/deal.png')} />),
   tabBarOptions: {
     activeTintColor: '#AE2027',
     inactiveTintColor: 'gray',
