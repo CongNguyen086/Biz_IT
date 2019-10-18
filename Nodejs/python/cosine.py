@@ -9,7 +9,7 @@ from sklearn.model_selection import train_test_split
 
 #Read data
 # merchants = pd.read_csv('https://raw.githubusercontent.com/quynhdinh/recommender/master/data/merchants.csv?token=AI6DJC2RGXQVRTMT2HBCG725STPUC')
-transactions = pd.read_csv('transactions.csv')
+transactions = pd.read_csv('./data/transactions.csv')
 
 
 transactions['service_id'] = transactions['service_id'].astype(str)
@@ -75,4 +75,4 @@ df_temp = df_output
 # df_temp['user_id'] = df_temp['user_id'].apply(lambda x : ',' + x)
 # df_temp['service_id'] = df_temp['service_id'].apply(lambda x: ',' + x)
 # df_temp['rank'] = df_temp['service_id'].apply(lambda x: ',' + x)
-df_temp.to_csv('output.csv', index=False)
+df_temp.to_csv('./output/output.csv', index=False)

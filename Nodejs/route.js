@@ -1,11 +1,6 @@
 const express = require('express')
 const mysql = require('mysql')
 const bodyParser = require('body-parser');
-const { spawn } = require('child_process');
-const fs = require('fs');
-const findTransactionOfUserId = require('./modules/get_recommendation.js')
-
-const geolib = require('geolib');
 
 // mysql://bb0fa2c19d3675:8fbf3bba@us-cdbr-iron-east-05.cleardb.net/heroku_35c3d24bcc95fd7?reconnect=true
 
@@ -16,7 +11,7 @@ app.use(bodyParser.json());
 const connection = mysql.createConnection({
     host: '127.0.0.1',
     user: 'root',
-    password: 'sa123',
+    password: 'Khang20.09',
     database: 'bit_system',
     port: '3306',
     multipleStatements: true
@@ -64,73 +59,73 @@ app.get('/deal', (req, res) => {
 });
 
 //POST INFORMATION OF USER WHEN USER CREATE ACCOUNT - API 6
-app.post('/login/momo', (req, res) => {
-    const userId = req.query.userId
-    const fullName = req.query.fullName
-    const userPhone = req.query.userPhone
-    const password = req.query.password
+// app.post('/login/momo', (req, res) => {
+//     const userId = req.query.userId
+//     const fullName = req.query.fullName
+//     const userPhone = req.query.userPhone
+//     const password = req.query.password
 
-    const queryString = 'INSERT INTO users (userId, fullName, userPhone, password) VALUES (?, ?, ?, ?)'
+//     const queryString = 'INSERT INTO users (userId, fullName, userPhone, password) VALUES (?, ?, ?, ?)'
 
-    connection.query(queryString, [userId, fullName, userPhone, password], (error, rows, fields) => {
-        if (!error) {
-            res.send('Insert new account(momo) successfully')
-            console.log(rows)
-        } else console.log(error)
-    })
-})
+//     connection.query(queryString, [userId, fullName, userPhone, password], (error, rows, fields) => {
+//         if (!error) {
+//             res.send('Insert new account(momo) successfully')
+//             console.log(rows)
+//         } else console.log(error)
+//     })
+// })
 //POST INFORMATION OF USER WHEN USER LOGIN FORM FACEBOOK - API 6
-app.post('/login/facebook', (req, res) => {
-    const userId = req.query.userId
-    const fullName = req.query.fullName
+// app.post('/login/facebook', (req, res) => {
+//     const userId = req.query.userId
+//     const fullName = req.query.fullName
 
-    const queryString = 'INSERT INTO users (userId, fullName) VALUES (?, ?)'
+//     const queryString = 'INSERT INTO users (userId, fullName) VALUES (?, ?)'
 
-    connection.query(queryString, [userId, fullName], (error, rows, fields) => {
-        if (!error) {
-            res.send('Insert new account(facebook) successfully')
-            console.log(rows)
-        } else console.log(error)
-    })
-})
+//     connection.query(queryString, [userId, fullName], (error, rows, fields) => {
+//         if (!error) {
+//             res.send('Insert new account(facebook) successfully')
+//             console.log(rows)
+//         } else console.log(error)
+//     })
+// })
 
 //GET STORE FROM ID
-app.get('/store', (req, res) => {
-    connection.query('SELECT * FROM stores WHERE storeId = ?', [req.query.userId], (error, rows, fields) => {
-        if (!error) {
-            res.send(rows)
-        } else console.log(error);
-    })
-})
+// app.get('/store', (req, res) => {
+//     connection.query('SELECT * FROM stores WHERE storeId = ?', [req.query.userId], (error, rows, fields) => {
+//         if (!error) {
+//             res.send(rows)
+//         } else console.log(error);
+//     })
+// })
 
 //GET TRANSACTIONS OF USER_ID
-app.get('/transaction/check', (req, res) => {
-    const userId = req.query.userId
-    const services = findTransactionOfUserId(userId)
-    console.log(services)
-})
+// app.get('/transaction/check', (req, res) => {
+//     const userId = req.query.userId
+//     const services = findTransactionOfUserId(userId)
+//     console.log(services)
+// })
 
 //GET USER_ID AND ADD INSERT INTO USERS DATABASE
-app.get('/users', (req, res) => {
-    const userId = req.query.userId
-    let jsonString = fs.readFileSync('./json/recommendation.json');
-    let jsonData = JSON.parse(jsonString);
-    jsonData.forEach(element => {
-        if (element.user_id == userId) {
-            const queryString = 'INSERT INTO recommendation (userId, serviceId, point) VALUES (?, ?, ?)'
-            connection.query(queryString, [element.user_id, element.service_id, element.rank], (error, rows, fields) => {
-                if (!error) {
-                    console.log(rows)
-                } else console.log(error)
-            })
-        }
-    })
-    connection.query('SELECT * FROM recommendation WHERE userId = ?', [userId], (error, rows, fields) => {
-        if (!error) {
-            res.send(rows)
-        } else console.log(error);
-    })
-})
+// app.get('/users', (req, res) => {
+//     const userId = req.query.userId
+//     let jsonString = fs.readFileSync('./json/recommendation.json');
+//     let jsonData = JSON.parse(jsonString);
+//     jsonData.forEach(element => {
+//         if (element.user_id == userId) {
+//             const queryString = 'INSERT INTO recommendation (userId, serviceId, point) VALUES (?, ?, ?)'
+//             connection.query(queryString, [element.user_id, element.service_id, element.rank], (error, rows, fields) => {
+//                 if (!error) {
+//                     console.log(rows)
+//                 } else console.log(error)
+//             })
+//         }
+//     })
+//     connection.query('SELECT * FROM recommendation WHERE userId = ?', [userId], (error, rows, fields) => {
+//         if (!error) {
+//             res.send(rows)
+//         } else console.log(error);
+//     })
+// })
 
 // UserId: 8159657106479438377
 app.get('/getpopulardeal', (req, res) => {
@@ -174,9 +169,9 @@ app.get('/gettimerecommendationdeal', (req, res) => {
     })
 })
 
-app.get('/login', (req, res) => {
-    const phone = req.query.phone
-    const password = req.query.password
+app.get('/login/:phone/:password', (req, res) => {
+    const phone = req.params.phone
+    const password = req.params.password
 
     connection.query('SELECT * FROM users Where (userPhone = ? AND userPassword = ?)', [phone, password], (error, rows, fields) => {
         if (!error) {
