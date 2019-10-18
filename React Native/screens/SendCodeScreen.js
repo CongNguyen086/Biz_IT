@@ -31,7 +31,7 @@ class SendCodeScreen extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            friendList: [],
+            friendList: ['Luật', 'Công'],
             radio: 'md-radio-button-off'
         }
     }
@@ -54,7 +54,14 @@ class SendCodeScreen extends Component {
     }
 
     inviteFriend() {
-        Alert.alert('Xác nhận', 'Lời mời đã được gửi đến bạn bè của bạn')
+        Alert.alert(
+            'Xác nhận',
+            'Lời mời đã được gửi đến bạn bè của bạn',
+            [{
+                text: 'OK',
+                onPress: () => this.props.navigation.navigate('Home')
+            }]
+        )
     }
 
     render() {

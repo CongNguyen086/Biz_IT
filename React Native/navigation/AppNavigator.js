@@ -40,7 +40,6 @@ const App = createStackNavigator(
     },
   }
 );
-// const AuthStack = createStackNavigator({ Login: Login, });
 
 const AppNavigator = createSwitchNavigator(
   {
@@ -54,8 +53,3 @@ const AppNavigator = createSwitchNavigator(
 );
 
 export default createAppContainer(AppNavigator);
-  // createSwitchNavigator({
-  //   // You could add another route here for authentication.
-  //   // Read more at https://reactnavigation.org/docs/en/auth-flow.html
-  //   Main: MainTabNavigator,
-  // })

@@ -14,6 +14,7 @@ export default function HomePage(props) {
   const [timeData, setTimeData] = useState([])
   const [recommendData, setRecommendData] = useState([])
   const [popularData, setPopularData] = useState([])
+  // const myRef = React.createRef()
   
   getTimeRecommendation = async () => {
     try {
@@ -45,6 +46,7 @@ export default function HomePage(props) {
     }
   }
   useEffect(() => {
+    // myRef.current.scrollTo(0,0);
     getTimeRecommendation();
     getRecommendation();
     getPopular();

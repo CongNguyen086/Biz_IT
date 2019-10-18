@@ -47,9 +47,6 @@ class AfterPaymentScreen extends Component {
                 <View style={styles.bill}>
                     <BillProfile />
                 </View>
-                {/* <View style={styles.buttonContainer}>
-                    <Button title='Rủ bạn bè ngay' color="#AE2070" style={styles.button} />
-                </View> */}
                 <View style={styles.buttonContainer}>
                     <Button type='solid'
                         title='Rủ bạn bè ngay'

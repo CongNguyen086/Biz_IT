@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import { StyleSheet, Text, View, TextInput, Alert, Keyboard } from 'react-native';
 import { Rating, AirbnbRating, Button } from 'react-native-elements';
+import { withNavigation } from 'react-navigation';
+// Constant
 import Colors from '../../constants/Colors';
 import Layout from '../../constants/Layout'
 
