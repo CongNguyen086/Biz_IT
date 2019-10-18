@@ -29,7 +29,7 @@ HomeStack.navigationOptions = {
   tabBarLabel: 'Ưu Đãi',
   tabBarIcon: (<Image  style={{width: 25, height: 25}} source={require('../assets/icons/deal.png')} />),
   tabBarOptions: {
-    activeTintColor: '#AE2027',
+    activeTintColor: Colors.momoColor,
     inactiveTintColor: 'gray',
   },
 };
@@ -44,7 +44,7 @@ HistoryStack.navigationOptions = {
   tabBarLabel: 'Lịch sử GD',
   tabBarIcon: (<Image  style={{width: 25, height: 25}} source={require('../assets/icons/history.png')} />),
   tabBarOptions: {
-    activeTintColor: '#AE2027',
+    activeTintColor: Colors.momoColor,
     inactiveTintColor: 'gray',
   },
 };
@@ -57,9 +57,9 @@ const WalletStack = createStackNavigator(
 
 WalletStack.navigationOptions = {
   tabBarLabel: 'Ví Của Tôi',
-  tabBarIcon: (<Image  style={{width: 25, height: 25}} source={require('../assets/icons/wallet.png')} />),
+  tabBarIcon: (<Image  style={{width: 25, height: 25}} source={require('../assets/icons/my_wallet.png')} />),
   tabBarOptions: {
-    activeTintColor: '#AE2027',
+    activeTintColor: Colors.momoColor,
     inactiveTintColor: 'gray',
   },
 };

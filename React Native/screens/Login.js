@@ -60,7 +60,7 @@ export default class LoginScreen extends Component {
     this.setState({ showLoading: !showLoading });
     Keyboard.dismiss();
     // await AsyncStorage.clear();
-    const response = await fetch(ROOT + `/login/${phone}/${password}`);
+    const response = await fetch(ROOT + `/login?phone=${phone}&password=${password}`);
     const jsonData = await response.json();
     console.log(jsonData[0])
     if (jsonData[0] != null) {
