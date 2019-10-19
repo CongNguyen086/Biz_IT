@@ -28,7 +28,7 @@ CREATE TABLE `categories` (
   `categoryId` int(11) NOT NULL AUTO_INCREMENT,
   `categoryName` varchar(45) NOT NULL,
   PRIMARY KEY (`categoryId`)
-) ENGINE=InnoDB AUTO_INCREMENT=2777 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2777 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -56,7 +56,7 @@ CREATE TABLE `deal` (
   PRIMARY KEY (`dealId`),
   KEY `fk_deal_1_idx` (`categoryId`),
   CONSTRAINT `fk_deal_1` FOREIGN KEY (`categoryId`) REFERENCES `categories` (`categoryId`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -87,7 +87,7 @@ CREATE TABLE `merchants` (
   PRIMARY KEY (`serviceId`),
   KEY `fk_merchants_categories_idx` (`categoryId`),
   CONSTRAINT `fk_merchants_categories` FOREIGN KEY (`categoryId`) REFERENCES `categories` (`categoryId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -166,7 +166,7 @@ CREATE TABLE `popular_merchants` (
   PRIMARY KEY (`rank`),
   KEY `fk_popular_merchants1_idx` (`serviceId`) /*!80000 INVISIBLE */,
   CONSTRAINT `fk_popular_merchants1` FOREIGN KEY (`serviceId`) REFERENCES `merchants` (`serviceId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -201,7 +201,7 @@ CREATE TABLE `promotions` (
   KEY `fk_promotions_deal1_idx` (`dealId`),
   CONSTRAINT `fk_promotions_deal1` FOREIGN KEY (`dealId`) REFERENCES `deal` (`dealId`),
   CONSTRAINT `fk_promotions_merchants1` FOREIGN KEY (`serviceId`) REFERENCES `merchants` (`serviceId`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -230,7 +230,7 @@ CREATE TABLE `recommendation` (
   KEY `fk_recommendation_users1_idx` (`userId`),
   CONSTRAINT `fk_recommendation_merchants1` FOREIGN KEY (`serviceId`) REFERENCES `merchants` (`serviceId`),
   CONSTRAINT `fk_recommendation_users1` FOREIGN KEY (`userId`) REFERENCES `users` (`userId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -260,7 +260,7 @@ CREATE TABLE `stores` (
   PRIMARY KEY (`storeId`),
   KEY `fk_stores_merchants1_idx` (`serviceId`),
   CONSTRAINT `fk_stores_merchants1` FOREIGN KEY (`serviceId`) REFERENCES `merchants` (`serviceId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -292,7 +292,7 @@ CREATE TABLE `time_recommendation` (
   KEY `fk_timeRecommendation_2_idx` (`serviceId`),
   CONSTRAINT `fk_timeRecommendation_1` FOREIGN KEY (`userId`) REFERENCES `users` (`userId`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `fk_timeRecommendation_2` FOREIGN KEY (`serviceId`) REFERENCES `merchants` (`serviceId`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE=InnoDB AUTO_INCREMENT=169 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=169 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -322,7 +322,7 @@ CREATE TABLE `transactions` (
   KEY `fk_transactions_stores1_idx` (`storeId`),
   CONSTRAINT `fk_transactions_stores1` FOREIGN KEY (`storeId`) REFERENCES `stores` (`storeId`),
   CONSTRAINT `fk_transactions_users1` FOREIGN KEY (`userId`) REFERENCES `users` (`userId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -348,7 +348,7 @@ CREATE TABLE `users` (
   `userPhone` varchar(10) NOT NULL,
   `userPassword` varchar(10) NOT NULL,
   PRIMARY KEY (`userId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
