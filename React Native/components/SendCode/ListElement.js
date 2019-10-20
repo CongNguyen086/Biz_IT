@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { StyleSheet, Image, View, Text, TouchableOpacity, AsyncStorage } from 'react-native';
+import { StyleSheet, Image, View, Text, TouchableOpacity, AsyncStorage, Alert } from 'react-native';
 import { ListItem } from 'react-native-elements';
 import { Ionicons } from '@expo/vector-icons';
 
 export default function ListElement(props) {
     const [radio, setRadio] = useState('md-radio-button-off')
+    const [contacts, setContacts] = useState([])
     const getStatus = async () => {
         try {
             if (radio == 'md-radio-button-off') {
