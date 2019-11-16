@@ -1,59 +1,9 @@
 import React, { Component } from 'react';
-import { StyleSheet, FlatList, Text, View } from 'react-native';
+import { StyleSheet, FlatList, View } from 'react-native';
 import { Card, ListItem } from 'react-native-elements';
 import { withNavigation } from 'react-navigation';
 
-import Layout from '../../constants/Layout';
-import Colors from '../../constants/Colors';
 import { StoreInfo, Avatar  } from './StoreInfo';
-
-const testData = [
-    {
-        name: 'The Coffee House-D2',
-        avatar: require('../../assets/avatars/TCH_avatar.png'),
-        address: '157 Đường D2, Bình Thạnh',
-        time: '123',
-        star: '4,5',
-        promotion: '20%',
-        description: 'Hoàn tiền 20% trên tổng hóa đơn',
-    },
-    {
-        name: 'The Coffee House-Quận 10',
-        avatar: require('../../assets/avatars/TCH_avatar.png'),
-        address: 'TCH',
-        time: '123',
-        star: '4,5',
-        promotion: '20%',
-        description: 'Hoàn tiền 20% trên tổng hóa đơn',
-    },
-    {
-        name: 'Highlands-Sư Vạn Hạnh',
-        avatar: require('../../assets/avatars/highlands_avatar.png'),
-        address: 'TCH',
-        time: '123',
-        star: '4,5',
-        promotion: '15%',
-        description: 'Hoàn tiền 20% trên tổng hóa đơn',
-    },
-    {
-        name: 'The Coffee House-D2',
-        avatar: require('../../assets/avatars/TCH_avatar.png'),
-        address: 'TCH',
-        time: '123',
-        star: '4,5',
-        promotion: '20%',
-        description: 'Hoàn tiền 20% trên tổng hóa đơn',
-    },
-    {
-        name: 'Highlands-Sư Vạn Hạnh',
-        avatar: require('../../assets/avatars/highlands_avatar.png'),
-        address: 'TCH',
-        time: '123',
-        star: '4,5',
-        promotion: '15%',
-        description: 'Hoàn tiền 20% trên tổng hóa đơn',
-    },
-];
 
 class StoreList extends Component {
     renderList = ({ item }) => (
@@ -67,6 +17,7 @@ class StoreList extends Component {
                 this.props.navigation.navigate('StoreProfile', {
                     info: item,
                 })
+                
             }}
         />
     );
@@ -97,7 +48,6 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         margin: -1,
-        padding: 0,
         borderTopRightRadius: 10,
         borderTopLeftRadius: 10,
         
@@ -113,10 +63,6 @@ const styles = StyleSheet.create({
     listItem: {
         flex: 1,
         height: 120,
-    },
-    separator: {
-        height: 1,
-        backgroundColor: "#E8E9E9",
     },
 });
 

@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
-import { StyleSheet, FlatList, Text, View, Image } from 'react-native';
-import { Card, ListItem } from 'react-native-elements';
+import { StyleSheet, Text, View, Image } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 
-import Layout from '../../constants/Layout';
 import Colors from '../../constants/Colors';
 
 export class StoreInfo extends Component {
@@ -57,16 +55,13 @@ const styles = StyleSheet.create({
     },
     distanceView: {
         flex: 0.2,
-        // backgroundColor: 'green',
     },
     storeInfo: {
         flex: 0.5,
-        // backgroundColor: 'red',
     },
     promotionView: {
         flex: 0.5,
         justifyContent: 'center',
-        // backgroundColor: 'black',
     },
     name: {
         fontSize: 13,

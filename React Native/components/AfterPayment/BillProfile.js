@@ -1,16 +1,9 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View, TextInput } from 'react-native';
-import { Rating, Button } from 'react-native-elements'
-
-import Colors from '../../constants/Colors';
-import Layout from '../../constants/Layout'
-
-const width = Layout.width;
-const height = Layout.height;
+import { StyleSheet, Text, View } from 'react-native';
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
 class BillProfile extends Component {
     render() {
-        const { name, star, address, distance } = this.props;
         return (
             <View style={styles.container}>
             <View styles={styles.header}>
@@ -51,50 +44,50 @@ const styles = StyleSheet.create({
         flex: 0.25
     },
     labelHeader: {
-        fontSize: 20,
+        fontSize: hp(3),
         fontWeight: 'bold',
         borderBottomColor: 'grey',
-        borderBottomWidth: 0.5,
-        padding: 20,
-        paddingTop: 25
+        borderBottomWidth: 0.7,
+        padding: hp(2),
+        paddingTop: hp(2.5)
     },
     bodyContainer: {
         flex: 0.4,
         justifyContent: 'center',
         borderBottomColor: 'grey',
         borderBottomWidth: 1,
-        marginLeft: 25,
-        marginRight: 25
+        marginLeft: wp(5),
+        marginRight: wp(5)
     },
     labelStyle: {
         flexDirection: 'row',
         justifyContent: 'space-between',
     },
     labelLeft: {
-        fontSize: 16,
-        paddingBottom: 8,
+        fontSize: hp(2),
+        paddingBottom: hp(0.8),
         color: 'grey'
     },
     labelRight: {
-        fontSize: 16,
-        paddingBottom: 8
+        fontSize: hp(2),
+        paddingBottom: hp(0.8)
     },
     deliveryContainer: {
         flex: 0.25,
         justifyContent: 'center',
         borderBottomColor: 'grey',
         borderBottomWidth: 1,
-        marginLeft: 25,
-        marginRight: 25
+        marginLeft: wp(5),
+        marginRight: wp(5)
     },
     footerContainer: {
         flex: 0.3,
         justifyContent: 'center',
-        marginLeft: 25,
-        marginRight: 25
+        marginLeft: wp(5),
+        marginRight: wp(5)
     },
     labelTotal: {
-        fontSize: 25,
+        fontSize: hp(3),
         fontWeight: 'bold'
     }
 

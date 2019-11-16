@@ -1,17 +1,20 @@
 const express = require('express')
 const mysql = require('mysql')
 const bodyParser = require('body-parser');
+const multer = require('multer');
 
 // mysql://bb0fa2c19d3675:8fbf3bba@us-cdbr-iron-east-05.cleardb.net/heroku_35c3d24bcc95fd7?reconnect=true
 
 const app = express()
 
 app.use(bodyParser.json());
+// app.use(express.static('upload'));
+app.use(express.static(__dirname + '/uploads'));
 
 const connection = mysql.createConnection({
     host: '127.0.0.1',
     user: 'root',
-    password: 'sa123',
+    password: 'Khang20.09',
     database: 'bit_system',
     port: '3306',
     multipleStatements: true
@@ -37,15 +40,6 @@ app.post('/transaction/post', (req, res) => {
             res.send('Insert into transactions successfully')
             console.log(rows)
         } else console.log(error);
-    })
-})
-
-//GET RECOMMENDATION FROM DATABASE - API 4
-app.get('/recommendation', (req, res) => {
-    connection.query('SELECT * FORM recommendation', (error, rows, fields) => {
-        if (!error) {
-            res.send(rows)
-        } else console.log(error)
     })
 })
 
@@ -95,7 +89,7 @@ app.get('/gettimerecommendationdeal', (req, res) => {
     connection.query('CALL GetTimeRecommendationDeal(?, ?)', [userId, current_time], (error, rows, fields) => {
         if (!error) {
             res.send(rows)
-            console.log(current_time)
+            // console.log(current_time)
         } else console.log(error);
     })
 })
@@ -111,76 +105,101 @@ app.get('/login', (req, res) => {
     })
 })
 
+app.get('/getusercash', (req, res) => {
+    const userId = req.query.userId
 
-app.listen(3000, () => {
-    console.log('Server is starting')
+    connection.query('SELECT userCash FROM users WHERE userId = ?', [userId], (error, rows, fields) => {
+        if(!error) {
+            res.send(rows)
+        } else console.log(error)
+    })
 })
 
-//POST INFORMATION OF USER WHEN USER CREATE ACCOUNT - API 6
-// app.post('/login/momo', (req, res) => {
-//     const userId = req.query.userId
-//     const fullName = req.query.fullName
-//     const userPhone = req.query.userPhone
-//     const password = req.query.password
+app.put('/putusercash', (req, res) => {
+    const cash = req.query.cash
+    const userId = req.query.userId
 
-//     const queryString = 'INSERT INTO users (userId, fullName, userPhone, password) VALUES (?, ?, ?, ?)'
+    connection.query('UPDATE users SET userCash = ? WHERE userId = ?', [cash, userId], (error, rows, fields) => {
+        if(!error) {
+            res.send(rows)
+        } else console.log(error);
+    })
+})
 
-//     connection.query(queryString, [userId, fullName, userPhone, password], (error, rows, fields) => {
-//         if (!error) {
-//             res.send('Insert new account(momo) successfully')
-//             console.log(rows)
-//         } else console.log(error)
-//     })
-// })
-//POST INFORMATION OF USER WHEN USER LOGIN FORM FACEBOOK - API 6
-// app.post('/login/facebook', (req, res) => {
-//     const userId = req.query.userId
-//     const fullName = req.query.fullName
+app.post('/sendreview', (req, res) => {
+    const rating = req.query.rating
+    const comment = req.query.comment
+    const userId = req.query.userId
+    const storeId = req.query.storeId
 
-//     const queryString = 'INSERT INTO users (userId, fullName) VALUES (?, ?)'
+    const queryString = 'INSERT INTO review (reviewRating, reviewComment, userId, storeId) VALUES (?, ?, ? ,?)'
+    connection.query(queryString, [rating, comment, userId, storeId], (error, rows, fields) => {
+        if (!error) {
+            res.send(rows)
+            console.log(rows)
+        } else console.log(error);
+    })
+})
 
-//     connection.query(queryString, [userId, fullName], (error, rows, fields) => {
-//         if (!error) {
-//             res.send('Insert new account(facebook) successfully')
-//             console.log(rows)
-//         } else console.log(error)
-//     })
-// })
+var storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, './uploads/')
+    },
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + file.originalname)
+    }
+})
 
-//GET STORE FROM ID
-// app.get('/store', (req, res) => {
-//     connection.query('SELECT * FROM stores WHERE storeId = ?', [req.query.userId], (error, rows, fields) => {
-//         if (!error) {
-//             res.send(rows)
-//         } else console.log(error);
-//     })
-// })
+var upload = multer({
+    limits: {
+        fieldSize: 1000000
+    },
+    fileFilter(req, file, cb) {
+        if (!file.originalname.match(/\.(jpg|jpeg|png)$/)) {
+            return cb(new Error('Please upload an image'))
+        }
+        cb(undefined, true)
+    },
+    storage: storage
+});
 
-//GET TRANSACTIONS OF USER_ID
-// app.get('/transaction/check', (req, res) => {
-//     const userId = req.query.userId
-//     const services = findTransactionOfUserId(userId)
-//     console.log(services)
-// })
+app.post('/upload', upload.single('upload'), (req, res) => {
+    const reviewPhoto = req.file.path
+    const reviewId = req.query.reviewId
 
-//GET USER_ID AND ADD INSERT INTO USERS DATABASE
-// app.get('/users', (req, res) => {
-//     const userId = req.query.userId
-//     let jsonString = fs.readFileSync('./json/recommendation.json');
-//     let jsonData = JSON.parse(jsonString);
-//     jsonData.forEach(element => {
-//         if (element.user_id == userId) {
-//             const queryString = 'INSERT INTO recommendation (userId, serviceId, point) VALUES (?, ?, ?)'
-//             connection.query(queryString, [element.user_id, element.service_id, element.rank], (error, rows, fields) => {
-//                 if (!error) {
-//                     console.log(rows)
-//                 } else console.log(error)
-//             })
-//         }
-//     })
-//     connection.query('SELECT * FROM recommendation WHERE userId = ?', [userId], (error, rows, fields) => {
-//         if (!error) {
-//             res.send(rows)
-//         } else console.log(error);
-//     })
-// })
+    const queryString = 'INSERT INTO review_image (reviewPhoto, reviewId) VALUES (?, ?)'
+    connection.query(queryString, [reviewPhoto, reviewId], (error, rows, fields) => {
+        if (!error) {
+            res.send(rows)
+        } else console.log(error);
+    })
+
+}, (error, req, res, next) => {
+    res.status(400).send({ error: error.message })
+})
+
+app.get('/getreview', (req, res) => {
+    const storeId = req.query.storeId
+
+    connection.query('SELECT reviewId, reviewRating, reviewComment, fullName FROM review INNER JOIN users ON review.userId = users.userId WHERE storeId = ?', [storeId], (error, rows, fields) => {
+        if (!error) {
+            res.send(rows)
+        } else console.log(error)
+    })
+})
+
+app.get('/getimage', (req, res) => {
+    const reviewId = req.query.reviewId
+
+    connection.query('SELECT review.reviewId, reviewImageId, reviewPhoto FROM review INNER JOIN review_image ON review.reviewId = review_image.reviewId WHERE review.reviewId = ?', [reviewId], (error, rows, fields) => {
+        if (!error) {
+            res.send(rows)
+        } else console.log(error)
+    })
+})
+
+const port = process.env.PORT || 3000
+
+app.listen(port, () => {
+    console.log('Server is starting on port ' + port)
+})

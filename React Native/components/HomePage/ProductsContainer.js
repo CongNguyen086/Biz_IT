@@ -1,12 +1,9 @@
-import React, { Component } from 'react';
-import { StyleSheet, Text, View, Dimensions, ScrollView, FlatList } from 'react-native';
+import React from 'react';
+import { StyleSheet, Text, View, FlatList } from 'react-native';
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
 //Component
 import ProductElement from './ProductElement';
-
-const width = Dimensions.get('screen').width;
-const height = Dimensions.get('screen').height;
-
 
 export default function ProductsContainer(props) {
     return (
@@ -34,9 +31,9 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: 'white',
         borderRadius: 10,
-        width: width,
+        width: wp(100),
         justifyContent: 'center',
-        paddingBottom: 15,
+        paddingBottom: hp(2),
 
         shadowColor: "#000",
         shadowOffset: {
@@ -53,7 +50,7 @@ const styles = StyleSheet.create({
     },
     label: {
         fontWeight: 'bold',
-        fontSize: 17,
+        fontSize: hp(2.2),
         marginLeft: 20
     },
     products: {

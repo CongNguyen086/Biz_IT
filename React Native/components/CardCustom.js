@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View, ImageBackground, Dimensions, Alert, Image } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { Card } from 'react-native-elements';
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
 class CardCustom extends Component {
     render() {
@@ -33,7 +34,7 @@ const styles = StyleSheet.create({
         elevation: 3,
     },
     image: {
-        height: 150,
+        height: hp(20),
     },
 });
 

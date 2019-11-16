@@ -1,25 +1,39 @@
 import React, { Component } from 'react';
 import { StyleSheet, Text, View, FlatList } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
-// import { Rating, Icon, Button } from 'react-native-elements'
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
 import ReviewElement from '../StoreProfile/ReviewElement';
-import ReviewData from '../../utils/ReviewData';
+import ROOT from '../../constants/Root';
 
 class Review extends Component {
+    constructor(props) {
+        super(props)
+        this.state = {
+            reviewData: [],
+        }
+    }
+    componentDidMount () {
+        this.getReviewData(this.props.storeId)
+    }
+    getReviewData = async (storeId) => {
+        const response = await fetch(ROOT + `/getreview?storeId=${storeId}`);
+        const jsonData = await response.json();
+        this.setState({ reviewData: jsonData })
+        console.log(jsonData);
+    }
     render() {
-        const { name, star, address, distance } = this.props;
         return (
             <View style={styles.container}>
                 <View style={styles.header}>
-                    <FontAwesome name='star' size={30} color='grey' style={styles.headerIcon} />
+                    <FontAwesome name='star' size={hp(4)} color='grey' style={styles.headerIcon} />
                     <Text style={styles.headerLabel}>Đánh giá cửa hàng</Text>
                 </View>
                 <View style={styles.reviewElementContainer}>
-                    <FlatList 
-                    data={ReviewData}
-                    renderItem={({item}) => <ReviewElement name={item.name} star={item.star} comment={item.comment} link={{uri: item.link}}/>}
-                    keyExtractor={item => item.name}
+                    <FlatList
+                        data={this.state.reviewData}
+                        renderItem={({ item }) => <ReviewElement name={item.fullName} star={item.reviewRating} comment={item.reviewComment} reviewId={item.reviewId} />}
+                        keyExtractor={ (item, index) => index.toString() }
                     />
                 </View>
             </View>
@@ -38,8 +52,6 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.32,
         shadowRadius: 5.46,
         elevation: 3,
-        // borderTopLeftRadius: 10,
-        // borderTopRightRadius: 10,
     },
     header: {
         flex: 0.2,
@@ -49,10 +61,10 @@ const styles = StyleSheet.create({
         alignItems: 'center'
     },
     headerIcon: {
-        padding: 16
+        padding: hp(1.6)
     },
     headerLabel: {
-        fontSize: 20,
+        fontSize: hp(2.5),
     },
     reviewElementContainer: {
         flex: 0.8,

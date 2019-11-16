@@ -1,10 +1,27 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View, Image } from 'react-native';
+import { StyleSheet, Text, View, Image, FlatList } from 'react-native';
 import { Rating, ListItem } from 'react-native-elements'
+import ROOT from '../../constants/Root'
 
 class ReviewElement extends Component {
     constructor(props) {
         super(props)
+        this.state = {
+            dataImage: null
+        }
+    }
+    componentDidMount () {
+        this.getImageData(this.props.reviewId)
+    }
+    getReviewData = async (storeId) => {
+        const response = await fetch(ROOT + `/getreview?storeId=${storeId}`);
+        const jsonData = await response.json();
+        this.setState({ reviewData: jsonData })
+    }
+    getImageData = async (reviewId) => {
+        const response = await fetch(ROOT + `/getimage?reviewId=${reviewId}`);
+        const jsonData = await response.json();
+        this.setState({ dataImage: jsonData })
     }
     render() {
         return (
@@ -19,7 +36,7 @@ class ReviewElement extends Component {
                             imageSize={20}
                             style={styles.rate}
                             readonly
-                            startingValue={4}
+                            startingValue={this.props.star}
                         />
                     }
                     style={styles.list}
@@ -28,7 +45,12 @@ class ReviewElement extends Component {
                     <Text style={styles.commentLabel}>{this.props.comment}</Text>
                 </View>
                 <View style={styles.imageContainer}>
-                    <Image style={styles.image} source={this.props.link} />
+                    <FlatList
+                        data={this.state.dataImage}
+                        renderItem={({ item }) => <Image style={styles.image} source={{ uri: ROOT + '/' + item.reviewPhoto.substring(8) }} />}
+                        keyExtractor={item => item.reviewPhoto}
+                        horizontal={true}
+                    />
                 </View>
             </View>
         );
@@ -38,6 +60,8 @@ class ReviewElement extends Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        borderBottomWidth: 0.5,
+        borderBottomColor: '#979aa2'
     },
     list: {
         flex: 0.3
@@ -56,13 +80,15 @@ const styles = StyleSheet.create({
         flex: 0.5,
         paddingRight: 75,
         paddingBottom: 10,
-        paddingLeft: 75
+        paddingLeft: 75,
     },
     image: {
-        height: '100%',
-        width: '80%',
-        borderRadius: 10
-
+        flex: 0.2,
+        height: 100,
+        width: 100,
+        borderRadius: 10,
+        marginTop: 10,
+        marginRight: 10
     }
 });
 

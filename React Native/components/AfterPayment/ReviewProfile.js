@@ -1,31 +1,112 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View, TextInput, Alert, Keyboard } from 'react-native';
-import { Rating, AirbnbRating, Button } from 'react-native-elements';
-import { withNavigation } from 'react-navigation';
+import { StyleSheet, Text, View, TextInput, Alert, Keyboard, TouchableOpacity, FlatList, Image, AsyncStorage } from 'react-native';
+import { AirbnbRating, Button } from 'react-native-elements';
+import * as ImagePicker from 'expo-image-picker';
+import Constants from 'expo-constants';
+import * as Permissions from 'expo-permissions';
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 // Constant
 import Colors from '../../constants/Colors';
-import Layout from '../../constants/Layout'
-
-const width = Layout.width;
-const height = Layout.height;
+import ROOT from '../../constants/Root';
 
 class ReviewProfile extends Component {
+    constructor(props) {
+        super(props)
+        this.state = {
+            imageList: [],
+            rating: 0,
+            text: ''
+        }
+    }
 
-    clearText() {
-        Alert.alert('Cảm ơn bạn','Góp ý của bạn đã được ghi nhận')
+    componentDidMount() {
+        this.getPermissionAsync();
+    }
+
+    getPermissionAsync = async () => {
+        if (Constants.platform.ios) {
+            const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+            if (status !== 'granted') {
+                alert('Sorry, we need camera roll permissions to make this work!');
+            }
+        }
+    }
+
+    _pickImage = async () => {
+        let result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            quality: 1
+        });
+        if (!result.cancelled) {
+            let newList = {
+                uri: result.uri,
+            }
+            if (newList !== null && newList !== '') {
+                let imageList = [...this.state.imageList, newList]
+                this.setState({ imageList })
+            }
+        }
+    }
+
+    clearText = async (storeId) => {
+        const userId = await AsyncStorage.getItem('@userToken');
+        const response = await fetch(ROOT + `/sendreview?rating=${this.state.rating}&comment=${this.state.text}&userId=${userId}&storeId=${storeId}`, {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            }
+        });
+        const jsonData = await response.json();
+        this._uploadImage(jsonData.insertId)
+        // console.log(jsonData)
+        Alert.alert('Cảm ơn bạn', 'Góp ý của bạn đã được ghi nhận')
         this.textInput.clear();
         Keyboard.dismiss();
     }
 
+    _uploadImage = (reviewId) => {
+        this.state.imageList.forEach(async element => {
+            let localUri = element.uri;
+            let filename = localUri.split('/').pop();
+
+            // Infer the type of the image
+            let match = /\.(\w+)$/.exec(filename);
+            let type = match ? `image/${match[1]}` : `image`;
+
+            let data = new FormData();
+            data.append('upload', { uri: localUri, name: filename, type })
+            const response = await fetch(ROOT + `/upload?reviewId=${reviewId}`, {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'multipart/form-data',
+                },
+                body: data
+            });
+            const jsonData = await JSON.stringify(response);
+            console.log(jsonData)
+        })
+    }
+
+    ratingCompleted = (rating) => {
+        this.setState({ rating: rating })
+    }
+
     render() {
-        const { name, star, address, distance } = this.props;
+        const { name, star, address, distance, storeId } = this.props;
+        let { imageList } = this.state;
         return (
             <View style={styles.container}>
                 <View style={styles.headerContainer}>
                     <Text style={styles.headerLabel}>Trải nghiệm tại quán của bạn {'\n'} như thế nào</Text>
                 </View>
                 <View style={styles.rateGroup}>
-                    <AirbnbRating showRating={false} defaultRating={0} />
+                    <AirbnbRating
+                        showRating={false}
+                        defaultRating={0}
+                        onFinishRating={this.ratingCompleted}
+                    />
                 </View>
                 <View style={styles.inputContainer}>
                     <TextInput
@@ -36,16 +117,26 @@ class ReviewProfile extends Component {
                         maxLength={500}
                         placeholder='Hãy nói lên những suy nghĩ của bạn về chúng tôi'
                         ref={input => { this.textInput = input }}
+                        onChangeText={(text) => this.setState({ text })}
+                        value={this.state.text}
                     />
                 </View>
                 <View style={styles.footerContainer}>
-                    <View style={styles.importImage}>
+                    <TouchableOpacity style={styles.importImage} onPress={this._pickImage}>
                         <Text style={{ color: '#AE2070' }}>+Thêm{'\n'}Hình Ảnh</Text>
+                    </TouchableOpacity>
+                    <View style={styles.listImage}>
+                        <FlatList
+                            data={imageList}
+                            renderItem={({ item }) => <Image source={{ uri: item.uri }} style={{ width: wp(20), height: hp(10), borderRadius: 8, marginRight: wp(1.5) }} />}
+                            keyExtractor={item => item.uri}
+                            horizontal={true}
+                        />
                     </View>
                     <View style={styles.buttonSendContainer}>
-                        <Button title='Gửi' titleStyle={{ fontSize: 18 }} 
-                                buttonStyle={styles.buttonSend}
-                                onPress={() => this.clearText()} />
+                        <Button title='Gửi' titleStyle={{ fontSize: hp(2) }}
+                            buttonStyle={styles.buttonSend}
+                            onPress={() => this.clearText(storeId)} />
                     </View>
                 </View>
             </View>
@@ -73,7 +164,7 @@ const styles = StyleSheet.create({
         alignItems: 'center'
     },
     headerLabel: {
-        fontSize: 20,
+        fontSize: hp(2.5),
         fontWeight: 'bold',
         textAlign: 'center'
     },
@@ -96,14 +187,14 @@ const styles = StyleSheet.create({
         backgroundColor: '#F5F5F5',
         borderRadius: 5,
         textAlignVertical: 'top',
-        padding: 10
+        padding: hp(2)
 
     },
     footerContainer: {
         flex: 0.28,
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between'
+        justifyContent: 'center'
     },
     importImage: {
         flex: 0.2,
@@ -111,11 +202,16 @@ const styles = StyleSheet.create({
         height: '80%',
         justifyContent: 'center',
         alignItems: 'center',
-        margin: 10,
+        margin: hp(2),
         borderRadius: 5,
         borderColor: '#AE2070',
         borderWidth: 2,
         borderStyle: 'dotted'
+    },
+    listImage: {
+        flex: 0.5,
+        justifyContent: 'center',
+        margin: hp(2)
     },
     buttonSendContainer: {
         flex: 0.3,
@@ -124,8 +220,8 @@ const styles = StyleSheet.create({
     },
     buttonSend: {
         backgroundColor: '#AE2070',
-        paddingLeft: 30,
-        paddingRight: 30
+        paddingLeft: wp(5),
+        paddingRight: wp(5)
     }
 });
 

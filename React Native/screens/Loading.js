@@ -4,14 +4,18 @@ import {
     StyleSheet,
     Text,
     View,
-    ActivityIndicator
+    ActivityIndicator,
+    Dimensions
 } from 'react-native';
 import Colors from '../constants/Colors'
+
+const width = Dimensions.get('screen').width;
+const height = Dimensions.get('screen').height;
 
 class Loading extends Component {
     componentDidMount = async () => {
         const token = await AsyncStorage.getItem('@userToken');
-        console.log('Token:',token)
+        // console.log('Token:',token)
         if(token !== null) {
             this.props.navigation.navigate('App');
         } else {
@@ -23,7 +27,9 @@ class Loading extends Component {
         return (
             <View style={styles.activityIndicatorWrapper}>
                 <ActivityIndicator
-                    animating={true} />
+                    animating={true}
+                    size="large" 
+                />
             </View>
         );
     }
@@ -31,9 +37,8 @@ class Loading extends Component {
 
 const styles = StyleSheet.create({
     activityIndicatorWrapper: {
+        flex: 1,
         backgroundColor: Colors.momoColor,
-        height: 100,
-        width: 100,
         borderRadius: 10,
         display: 'flex',
         alignItems: 'center',

@@ -1,10 +1,7 @@
-import React, { Component, useState } from 'react';
-import { StyleSheet, Text, View, Dimensions, Image, TouchableHighlight } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, Text, View, Image, TouchableHighlight } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-// import { withNavigation } from 'react-navigation';
-
-const width = Dimensions.get('screen').width;
-const height = Dimensions.get('screen').height;
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
 export default function ElementProducts(props) {
     const { item } = props;
@@ -28,11 +25,11 @@ export default function ElementProducts(props) {
                     source={{uri: item.image}}
                 />
                 <View style={styles.labelContainer}>
-                    <Text style={{ fontSize: 17, flex: 0.9, paddingLeft: 8 }}>{item.description}</Text>
+                    <Text style={{ fontSize: hp(2.1), flex: 0.9, paddingLeft: wp(2) }}>{item.description}</Text>
                     <View style={styles.iconContainer}>
                         <Ionicons
                             style={styles.heartIcon}
-                            name={heart} size={28}
+                            name={heart} size={hp(3.4)}
                             color={heartColor}
                             onPress={() => Like()}
                         />
@@ -49,9 +46,9 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: 'white',
-        width: 300,
-        marginLeft: 10,
-        marginRight: 10,
+        width: wp(70),
+        marginLeft: wp(2),
+        marginRight: wp(2),
         borderRadius: 12,
         //shadow
         shadowColor: "#000",
@@ -62,7 +59,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.22,
         shadowRadius: 2.22,
         elevation: 3,
-        marginBottom: 10
+        marginBottom: hp(1)
     },
     imageContainer: {
         flex: 0.75,

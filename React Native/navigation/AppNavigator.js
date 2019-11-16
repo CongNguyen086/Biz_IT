@@ -83,7 +83,6 @@ const App = createStackNavigator(
     StoreProfile: StoreProfile,
     Payment: PaymentScreen,
     AfterPayment: AfterPaymentScreen,
-    SendCode: SendCodeScreen,
   },
   {
     initialRouteName: 'HomePage',

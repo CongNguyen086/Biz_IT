@@ -1,5 +1,6 @@
-import React, { Component, useState, useEffect } from 'react'
-import { StyleSheet, AsyncStorage, Text, View, SafeAreaView, Platform, Dimensions, ScrollView } from 'react-native'
+import React, { useState, useEffect } from 'react'
+import { StyleSheet, AsyncStorage, View, SafeAreaView, Platform, ScrollView } from 'react-native';
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 // Constants
 import ROOT from '../constants/Root'
 // Components
@@ -7,13 +8,11 @@ import Header_HomePage from '../components/HomePage/Header_HomePage'
 import Categories_HomePage from '../components/HomePage/Categories_HomePage'
 import ProductsContainer from '../components/HomePage/ProductsContainer'
 
-const width = Dimensions.get('screen').width;
-const height = Dimensions.get('screen').height;
-
 export default function HomePage(props) {
   const [timeData, setTimeData] = useState([])
   const [recommendData, setRecommendData] = useState([])
   const [popularData, setPopularData] = useState([])
+  const [cash, setCash] = useState(0)
   // const myRef = React.createRef()
   
   getTimeRecommendation = async () => {
@@ -22,6 +21,17 @@ export default function HomePage(props) {
       const response = await fetch(ROOT + `/gettimerecommendationdeal?userId=${token}`);
       const jsonData = await response.json();
       setTimeData(jsonData[0])
+    } catch (error) {
+      console.log(error)
+    }
+  }
+  getUserCash = async () => {
+    try {
+      const userId = await AsyncStorage.getItem('@userToken');
+      const response = await fetch(ROOT + `/getusercash?userId=${userId}`);
+      const jsonData = await response.json();
+      setCash(jsonData[0].userCash)
+      // console.log(jsonData[0].userCash)
     } catch (error) {
       console.log(error)
     }
@@ -50,12 +60,15 @@ export default function HomePage(props) {
     getTimeRecommendation();
     getRecommendation();
     getPopular();
+    getUserCash();
   }, [])
   return (
     <SafeAreaView style={styles.safeAreaViewStyle}>
       <View style={styles.container}>
         <View style={styles.headerContaier}>
-          <Header_HomePage />
+          <Header_HomePage 
+            cash={cash}
+          />
         </View>
         <ScrollView style={styles.bodyContainer} >
           <View style={styles.categories}>
@@ -95,7 +108,7 @@ HomePage.navigationOptions = {
 const styles = StyleSheet.create({
   safeAreaViewStyle: {
     flex: 1,
-    paddingTop: Platform.OS === 'android' ? 25 : 0,
+    paddingTop: Platform.OS === 'android' ? hp(3) : 0,
     backgroundColor: '#325340',
   },
   container: {
@@ -111,10 +124,12 @@ const styles = StyleSheet.create({
   },
   categories: {
     flex: 1 / 3,
-    height: height / 4,
+    height: hp(30),
+    justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: 'white',
     borderRadius: 10,  
-    marginTop: 20,
+    marginTop: hp(2.5),
 
     shadowColor: "#000",
     shadowOffset: {
@@ -127,7 +142,7 @@ const styles = StyleSheet.create({
   },
   bodyElement: {
     flex: 1 / 3,
-    height: height / 2.8,
-    marginTop: 20,
+    height: hp(36),
+    marginTop: hp(2.5),
   }
 });

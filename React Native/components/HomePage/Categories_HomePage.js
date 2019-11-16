@@ -1,8 +1,6 @@
-import React, { Component } from 'react';
-import { StyleSheet, Text, View, Dimensions, ImageBackground, Image } from 'react-native';
-
-const width = Dimensions.get('screen').width;
-const height = Dimensions.get('screen').height;
+import React from 'react';
+import { StyleSheet, Image } from 'react-native';
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
 export default function Categories_HomePage() {
     return (
@@ -15,12 +13,9 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        // backgroundColor: 'white',
-        // borderRadius: 12,
-        // marginTop: 10,
-        width: null,
-        height: null,
-        resizeMode: 'contain',
-        // width: width,
+        width: '100%',
+        height: '100%',
+        margin: hp(1)
+        // resizeMode: 'contain',
     },   
 });

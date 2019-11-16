@@ -7,7 +7,7 @@ import Colors from '../../constants/Colors';
 
 class MainProfile extends Component {
     render() {
-        const { name, star, address, distance } = this.props;
+        const { name, star, address, distance, storeId } = this.props;
         return (
             <View style={styles.container}>
                 <View style={styles.photoView}>
@@ -65,7 +65,7 @@ class MainProfile extends Component {
                                 title='Thanh toán ngay' 
                                 buttonStyle={styles.button}
                                 titleStyle={{fontSize:18}}
-                                onPress={() => this.props.navigation.navigate('Payment')} />
+                                onPress={() => this.props.navigation.navigate('Payment', {storeId: storeId})} />
                     </View>
                 </View>
             </View>

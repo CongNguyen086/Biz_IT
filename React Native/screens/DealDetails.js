@@ -10,6 +10,7 @@ import { Icon } from 'react-native-elements'
 import { getDistance } from 'geolib';
 import * as Location from 'expo-location';
 import * as Permissions from 'expo-permissions';
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 // Constants
 import HeaderTitle from '../components/HeaderTitle';
 import Colors from '../constants/Colors';
@@ -58,47 +59,7 @@ class DealDetails extends Component {
     storeInSort = async () => {
         const { data } = this.state;
 
-        // Sort data by distance
         this.sortData(data);
-        // fullList.sort((a, b) => {
-        //     console.log(a.latitude)
-        //     const aDist = getDistance(
-        //         {
-        //             latitude: a.latitude,
-        //             longitude: a.longitude
-        //         },
-        //         {
-        //             latitude: this.state.latitude,
-        //             longitude: this.state.longitude
-        //         }
-        //     )
-
-        //     const bDist = getDistance(
-        //         {
-        //             latitude: b.latitude,
-        //             longitude: b.longitude
-        //         },
-        //         {
-        //             latitude: this.state.latitude,
-        //             longitude: this.state.longitude
-        //         }
-        //     )
-        //     // a.distance = aDist
-        //     // b.distance = bDist
-        //     return aDist - bDist;
-        // })
-        // console.log(data)
-
-        // const aDist = getDistance(
-        //     {
-        //         latitude: data[0].latitude,
-        //         longitude: data[1].longitude
-        //     },
-        //     {
-        //         latitude: this.state.latitude,
-        //         longitude: this.state.longitude
-        //     }
-        // )
 
         // Move the top store of Top Service list to top of full list
         let top = await data.find(store => store.serviceId == passedData.topServiceId);
@@ -144,7 +105,9 @@ class DealDetails extends Component {
         return (
             <View style={styles.container}>
                 <View style={styles.dealInfo}>
-                    <DealInfo />
+                    <DealInfo 
+                        image={{ uri: passedData.image}}
+                    />
                 </View>
                 <View style={styles.filterView}>
                     <Icon name='filter' type='font-awesome' color={Colors.extraText} />
@@ -165,19 +128,19 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.bgColor,
     },
     dealInfo: {
-        flex: 0.32,
+        flex: 0.35,
     },
     filterView: {
         flex: 0.07,
         flexDirection: 'row',
         justifyContent: 'flex-end',
         alignItems: 'center',
-        paddingRight: 15,
+        paddingRight: wp(3),
     },
     filter: {
-        fontSize: 15,
+        fontSize: hp(2),
         color: Colors.extraText,
-        marginHorizontal: 5,
+        marginHorizontal: wp(2),
     },
     storeList: {
         flex: 0.65,

@@ -5,18 +5,15 @@ import {
   Text,
   View,
   ImageBackground,
-  Dimensions,
   Alert,
   Keyboard
 } from 'react-native';
 import { Input, Button, Icon } from 'react-native-elements';
 import FBLoginButton from '../components/FBLoginButton';
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import * as Facebook from 'expo-facebook';
 // Constants
 import ROOT from '../constants/Root';
-
-const SCREEN_WIDTH = Dimensions.get('window').width;
-const SCREEN_HEIGHT = Dimensions.get('window').height;
 
 const BG_IMAGE = require('../assets/images/login_background.png');
 
@@ -49,12 +46,11 @@ export default class LoginScreen extends Component {
   }
 
   async _signInAsync(userId) {
-    // const { userId } = this.state;
     await AsyncStorage.removeItem('@userToken')
     await AsyncStorage.setItem('@userToken', userId);
     this.props.navigation.navigate('Loading');
   };
-  
+
   async _checkLogin() {
     const { phone, password, showLoading } = this.state;
     this.setState({ showLoading: !showLoading });
@@ -70,7 +66,7 @@ export default class LoginScreen extends Component {
         showLoading: false,
       }, () => Alert.alert('Logged in failed', `Please check your phone/password`));
     }
-    
+
   };
 
   async loginFacebook() {
@@ -87,6 +83,7 @@ export default class LoginScreen extends Component {
       if (type === 'success') {
         // Get the user's name using Facebook's Graph API
         const response = await fetch(`https://graph.facebook.com/me?access_token=${token}`);
+        // console.log(response);
         Alert.alert('Đăng nhập thành công!', `Xin chào ${(await response.json()).name}!`);
         // this.props.navigation.navigate('Loading');
       } else {
@@ -100,7 +97,7 @@ export default class LoginScreen extends Component {
 
   render() {
     const { phone, password, phone_valid, showLoading } = this.state;
-    console.log(SCREEN_HEIGHT);
+    // console.log(SCREEN_HEIGHT);
     return (
       <View style={styles.container}>
         <ImageBackground source={BG_IMAGE} style={styles.bgImage}>
@@ -112,13 +109,13 @@ export default class LoginScreen extends Component {
                     name="user-o"
                     type="font-awesome"
                     color="rgba(171, 189, 219, 1)"
-                    size={25}
+                    size={hp(3)}
                   />
                 }
-                containerStyle={{ marginVertical: 10 }}
+                containerStyle={{ marginVertical: hp(1.5) }}
                 onChangeText={phone => this.setState({ phone: phone })}
                 value={phone}
-                inputStyle={{ marginLeft: 10, color: 'white' }}
+                inputStyle={{ marginLeft: wp(3), color: 'white' }}
                 keyboardAppearance="light"
                 placeholder="Số điện thoại"
                 autoFocus={false}
@@ -133,7 +130,7 @@ export default class LoginScreen extends Component {
                 }}
                 blurOnSubmit={false}
                 placeholderTextColor="#E5E5E5"
-                errorStyle={{ textAlign: 'center', fontSize: 12 }}
+                errorStyle={{ textAlign: 'center', fontSize: hp(2) }}
                 errorMessage={
                   phone_valid ? null : 'Please enter a valid email address'
                 }
@@ -144,13 +141,13 @@ export default class LoginScreen extends Component {
                     name="lock"
                     type="font-awesome"
                     color="rgba(171, 189, 219, 1)"
-                    size={25}
+                    size={hp(3)}
                   />
                 }
-                containerStyle={{ marginVertical: 10 }}
+                containerStyle={{ marginVertical: hp(1.5) }}
                 onChangeText={password => this.setState({ password })}
                 value={password}
-                inputStyle={{ marginLeft: 15, color: 'white' }}
+                inputStyle={{ marginLeft: wp(4), color: 'white' }}
                 secureTextEntry={true}
                 keyboardAppearance="light"
                 placeholder="Mật khẩu"
@@ -182,8 +179,8 @@ export default class LoginScreen extends Component {
               loadingProps={{ size: 'small', color: 'white' }}
               disabled={!phone_valid && password.length < 8}
               buttonStyle={{
-                height: 50,
-                width: 300,
+                height: hp(6),
+                width: wp(74),
                 backgroundColor: 'transparent',
                 borderWidth: 2,
                 borderColor: 'white',
@@ -218,71 +215,53 @@ const styles = StyleSheet.create({
   },
   bgImage: {
     flex: 1,
-    top: 0,
-    left: 0,
     alignItems: 'center',
     resizeMode: 'stretch',
   },
   loginView: {
     flex: 1,
-    marginTop: 300,
+    marginTop: hp(38),
     backgroundColor: 'transparent',
-    width: 300,
-    // height: 400,
+    width: wp(75),
   },
   loginInput: {
     flex: 0.2,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  // loginTitle: {
-  //   flex: 1,
-  //   justifyContent: 'center',
-  //   alignItems: 'center',
-  // },
-  // travelText: {
-  //   color: 'white',
-  //   fontSize: 30,
-  //   fontWeight: 'bold',
-  // },
   plusView: {
-    // justifyContent: 'flex-end',
     flex: 0.14,
     alignItems: 'flex-end',
-    marginTop: -5,
+    // marginTop: hp(0),
   },
   nextButton: {
     flex: 0.06,
-    marginTop: -10,
+    // marginTop: hp(0),
   },
   plusTitle: {
     fontFamily: 'Roboto',
     color: '#CCCCCC',
-    fontSize: 15,
+    fontSize: hp(2),
   },
   footerView: {
-    marginTop: 80,
+    marginTop: hp(10),
     flex: 0.6,
     justifyContent: 'space-between',
     alignItems: 'center',
   },
   plusOrView: {
-    width: 300,
+    width: wp(75),
     borderTopColor: '#979aa2',
     borderTopWidth: 1,
-    paddingTop: 15,
+    paddingTop: hp(2),
     alignItems: 'center',
   },
   loginFBView: {
     flex: 0.8,
     alignItems: 'center',
   },
-  // plusText: {
-  //   // fontWeight: 'normal',
-  //   // marginTop: 3,
-  // },
   facebookButton: {
-    marginTop: 15, 
+    marginTop: hp(2),
   },
   signUpView: {
     flex: 0.2,
@@ -290,7 +269,7 @@ const styles = StyleSheet.create({
   },
   signUpText: {
     color: '#CCCCCC',
-    fontSize: 15,
+    fontSize: hp(2),
     fontWeight: 'bold',
   },
 });

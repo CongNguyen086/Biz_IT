@@ -1,24 +1,20 @@
 import React, { Component } from 'react';
 import {
     StyleSheet,
-    Text,
     View,
     Image,
-    Dimensions,
-    TouchableOpacity
+    TouchableOpacity,
+    AsyncStorage
 } from 'react-native';
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
 import HeaderTitle from '../components/HeaderTitle';
-import Layout from '../constants/Layout'
-
-const width = Layout.width;
-const height = Layout.height;
 
 class PaymentScreen extends Component {
     constructor(props) {
         super(props);
         this.state = {
-
+            cash: 0
         };
     }
 
@@ -26,13 +22,46 @@ class PaymentScreen extends Component {
         headerTitle: <HeaderTitle title='Thanh Toán' />,
     };
 
+    getUserCash = async () => {
+        try {
+            const userId = await AsyncStorage.getItem('@userToken');
+            const response = await fetch(ROOT + `/getusercash?userId=${userId}`);
+            const jsonData = await response.json();
+            this.setState({ cash: jsonData[0].userCash})
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    componentDidMount() {
+        this.getUserCash();
+    }
+
+    confirmPayment = async (storeId) => {
+        try {
+            this.setState({ cash: this.state.cash - 52000})
+            console.log('userCash: ' + this.state.cash)
+            const userId = await AsyncStorage.getItem('@userToken');
+            const response = await fetch(ROOT + `/putusercash?cash=${this.state.cash}&userId=${userId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+        } catch (error) {
+            console.log(error)
+        }
+        this.props.navigation.navigate('AfterPayment', { storeId: storeId })
+    }
+
     render() {
+        const storeId = this.props.navigation.getParam('storeId', 0);
         return (
             <View style={styles.container}>
                 <View style={styles.headerContainer}>
-                    <Image source={require('../assets/images/headerPayment.png')} style={styles.headerImage} />  
+                    <Image source={require('../assets/images/headerPayment.png')} style={styles.headerImage} />
                 </View>
-                <TouchableOpacity style={styles.bodyContainer} onPress={() => this.props.navigation.navigate('AfterPayment')}>
+                <TouchableOpacity style={styles.bodyContainer} onPress={() => this.confirmPayment(storeId)}>
                     <Image source={require('../assets/images/bodyPayment.png')} style={styles.bodyImage} />
                 </TouchableOpacity>
                 <View style={styles.footerContainer}>
@@ -49,21 +78,21 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
     },
     headerContainer: {
-        flex: 0.25,
+        flex: 0.2,
     },
     headerImage: {
-        width: width,
-        height: '100%',
-        marginTop: 20
+        width: wp(100),
+        height: hp(25),
+        marginTop: hp(3)
     },
     bodyContainer: {
-        flex: 0.55,
+        flex: 0.6,
         justifyContent: 'center',
         alignItems: 'center'
     },
     bodyImage: {
-        width: '50%',
-        height: '50%'
+        width: wp(48),
+        height: hp(24)
     },
     footerContainer: {
         flex: 0.2,
@@ -71,9 +100,9 @@ const styles = StyleSheet.create({
         alignItems: 'center'
     },
     footerImage: {
-        width: '100%',
-        height: '40%',
-        marginBottom: 20
+        width: wp(100),
+        height: hp(6),
+        marginBottom: hp(3)
     }
 
 });

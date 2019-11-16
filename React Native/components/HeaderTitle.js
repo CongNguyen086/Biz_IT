@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { View, Text, StyleSheet } from "react-native";
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
 class HeaderTitle extends Component {
     render() {
@@ -20,7 +21,7 @@ const styles = StyleSheet.create({
         justifyContent: "center",
     },
     headerTitle: {
-        fontSize: 20,
+        fontSize: hp(2.5),
         fontWeight: 'bold',
         color: '#fff',
     },

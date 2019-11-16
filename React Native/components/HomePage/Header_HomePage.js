@@ -1,12 +1,10 @@
-import React, { Component } from 'react';
-import { StyleSheet, Text, View, ImageBackground, Dimensions, TouchableOpacity, Image } from 'react-native';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import React from 'react';
+import { StyleSheet, Text, View, ImageBackground, TouchableOpacity, Image } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { withNavigation } from 'react-navigation';
 //Component
 import Search_HomePage from './Search_HomePage'
-
-const width = Dimensions.get('screen').width;
-const height = Dimensions.get('screen').height;
 
 function Header_HomePage(props) {
     return (
@@ -15,10 +13,10 @@ function Header_HomePage(props) {
                 <View style={styles.searchContainer} opacity={0.7}>
                     <Search_HomePage />
                     <TouchableOpacity>
-                        <MaterialCommunityIcons name='bell-ring-outline' size={25} color="white" style={{ opacity: 1 }} />
+                        <MaterialCommunityIcons name='bell-ring-outline' size={hp(3)} color="white" style={{ opacity: 1 }} />
                     </TouchableOpacity>
                     <TouchableOpacity>
-                        <MaterialCommunityIcons name='power' size={25} color="white" style={{ marginRight: 10, opacity: 1 }} />
+                        <MaterialCommunityIcons name='power' size={hp(3)} color="white" style={{ marginRight: wp(3), opacity: 1 }} />
                     </TouchableOpacity>
                 </View>
                 <View style={styles.toolsContainer}>
@@ -42,11 +40,11 @@ function Header_HomePage(props) {
             </ImageBackground>
             <View style={styles.amountContainer}>
                 <View>
-                    <MaterialCommunityIcons name='eye-outline' size={20} color="white" style={{ marginLeft: 10 }} color="gray" />
-                    <Text style={{ color: 'gray', marginLeft: 10 }}>Số dư trong ví</Text>
+                    <MaterialCommunityIcons name='eye-outline' size={hp(3)} color="white" style={{ marginLeft: wp(3) }} color="gray" />
+                    <Text style={{ color: 'gray', marginLeft: wp(3) }}>Số dư trong ví</Text>
                 </View>
                 <View style={styles.amountMoney}>
-                    <Text style={{ fontSize: 28, marginRight: 10 }} >7.200đ</Text>
+                    <Text style={{ fontSize: hp(4), marginRight: wp(3) }} >{props.cash}đ</Text>
                 </View>
             </View>
         </View>
@@ -66,8 +64,7 @@ const styles = StyleSheet.create({
     },
     searchContainer: {
         flex: 1.5 / 4,
-        height: 50,
-        width: width,
+        width: wp(100),
         backgroundColor: '#325340',
         flexDirection: 'row',
         alignItems: 'center',
@@ -82,20 +79,20 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         color: 'white',
         textAlign: 'center',
-        fontSize: 12
+        fontSize: hp(1.5)
     },
     tool: {
         justifyContent: 'center',
         alignItems: 'center'
     },
     imageTools: {
-        height: 35,
-        width: 35,
+        height: hp(4.2),
+        width: hp(4.2),
     },
     amountContainer: {
         flex: 0.3,
         backgroundColor: 'white',
-        width: width,
+        width: wp(100),
         borderBottomLeftRadius: 10,
         borderBottomRightRadius: 10,
         flexDirection: 'row',

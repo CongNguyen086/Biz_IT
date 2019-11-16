@@ -22,16 +22,22 @@ class StoreProfile extends Component {
     render() {
         const info = this.props.navigation.getParam('info', 'No info');
         const distance = info.distance + 'm từ vị trí hiện tại'
-        return(
+        console.log(info)
+        return (
             <View style={styles.container}>
                 <View style={styles.storeProfile}>
-                    <MainProfile name={info.storeName} 
-                                star={info.star}
-                                address={info.storeAddress}
-                                distance={distance}/>
+                    <MainProfile
+                        name={info.storeName}
+                        star={info.star}
+                        address={info.storeAddress}
+                        storeId={info.storeId}
+                        distance={distance}
+                    />
                 </View>
                 <View style={styles.review}>
-                    <Review />
+                    <Review
+                        storeId={info.storeId} 
+                    />
                 </View>
             </View>
         );
@@ -64,7 +70,7 @@ const styles = StyleSheet.create({
         marginTop: 20,
         borderTopLeftRadius: 10,
         borderTopRightRadius: 10,
-        
+
         shadowColor: "#000",
         shadowOffset: {
             width: 4,

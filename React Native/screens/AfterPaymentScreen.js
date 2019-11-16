@@ -1,48 +1,58 @@
 import React, { Component } from 'react';
-import {
-    StyleSheet,
-    Text,
-    View,
-    ImageBackground,
-    Dimensions,
-    Alert,
-    Image,
-    AsyncStorage,
-} from 'react-native';
+import { StyleSheet, View, Share } from 'react-native';
 import { Button } from 'react-native-elements';
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
 import ReviewProfile from '../components/AfterPayment/ReviewProfile';
 import BillProfile from '../components/AfterPayment/BillProfile';
-
-import Layout from '../constants/Layout'
-
-const width = Layout.width;
-const height = Layout.height;
-
 
 import HeaderTitle from '../components/HeaderTitle';
 import Colors from '../constants/Colors';
 
 class AfterPaymentScreen extends Component {
+    constructor (props) {
+        super(props)
+        this.state = {
+            randomCode: ''
+        }
+    }
     static navigationOptions = {
         headerTitle: <HeaderTitle title='Thanh Toán' />,
     };
 
-    inviteFriend() {
-        try {
-            const list = [];
-            AsyncStorage.setItem('friendList', JSON.stringify(list))
-            this.props.navigation.navigate('SendCode')
-        } catch (error) {
-            console.log(error)
-        }
+    componentDidMount () {
+        this.setState({ randomCode: Math.random().toString(36).substr(2, 10) })
     }
 
+    onShare = async () => {
+        try {
+            const result = await Share.share({
+                message: this.state.randomCode
+            });
+
+            if (result.action === Share.sharedAction) {
+                if (result.activityType) {
+                    // shared with activity type of result.activityType
+                } else {
+                    // shared
+                }
+            } else if (result.action === Share.dismissedAction) {
+                // dismissed
+            }
+        } catch (error) {
+            alert(error.message);
+        }
+    };
+
     render() {
+        const storeId = this.props.navigation.getParam('storeId', 0);
         return (
             <View style={styles.container}>
                 <View style={styles.review}>
-                    <ReviewProfile star={5} />
+                    <ReviewProfile
+                        star={5}
+                        storeId={storeId}
+                    />
                 </View>
                 <View style={styles.bill}>
                     <BillProfile />
@@ -51,8 +61,8 @@ class AfterPaymentScreen extends Component {
                     <Button type='solid'
                         title='Rủ bạn bè ngay'
                         buttonStyle={styles.button}
-                        titleStyle={{ fontSize: 18 }}
-                        onPress={() => this.inviteFriend()} />
+                        titleStyle={{ fontSize: hp(2) }}
+                        onPress={() => this.onShare()} />
                 </View>
             </View>
         );
@@ -71,9 +81,9 @@ const styles = StyleSheet.create({
     bill: {
         flex: 0.4,
         backgroundColor: 'white',
-        marginTop: 20,
+        marginTop: hp(2),
         borderRadius: 10,
-        
+
         shadowColor: "#000",
         shadowOffset: {
             width: 0,
@@ -86,7 +96,7 @@ const styles = StyleSheet.create({
     buttonContainer: {
         flex: 0.1,
         justifyContent: 'center',
-        marginHorizontal: 25,
+        marginHorizontal: wp(5),
     },
     button: {
         backgroundColor: '#AE2070',

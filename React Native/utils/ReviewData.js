@@ -1,21 +1,21 @@
 const ReviewData = [
     {
         'name': 'Nguyen Vi Khang',
-        'star': 5,
+        'star': 4,
         'comment': 'Không gian tốt, đồ uống ngon, lần sau sẽ ghé lại',
-        'link': 'https://www.foody.vn/ho-chi-minh/the-coffee-house-cao-thang-noi-dai'
+        'link': 'https://images.foody.vn/res/g9/89880/prof/s576x330/foody-mobile-cao-thang-mb-jpg-435-635736287744031406.jpg'
     },
     {
         'name': 'Le Duy Luat',
-        'star': 4.5,
+        'star': 5,
         'comment': 'Không gian tốt, đồ uống ngon, lần sau sẽ ghé lại',
-        'link': 'https://www.foody.vn/ho-chi-minh/the-coffee-house-nguyen-duy-trinh'
+        'link': 'https://images.foody.vn/res/g9/89880/prof/s576x330/foody-mobile-cao-thang-mb-jpg-435-635736287744031406.jpg'
     },
     {
         'name': 'Nguyen Thanh Cong',
-        'star': 4.5,
+        'star': 5,
         'comment': 'Không gian tốt, đồ uống ngon, lần sau sẽ ghé lại',
-        'link': 'https://www.foody.vn/ho-chi-minh/the-coffee-house-cao-thang'
+        'link': 'https://images.foody.vn/res/g9/89880/prof/s576x330/foody-mobile-cao-thang-mb-jpg-435-635736287744031406.jpg'
     },
 ]
 
