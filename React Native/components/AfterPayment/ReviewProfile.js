@@ -48,6 +48,19 @@ class ReviewProfile extends Component {
         }
     }
 
+    updateStoreRating = async (storeId) => {
+        const getResponse = await fetch(ROOT + `/getstorerating?storeId=${storeId}`);
+        const getData = await getResponse.json();
+
+        const putResponse = await fetch(ROOT + `/updatestorerating?storeRating=${getData[0].rating}&storeId=${storeId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        const putData = await putResponse.json();
+    }
+
     clearText = async (storeId) => {
         const userId = await AsyncStorage.getItem('@userToken');
         const response = await fetch(ROOT + `/sendreview?rating=${this.state.rating}&comment=${this.state.text}&userId=${userId}&storeId=${storeId}`, {
@@ -63,6 +76,7 @@ class ReviewProfile extends Component {
         Alert.alert('Cảm ơn bạn', 'Góp ý của bạn đã được ghi nhận')
         this.textInput.clear();
         Keyboard.dismiss();
+        this.updateStoreRating(storeId);
     }
 
     _uploadImage = (reviewId) => {

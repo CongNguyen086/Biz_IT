@@ -39,7 +39,6 @@ const styles = StyleSheet.create({
     activityIndicatorWrapper: {
         flex: 1,
         backgroundColor: Colors.momoColor,
-        borderRadius: 10,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-around'

@@ -1,12 +1,17 @@
 import React, { Component } from 'react';
 import { StyleSheet, Text, View, Image } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
+import ROOT from '../../constants/Root'
 
 import Colors from '../../constants/Colors';
 
 export class StoreInfo extends Component {
+    constructor(props) {
+        super(props)
+        this.state = { }
+    }
     render() {
-        const { data: { storeName, description, distance } } = this.props;
+        const { data: { storeName, description, distance, storeRating } } = this.props;
         return (
             <View style={styles.container}>
                 <View style={styles.mainInfo}>
@@ -14,10 +19,10 @@ export class StoreInfo extends Component {
                         <Text style={styles.name} numberOfLines={1} ellipsizeMode='tail'>{storeName}</Text>
                         <View style={styles.details}>
                             <FontAwesome name='star' size={15} color='#FFC601' />
-                            <Text style={styles.extraText}>4.5</Text>
+                            <Text style={styles.extraText}>{storeRating}</Text>
                             <FontAwesome name='circle' size={15} color='#40E247' />
                             <Text style={styles.extraText}>8:00 - 22:00</Text>
-                            <Text style={styles.extraText}>Cafe/MilkTea</Text>
+                            <Text style={styles.extraText}>{this.props.categoryName}</Text>
                         </View>
                     </View>
                     <View style={styles.promotionView}>
@@ -38,7 +43,7 @@ export class Avatar extends Component {
         const { data: { icon } } = this.props;
         return (
             <View style={styles.imageContainer}>
-                <Image source={{uri: icon}} style={styles.image} />
+                <Image source={{ uri: icon }} style={styles.image} />
             </View>
         );
     }

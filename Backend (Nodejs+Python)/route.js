@@ -188,10 +188,41 @@ app.get('/getreview', (req, res) => {
     })
 })
 
+app.get('/getstorerating', (req, res) => {
+    const storeId = req.query.storeId
+
+    connection.query('SELECT AVG(review.reviewRating) AS rating FROM stores INNER JOIN review ON stores.storeId = review.storeId WHERE stores.storeId = ?;', [storeId], (error, rows, fields) => {
+        if (!error) {
+            res.send(rows)
+        } else console.log(error)
+    })
+})
+
+app.put('/updatestorerating', (req, res) => {
+    const storeId = req.query.storeId
+    const storeRating = req.query.storeRating
+
+    connection.query('UPDATE stores SET storeRating = ?  WHERE storeId = ?;', [storeRating, storeId], (error, rows, fields) => {
+        if (!error) {
+            res.send(rows)
+        } else console.log(error)
+    })
+})
+
 app.get('/getimage', (req, res) => {
     const reviewId = req.query.reviewId
 
     connection.query('SELECT review.reviewId, reviewImageId, reviewPhoto FROM review INNER JOIN review_image ON review.reviewId = review_image.reviewId WHERE review.reviewId = ?', [reviewId], (error, rows, fields) => {
+        if (!error) {
+            res.send(rows)
+        } else console.log(error)
+    })
+})
+
+app.get('/getcategory', (req, res) => {
+    const categoryId = req.query.categoryId
+
+    connection.query('SELECT categoryName FROM categories WHERE categoryId = ?', [categoryId], (error, rows, fields) => {
         if (!error) {
             res.send(rows)
         } else console.log(error)

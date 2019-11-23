@@ -23,14 +23,14 @@ class MainProfile extends Component {
                                     // showRating
                                     type="star"
                                     fractions={1}
-                                    startingValue={4.5}
+                                    startingValue={star}
                                     readonly
                                     imageSize={15}
                                     onFinishRating={this.ratingCompleted}
                                     style={styles.rate}
                                     ratingColor='#40E247'
                                 />
-                                <Text style={styles.value}>4.5</Text>
+                                <Text style={styles.value}>{star}</Text>
                             </View>
                         </View>
                         <View style={styles.timeView}>

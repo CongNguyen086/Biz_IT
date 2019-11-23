@@ -115,7 +115,10 @@ class DealDetails extends Component {
                     <Icon name='angle-down' type='font-awesome' size={17} color={Colors.extraText} />
                 </View>
                 <View style={styles.storeList}>
-                    <StoreList data={this.state.data} />
+                    <StoreList 
+                        data={this.state.data}
+                        categoryId={passedData.categoryId}
+                    />
                 </View>
             </View>
         );

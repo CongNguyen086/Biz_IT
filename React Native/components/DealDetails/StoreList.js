@@ -6,16 +6,31 @@ import { withNavigation } from 'react-navigation';
 import { StoreInfo, Avatar  } from './StoreInfo';
 
 class StoreList extends Component {
+    constructor(props) {
+        super(props)
+        this.state = {
+            categoryName: ''
+        }
+    }
+    componentDidMount() {
+        this.getCategory(this.props.categoryId)
+    }
+    getCategory = async (categoryId) => {
+        const response = await fetch(ROOT + `/getcategory?categoryId=${categoryId}`);
+        const jsonData = await response.json();
+        this.setState({ categoryName: jsonData[0].categoryName})
+    }
     renderList = ({ item }) => (
         <ListItem
             containerStyle={styles.listItem}
             contentContainerStyle={{ flex:0.02 }}
             leftElement={<Avatar data={item} />}
-            rightElement={<StoreInfo data={item} />}
+            rightElement={<StoreInfo data={item} categoryName={this.state.categoryName} />}
             pad={3}
             onPress={() => {
                 this.props.navigation.navigate('StoreProfile', {
                     info: item,
+                    categoryName: this.state.categoryName
                 })
                 
             }}

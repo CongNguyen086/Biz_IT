@@ -15,20 +15,25 @@ import HeaderTitle from '../components/HeaderTitle';
 import Colors from '../constants/Colors';
 
 class StoreProfile extends Component {
-    static navigationOptions = {
-        headerTitle: <HeaderTitle title='Cafe/MilkTea' />,
+    constructor(props) {
+        super(props)
+        this.state = { }
+    }
+    static navigationOptions = ({ navigation }) => {
+        return {
+            headerTitle: <HeaderTitle title={navigation.getParam('categoryName', 'No categoryName')}/>,
+        };
     };
 
     render() {
         const info = this.props.navigation.getParam('info', 'No info');
         const distance = info.distance + 'm từ vị trí hiện tại'
-        console.log(info)
         return (
             <View style={styles.container}>
                 <View style={styles.storeProfile}>
                     <MainProfile
                         name={info.storeName}
-                        star={info.star}
+                        star={info.storeRating}
                         address={info.storeAddress}
                         storeId={info.storeId}
                         distance={distance}
@@ -36,7 +41,7 @@ class StoreProfile extends Component {
                 </View>
                 <View style={styles.review}>
                     <Review
-                        storeId={info.storeId} 
+                        storeId={info.storeId}
                     />
                 </View>
             </View>

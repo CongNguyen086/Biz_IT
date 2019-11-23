@@ -20,7 +20,6 @@ class Review extends Component {
         const response = await fetch(ROOT + `/getreview?storeId=${storeId}`);
         const jsonData = await response.json();
         this.setState({ reviewData: jsonData })
-        console.log(jsonData);
     }
     render() {
         return (
@@ -31,7 +30,7 @@ class Review extends Component {
                 </View>
                 <View style={styles.reviewElementContainer}>
                     <FlatList
-                        data={this.state.reviewData}
+                        data={this.state.reviewData.reverse()}
                         renderItem={({ item }) => <ReviewElement name={item.fullName} star={item.reviewRating} comment={item.reviewComment} reviewId={item.reviewId} />}
                         keyExtractor={ (item, index) => index.toString() }
                     />
