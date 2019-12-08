@@ -1,13 +1,22 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View, ImageBackground, Dimensions, Alert, Image } from 'react-native';
+import { StyleSheet, Text, View, ImageBackground, Dimensions, Alert, Image, TouchableOpacity, Platform, Linking } from 'react-native';
 import { Rating, Icon, Button } from 'react-native-elements'
 import { withNavigation } from 'react-navigation';
 // Contants
 import Colors from '../../constants/Colors';
 
 class MainProfile extends Component {
+
+    openMap(address, latitude, longitude) {
+        const url = Platform.select({
+            ios: "maps:" + latitude + "," + longitude + "?q=" + address,
+            android: "geo:" + latitude + "," + longitude + "?q=" + address
+        });
+        Linking.openURL(url);
+    }
+
     render() {
-        const { name, star, address, distance, storeId } = this.props;
+        const { name, star, address, distance, storeId, latitude, longitude } = this.props;
         return (
             <View style={styles.container}>
                 <View style={styles.photoView}>
@@ -43,29 +52,29 @@ class MainProfile extends Component {
                         <View style={styles.distanceView}>
                             <View style={styles.address}>
                                 <Icon name='map-marker-radius' type='material-community' size={20} color={Colors.extraText} />
-                                <Text style={styles.extraValue, {color: Colors.extraText,marginLeft: 3}}
-                                        ellipsizeMode='tail'
-                                        numberOfLines={2}>
+                                <Text style={styles.extraValue, { color: Colors.extraText, marginLeft: 3 }}
+                                    ellipsizeMode='tail'
+                                    numberOfLines={2}>
                                     {address}
                                 </Text>
                             </View>
                             <View style={styles.distance}>
                                 <Icon name='crosshairs' type='font-awesome' size={22} color={Colors.extraText} />
-                                <Text style={styles.extraValue, {color: Colors.extraText,marginLeft: 5}}>{distance}</Text>
+                                <Text style={styles.extraValue, { color: Colors.extraText, marginLeft: 5 }}>{distance}</Text>
                             </View>
                         </View>
-                        <View style={styles.distanceIcon}>
-                            <Image source={(require('../../assets/icons/map.png'))} 
+                        <TouchableOpacity style={styles.distanceIcon} onPress={() => this.openMap(address, latitude, longitude)}>
+                            <Image source={(require('../../assets/icons/map.png'))}
                                 style={styles.icon} />
-                        </View>
+                        </TouchableOpacity>
                     </View>
 
                     <View style={styles.bottomView}>
-                        <Button type='solid' 
-                                title='Thanh toán ngay' 
-                                buttonStyle={styles.button}
-                                titleStyle={{fontSize:18}}
-                                onPress={() => this.props.navigation.navigate('Payment', {storeId: storeId})} />
+                        <Button type='solid'
+                            title='Thanh toán ngay'
+                            buttonStyle={styles.button}
+                            titleStyle={{ fontSize: 18 }}
+                            onPress={() => this.props.navigation.navigate('Payment', { storeId: storeId })} />
                     </View>
                 </View>
             </View>

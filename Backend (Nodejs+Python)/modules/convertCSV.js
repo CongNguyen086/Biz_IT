@@ -6,12 +6,13 @@ fs.createReadStream('./python/output.csv')
 .on('data', function(data){
     var json = JSON.stringify(data);
     try {
-        fs.appendFileSync('./json/recommendation.json', json + ',\n', 'utf8', function(error) {
-            if(error) {
-                return console.log(error);
-            }
-            console.log("JSON file has been saved");
-        });
+        // fs.appendFileSync('./json/recommendation.json', json + ',\n', 'utf8', function(error) {
+        //     if(error) {
+        //         return console.log(error);
+        //     }
+        //     console.log("JSON file has been saved");
+        // });
+        console.log(json);
     }
     catch(error) {
         console.log(error)

@@ -34,6 +34,7 @@ class DealDetails extends Component {
         await this.getPosition();
         await this.getStoreDealList();
         this.storeInSort();
+        console.log(passedData)
     }
 
     getStoreDealList = async () => {
@@ -41,6 +42,7 @@ class DealDetails extends Component {
         const response = await fetch(ROOT + `/getstorepromotion?dealId=${passedData.dealId}`)
         const jsonData = await response.json();
         this.setState({ data: jsonData });
+        // this.setState({ data: jsonData }, ()=>console.log(this.state.data));
     }
 
     getPosition = async () => {

@@ -37,6 +37,8 @@ class StoreProfile extends Component {
                         address={info.storeAddress}
                         storeId={info.storeId}
                         distance={distance}
+                        latitude={info.latitude}
+                        longitude={info.longitude}
                     />
                 </View>
                 <View style={styles.review}>
@@ -44,6 +46,7 @@ class StoreProfile extends Component {
                         storeId={info.storeId}
                     />
                 </View>
+                {console.log(info)}
             </View>
         );
     }

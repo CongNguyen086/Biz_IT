@@ -2,6 +2,9 @@ const express = require('express')
 const mysql = require('mysql')
 const bodyParser = require('body-parser');
 const multer = require('multer');
+const { Expo } = require('expo-server-sdk');
+
+let expo = new Expo();
 
 // mysql://bb0fa2c19d3675:8fbf3bba@us-cdbr-iron-east-05.cleardb.net/heroku_35c3d24bcc95fd7?reconnect=true
 
@@ -77,6 +80,7 @@ app.get('/getstorepromotion', (req, res) => {
         if (!error) {
             var string = JSON.stringify(rows);
             var jsonRows = JSON.parse(string);
+            console.log(dealId)
             res.send(jsonRows[0])
         } else console.log(error);
     })
@@ -85,7 +89,8 @@ app.get('/getstorepromotion', (req, res) => {
 app.get('/gettimerecommendationdeal', (req, res) => {
     const userId = req.query.userId
     let today = new Date();
-    let current_time = today.getHours() + ':' + today.getMinutes() + ':' + today.getSeconds();
+    // let current_time = today.getHours() + ':' + today.getMinutes() + ':' + today.getSeconds();
+    let current_time = '12:00:00';
     connection.query('CALL GetTimeRecommendationDeal(?, ?)', [userId, current_time], (error, rows, fields) => {
         if (!error) {
             res.send(rows)
@@ -105,11 +110,11 @@ app.get('/login', (req, res) => {
     })
 })
 
-app.get('/getusercash', (req, res) => {
+app.get('/getuserinfobyid', (req, res) => {
     const userId = req.query.userId
 
-    connection.query('SELECT userCash FROM users WHERE userId = ?', [userId], (error, rows, fields) => {
-        if(!error) {
+    connection.query('SELECT * FROM users WHERE userId = ?', [userId], (error, rows, fields) => {
+        if (!error) {
             res.send(rows)
         } else console.log(error)
     })
@@ -120,7 +125,7 @@ app.put('/putusercash', (req, res) => {
     const userId = req.query.userId
 
     connection.query('UPDATE users SET userCash = ? WHERE userId = ?', [cash, userId], (error, rows, fields) => {
-        if(!error) {
+        if (!error) {
             res.send(rows)
         } else console.log(error);
     })
@@ -223,6 +228,179 @@ app.get('/getcategory', (req, res) => {
     const categoryId = req.query.categoryId
 
     connection.query('SELECT categoryName FROM categories WHERE categoryId = ?', [categoryId], (error, rows, fields) => {
+        if (!error) {
+            res.send(rows)
+        } else console.log(error)
+    })
+})
+
+//29-11-2019
+app.get('/getstoreaddress', (req, res) => {
+    const storeId = req.query.storeId
+
+    connection.query('SELECT storeAddress FROM stores WHERE storeId = ?', [storeId], (error, rows, fields) => {
+        if (!error) {
+            res.send(rows)
+        } else console.log(error)
+    })
+})
+
+app.put('/putusercode', (req, res) => {
+    const userId = req.query.userId
+    const storeId = req.query.storeId
+    const userTimestamps = new Date().getTime()
+    const userCode = req.query.userCode
+
+    connection.query('UPDATE users SET userTimestamps = ?, userCode = ?, userStoreId = ?  WHERE userId = ?;', [userTimestamps, userCode, storeId, userId], (error, rows, fields) => {
+        if (!error) {
+            res.send(rows)
+        } else console.log(error)
+    })
+})
+
+app.get('/getuserinfobycode', (req, res) => {
+    const userCode = req.query.userCode
+
+    connection.query('SELECT * FROM users WHERE userCode = ?', [userCode], (error, rows, fields) => {
+        if (!error) {
+            res.send(rows)
+        } else console.log(error)
+    })
+})
+
+app.put('/putuserscore', (req, res) => {
+    const userId = req.query.userId
+    const storeId = req.query.storeId
+    const userTimestamps = new Date().getTime()
+    const userCode = req.query.userCode
+
+    connection.query('UPDATE users SET userTimestamps = ?, userCode = ?, userStoreId = ?  WHERE userId = ?;', [userTimestamps, userCode, storeId, userId], (error, rows, fields) => {
+        if (!error) {
+            res.send(rows)
+        } else console.log(error)
+    })
+})
+
+app.put('/applyscore', (req, res) => {
+    const userId = req.query.userId
+    const userScore = req.query.userScore
+    const userScoreTotal = req.query.userScoreTotal
+
+    connection.query('UPDATE users SET userScore = ?, userScoreTotal = ?  WHERE userId = ?;', [userScore, userScoreTotal, userId], (error, rows, fields) => {
+        if (!error) {
+            res.send({ status: 'done' })
+        } else console.log(error)
+    })
+})
+
+app.post('/postcheckcode', (req, res) => {
+    const userId = req.query.userId
+    const userCode = req.query.userCode
+
+    connection.query('INSERT INTO check_code (userId, applyCode) VALUES (?, ?);', [userId, userCode], (error, rows, fields) => {
+        if (!error) {
+            res.send(rows)
+        } else console.log(error)
+    })
+})
+
+app.get('/getcheckcode', (req, res) => {
+    const userId = req.query.userId
+
+    connection.query('SELECT * FROM check_code WHERE userId = ?;', [userId], (error, rows, fields) => {
+        if (!error) {
+            res.send(rows)
+        } else console.log(error)
+    })
+})
+
+app.put('/postusertoken', (req, res) => {
+    const userId = req.query.userId
+    const userToken = req.query.userToken
+
+    connection.query('UPDATE users SET userToken = ? WHERE userId = ?;', [userToken, userId], (error, rows, fields) => {
+        if (!error) {
+            res.send(rows)
+        } else console.log(error)
+    })
+})
+
+app.post('/pushnotification', (req, res) => {
+    const userId = req.query.userId
+    connection.query('SELECT userToken, fullName FROM users WHERE userId = ?;', [userId], (error, rows, fields) => {
+        if (!error) {
+            let messages = [];
+            let somePushTokens = [rows[0].userToken]
+            for (let pushToken of somePushTokens) {
+                if (!Expo.isExpoPushToken(pushToken)) {
+                    console.log(Expo.isExpoPushToken(pushToken))
+                    console.error(`Push token ${pushToken} is not a valid Expo push token`);
+                    continue;
+                }
+                messages.push({
+                    to: pushToken,
+                    sound: 'default',
+                    title: req.query.title,
+                    body: rows[0].fullName + ' ' + req.query.body,
+                    data: {
+                        name: req.body.name,
+                        class: req.body.class
+                    },
+                })
+            }
+            let chunks = expo.chunkPushNotifications(messages);
+            let tickets = [];
+            (async () => {
+                for (let chunk of chunks) {
+                    try {
+                        let ticketChunk = await expo.sendPushNotificationsAsync(chunk);
+                        console.log(ticketChunk);
+                        tickets.push(...ticketChunk);
+                    } catch (error) {
+                        console.error(error);
+                    }
+                }
+            })();
+
+            let receiptIds = [];
+            for (let ticket of tickets) {
+                if (ticket.id) {
+                    receiptIds.push(ticket.id);
+                }
+            }
+
+            let receiptIdChunks = expo.chunkPushNotificationReceiptIds(receiptIds);
+            (async () => {
+                for (let chunk of receiptIdChunks) {
+                    try {
+                        let receipts = await expo.getPushNotificationReceiptsAsync(chunk);
+                        console.log(receipts);
+
+                        for (let receipt of receipts) {
+                            if (receipt.status === 'ok') {
+                                continue;
+                            } else if (receipt.status === 'error') {
+                                console.error(`There was an error sending a notification: ${receipt.message}`);
+                                if (receipt.details && receipt.details.error) {
+                                    console.error(`The error code is ${receipt.details.error}`);
+                                }
+                            }
+                        }
+                    } catch (error) {
+                        console.error(error);
+                    }
+                }
+            })();
+        } else console.log(error)
+    })
+})
+
+app.put('/redeemreward', (req, res) => {
+    const userId = req.query.userId
+    const userScore = req.query.userScore
+    const userReward = req.query.userReward
+
+    connection.query('UPDATE users SET userScore = ?, userReward = ?  WHERE userId = ?;', [userScore, userReward, userId], (error, rows, fields) => {
         if (!error) {
             res.send(rows)
         } else console.log(error)

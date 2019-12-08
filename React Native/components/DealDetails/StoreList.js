@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import { StyleSheet, FlatList, View } from 'react-native';
+import { StyleSheet, FlatList, View, ActivityIndicator } from 'react-native';
 import { Card, ListItem } from 'react-native-elements';
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { withNavigation } from 'react-navigation';
 
 import { StoreInfo, Avatar  } from './StoreInfo';
@@ -9,11 +10,20 @@ class StoreList extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            categoryName: ''
+            categoryName: '',
+            data: [],
+            loading: false
         }
     }
     componentDidMount() {
         this.getCategory(this.props.categoryId)
+        this.setState({loading: true})
+    }
+    componentWillReceiveProps() {
+        this.setState({ data: this.props.data })
+        if(this.state.data != null) {
+            this.setState({loading: false})
+        }
     }
     getCategory = async (categoryId) => {
         const response = await fetch(ROOT + `/getcategory?categoryId=${categoryId}`);
@@ -45,11 +55,17 @@ class StoreList extends Component {
         );
     };
     render() {
-        const { data } = this.props;
+        if (this.state.loading) {
+            return (
+                <Card containerStyle={styles.container}>
+                    <ActivityIndicator size="large" color="purple" animating={this.state.loading} style={{marginTop: hp(10)}}/>
+                </Card>
+            );
+        }
         return (
             <Card containerStyle={styles.container}>
                 <FlatList
-                    data={data}
+                    data={this.state.data}
                     renderItem={this.renderList}
                     keyExtractor={this.renderKeyExtractor}
                     ItemSeparatorComponent={this.renderSeparator}

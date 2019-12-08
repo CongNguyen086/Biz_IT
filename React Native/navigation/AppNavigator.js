@@ -10,6 +10,7 @@ import DealDetails from '../screens/DealDetails';
 import StoreProfile from '../screens/StoreProfile';
 import PaymentScreen from '../screens/PaymentScreen';
 import AfterPaymentScreen from '../screens/AfterPaymentScreen';
+import ConnectScreen from '../screens/ConnectScreen';
 import SendCodeScreen from '../screens/SendCodeScreen';
 import { Ionicons } from '@expo/vector-icons';
 import TabBarIcon from '../components/TabBarIcon';
@@ -34,15 +35,27 @@ HomeStack.navigationOptions = {
   },
 };
 
-const HistoryStack = createStackNavigator(
+const ConnectStack = createStackNavigator(
   {
-    Home: HomePage,
+    Connect: ConnectScreen,
+  },
+  {
+    defaultNavigationOptions: {
+      headerStyle: {
+        backgroundColor: '#325340',
+      },
+      headerTintColor: '#fff',
+      headerTitleStyle: {
+        fontWeight: 'bold',
+        textAlign: 'center',
+      },
+    },
   }
 );
 
-HistoryStack.navigationOptions = {
-  tabBarLabel: 'Lịch sử GD',
-  tabBarIcon: (<Image  style={{width: 25, height: 25}} source={require('../assets/icons/history.png')} />),
+ConnectStack.navigationOptions = {
+  tabBarLabel: 'Kết Nối',
+  tabBarIcon: (<Image  style={{width: 25, height: 25}} source={require('../assets/icons/connect.png')} />),
   tabBarOptions: {
     activeTintColor: Colors.momoColor,
     inactiveTintColor: 'gray',
@@ -56,8 +69,8 @@ const WalletStack = createStackNavigator(
 );
 
 WalletStack.navigationOptions = {
-  tabBarLabel: 'Ví Của Tôi',
-  tabBarIcon: (<Image  style={{width: 25, height: 25}} source={require('../assets/icons/my_wallet.png')} />),
+  tabBarLabel: 'Điểm Hẹn',
+  tabBarIcon: (<Image  style={{width: 18, height: 25}} source={require('../assets/icons/meet.png')} />),
   tabBarOptions: {
     activeTintColor: Colors.momoColor,
     inactiveTintColor: 'gray',
@@ -66,7 +79,7 @@ WalletStack.navigationOptions = {
 
 const TabNavigator = createBottomTabNavigator({
   HomeStack,
-  HistoryStack,
+  ConnectStack,
   WalletStack
 },
 {
@@ -83,6 +96,7 @@ const App = createStackNavigator(
     StoreProfile: StoreProfile,
     Payment: PaymentScreen,
     AfterPayment: AfterPaymentScreen,
+    Connect: ConnectScreen
   },
   {
     initialRouteName: 'HomePage',

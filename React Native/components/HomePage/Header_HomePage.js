@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View, ImageBackground, TouchableOpacity, Image } from 'react-native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { MaterialCommunityIcons, AntDesign } from '@expo/vector-icons';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { withNavigation } from 'react-navigation';
 //Component
@@ -38,6 +38,19 @@ function Header_HomePage(props) {
                     </TouchableOpacity>
                 </View>
             </ImageBackground>
+            <View style={styles.rewardContainer}>
+                <View style={{flexDirection: 'row', borderRadius: 5, borderWidth: 0.5, padding: hp(1), alignItems: 'center', justifyContent: 'center', borderColor: '#B0B0B0'}}>
+                    <Image source={require('../../assets/icons/iconDealScore.png')}  style={{ height: hp(3), width: wp(6), marginRight: wp(3) }}/>
+                    <Text style={{fontSize: hp(2.5), fontWeight: 'bold'}}>{props.userReward}</Text>
+                    <Text style={{fontSize: hp(2.5)}} > điểm</Text>
+                    <AntDesign name='right' size={hp(2)} color="#B0B0B0" style={{ marginLeft: wp(6.7) }} />
+                </View>
+                <View style={{flexDirection: 'row', borderRadius: 5, borderWidth: 0.5, padding: hp(1), alignItems: 'center', justifyContent: 'center', borderColor: '#B0B0B0'}}>
+                    <Image source={require('../../assets/icons/iconGift.png')}  style={{ height: hp(3), width: wp(6), marginRight: wp(3) }}/>
+                    <Text style={{fontSize: hp(2.5)}}>Quà của tôi</Text>
+                    <AntDesign name='right' size={hp(2)} color="#B0B0B0" style={{ marginLeft: wp(6.7) }} />
+                </View>
+            </View>
             <View style={styles.amountContainer}>
                 <View>
                     <MaterialCommunityIcons name='eye-outline' size={hp(3)} color="white" style={{ marginLeft: wp(3) }} color="gray" />
@@ -98,6 +111,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
+        padding: hp(1),
         //shadow
         shadowColor: "#000",
         shadowOffset: {
@@ -108,6 +122,14 @@ const styles = StyleSheet.create({
         shadowRadius: 2.22,
 
         elevation: 3,
+    },
+    rewardContainer: {
+        flex: 0.4,
+        backgroundColor: 'white',
+        width: wp(100),
+        flexDirection: 'row',
+        justifyContent: 'space-evenly',
+        alignItems: 'center',
     },
 });
 
