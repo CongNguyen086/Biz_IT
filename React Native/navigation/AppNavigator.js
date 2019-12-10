@@ -11,6 +11,7 @@ import DealDetails from '../screens/DealDetails';
 import StoreProfile from '../screens/StoreProfile';
 import PaymentScreen from '../screens/PaymentScreen';
 import AfterPaymentScreen from '../screens/AfterPaymentScreen';
+import ConnectScreen from '../screens/ConnectScreen';
 import SendCodeScreen from '../screens/SendCodeScreen';
 
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -58,7 +59,19 @@ MapStack.navigationOptions = {
 
 const ConnectStack = createStackNavigator(
   {
-    Connect: HomePage,
+    Connect: ConnectScreen,
+  },
+  {
+    defaultNavigationOptions: {
+      headerStyle: {
+        backgroundColor: '#325340',
+      },
+      headerTintColor: '#fff',
+      headerTitleStyle: {
+        fontWeight: 'bold',
+        textAlign: 'center',
+      },
+    },
   }
 );
 
@@ -108,6 +121,7 @@ const App = createStackNavigator(
     StoreProfile: StoreProfile,
     Payment: PaymentScreen,
     AfterPayment: AfterPaymentScreen,
+    Connect: ConnectScreen
   },
   {
     // initialRouteName: 'HomePage',

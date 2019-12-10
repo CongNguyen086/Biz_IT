@@ -1,29 +1,58 @@
-import React from 'react';
-import { StyleSheet, Text, View, FlatList } from 'react-native';
+import React, { Component } from 'react';
+import { StyleSheet, Text, View, FlatList, ActivityIndicator } from 'react-native';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
 //Component
 import ProductElement from './ProductElement';
 
-export default function ProductsContainer(props) {
-    return (
-        <View style={styles.container}>
-            <View style={styles.labelContainer}>
-                <Text style={styles.label}>{props.title}</Text>
+
+
+export default class ProductsContainer extends Component {
+    constructor(props) {
+        super(props)
+        this.state = {
+            data: [],
+            loading: false
+        }
+    }
+    componentDidMount() {
+        this.setState({ loading: true})
+    }
+    componentWillReceiveProps() {
+        this.setState({ data: this.props.data })
+        if(this.state.data != null) {
+            this.setState({loading: false})
+        }
+    }
+
+    render() {
+        if (this.state.loading) {
+            return (
+                <View style={styles.container}>
+                    <ActivityIndicator size="large" color="purple" animating={this.state.loading} />
+                </View>
+            );
+        }
+        return (
+            <View style={styles.container}>
+                <View style={styles.labelContainer}>
+                    <Text style={styles.label}>{this.props.title}</Text>
+                </View>
+                <FlatList
+                    data={this.state.data}
+                    renderItem={({ item }) =>
+                        <ProductElement
+                            style={styles.products}
+                            item={item}
+                            navigation={this.props.navigation} />
+                    }
+                    keyExtractor={item => item.topServiceId}
+                    horizontal={true}
+                    refreshing={this.state.refreshing}
+                />
             </View>
-            <FlatList
-                data={props.data}
-                renderItem={({ item }) =>
-                    <ProductElement
-                        style={styles.products}
-                        item={item}
-                        navigation={props.navigation} />
-                }
-                keyExtractor={item => item.topServiceId}
-                horizontal={true}
-            />
-        </View>
-    );
+        );
+    }
 }
 
 const styles = StyleSheet.create({

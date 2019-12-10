@@ -74,11 +74,14 @@ export default class LoginScreen extends Component {
       const {
         type,
         token,
-        expires,
-        permissions,
-        declinedPermissions,
-      } = await Facebook.logInWithReadPermissionsAsync('621612031578384', {
-        permissions: ['public_profile'],
+      } = await Facebook.logInWithReadPermissionsAsync('795764707522976', 
+      {
+        permissions: [
+          'public_profile',
+
+          // 'manage_pages', 
+          // 'publish_pages',
+        ],        
       });
       if (type === 'success') {
         // Get the user's name using Facebook's Graph API
@@ -93,6 +96,10 @@ export default class LoginScreen extends Component {
     } catch ({ message }) {
       alert(`Facebook Login Error: ${message}`);
     }
+  }
+
+  async shareFacebook() {
+    await Facebook.shareFacebook()
   }
 
   render() {

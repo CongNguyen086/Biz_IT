@@ -14,8 +14,10 @@ class ReviewProfile extends Component {
         super(props)
         this.state = {
             imageList: [],
+            defaultRating: 0,
             rating: 0,
-            text: ''
+            text: '',
+            pressed: false
         }
     }
 
@@ -77,6 +79,8 @@ class ReviewProfile extends Component {
         this.textInput.clear();
         Keyboard.dismiss();
         this.updateStoreRating(storeId);
+        this.setState({pressed: true})
+        this.setState({defaultRating: 0})
     }
 
     _uploadImage = (reviewId) => {
@@ -105,6 +109,7 @@ class ReviewProfile extends Component {
 
     ratingCompleted = (rating) => {
         this.setState({ rating: rating })
+        this.setState({ defaultRating: rating})
     }
 
     render() {
@@ -118,7 +123,7 @@ class ReviewProfile extends Component {
                 <View style={styles.rateGroup}>
                     <AirbnbRating
                         showRating={false}
-                        defaultRating={0}
+                        defaultRating={this.state.defaultRating}
                         onFinishRating={this.ratingCompleted}
                     />
                 </View>
@@ -150,6 +155,7 @@ class ReviewProfile extends Component {
                     <View style={styles.buttonSendContainer}>
                         <Button title='Gửi' titleStyle={{ fontSize: hp(2) }}
                             buttonStyle={styles.buttonSend}
+                            disabled={this.state.pressed}
                             onPress={() => this.clearText(storeId)} />
                     </View>
                 </View>
