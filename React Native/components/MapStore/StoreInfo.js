@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 import { StyleSheet, Text, View, Image } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
-import ROOT from '../../constants/Root'
-
+// Constants
 import Colors from '../../constants/Colors';
 
 export class StoreInfo extends Component {
@@ -11,7 +10,7 @@ export class StoreInfo extends Component {
         this.state = { }
     }
     render() {
-        const { data: { storeName, description, distance, storeRating } } = this.props;
+        const { data: { storeName, description, storeRating, categoryName } } = this.props;
         return (
             <View style={styles.container}>
                 <View style={styles.mainInfo}>
@@ -22,16 +21,12 @@ export class StoreInfo extends Component {
                             <Text style={styles.extraText}>{storeRating}</Text>
                             <FontAwesome name='circle' size={15} color='#40E247' />
                             <Text style={styles.extraText}>8:00 - 22:00</Text>
-                            <Text style={styles.extraText}>{this.props.categoryName}</Text>
+                            <Text style={styles.extraText}>{categoryName}</Text>
                         </View>
                     </View>
                     <View style={styles.promotionView}>
                         <Text>{description}</Text>
                     </View>
-                </View>
-
-                <View style={styles.distanceView}>
-                    <Text style={styles.distance}>{distance} m</Text>
                 </View>
             </View>
         );
@@ -51,15 +46,12 @@ export class Avatar extends Component {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 0.71,
+        flex: 0.7,
         flexDirection: 'row',
         alignItems: 'flex-start',
     },
     mainInfo: {
-        flex: 0.86,
-    },
-    distanceView: {
-        flex: 0.14,
+        flex: 1,
     },
     storeInfo: {
         flex: 0.5,
@@ -83,12 +75,6 @@ const styles = StyleSheet.create({
         fontSize: 12,
         marginLeft: 3,
         marginRight: 8,
-    },
-    distance: {
-        color: Colors.extraText,
-        fontSize: 13,
-        textAlign: 'right',
-        lineHeight: 25,
     },
     imageContainer: {
         flex: 0.28,

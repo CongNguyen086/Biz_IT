@@ -7,6 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import LoginScreen from './screens/Login';
 
 import AppNavigator from './navigation/AppNavigator';
+import MapStore from './screens/MapStore'
 
 export default function App(props) {
   const [isLoadingComplete, setLoadingComplete] = useState(false);
@@ -23,6 +24,7 @@ export default function App(props) {
     return (
       <View style={styles.container}>
         {Platform.OS === 'ios' && <StatusBar barStyle="default" />}
+        {/* <MapStore /> */}
         <AppNavigator />
         {/* <LoginScreen /> */}
       </View>

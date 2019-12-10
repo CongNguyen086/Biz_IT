@@ -6,12 +6,14 @@ import { Icon } from 'react-native-elements'
 import Login from '../screens/Login';
 import HomePage from '../screens/HomePage';
 import Loading from '../screens/Loading';
+import MapStore from '../screens/MapStore'
 import DealDetails from '../screens/DealDetails';
 import StoreProfile from '../screens/StoreProfile';
 import PaymentScreen from '../screens/PaymentScreen';
 import AfterPaymentScreen from '../screens/AfterPaymentScreen';
 import SendCodeScreen from '../screens/SendCodeScreen';
-import { Ionicons } from '@expo/vector-icons';
+
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import TabBarIcon from '../components/TabBarIcon';
 
 import Colors from '../constants/Colors';
@@ -27,25 +29,47 @@ const HomeStack = createStackNavigator(
 HomeStack.navigationOptions = {
   header: null,
   tabBarLabel: 'Ưu Đãi',
-  tabBarIcon: (<Image  style={{width: 25, height: 25}} source={require('../assets/icons/deal.png')} />),
+  tabBarIcon: ({ focused }) => (
+    <Ionicons name='ios-gift' size={28} color={focused ? Colors.momoColor : Colors.tabIconDefault} />
+  ),
   tabBarOptions: {
     activeTintColor: Colors.momoColor,
-    inactiveTintColor: 'gray',
+    inactiveTintColor: Colors.tabIconDefault,
   },
 };
 
-const HistoryStack = createStackNavigator(
+const MapStack = createStackNavigator(
   {
-    Home: HomePage,
+    Meeting: MapStore,
   }
 );
 
-HistoryStack.navigationOptions = {
-  tabBarLabel: 'Lịch sử GD',
-  tabBarIcon: (<Image  style={{width: 25, height: 25}} source={require('../assets/icons/history.png')} />),
+MapStack.navigationOptions = {
+  header: null,
+  tabBarLabel: 'Điểm Hẹn',
+  tabBarIcon: ({ focused }) => (
+    <MaterialCommunityIcons name='map-marker-radius' size={30} color={focused ? Colors.momoColor : Colors.tabIconDefault} />
+  ),
   tabBarOptions: {
     activeTintColor: Colors.momoColor,
-    inactiveTintColor: 'gray',
+    inactiveTintColor: Colors.tabIconDefault,
+  },
+};
+
+const ConnectStack = createStackNavigator(
+  {
+    Connect: HomePage,
+  }
+);
+
+ConnectStack.navigationOptions = {
+  tabBarLabel: 'Kết nối',
+  tabBarIcon: ({ focused }) => (
+    <Ionicons name='ios-people' size={35} color={focused ? Colors.momoColor : Colors.tabIconDefault} />
+  ),
+  tabBarOptions: {
+    activeTintColor: Colors.momoColor,
+    inactiveTintColor: Colors.tabIconDefault,
   },
 };
 
@@ -66,8 +90,9 @@ WalletStack.navigationOptions = {
 
 const TabNavigator = createBottomTabNavigator({
   HomeStack,
-  HistoryStack,
-  WalletStack
+  MapStack,
+  ConnectStack,
+  WalletStack,
 },
 {
   navigationOptions: {
@@ -85,6 +110,7 @@ const App = createStackNavigator(
     AfterPayment: AfterPaymentScreen,
   },
   {
+    // initialRouteName: 'HomePage',
     initialRouteName: 'HomePage',
     /* The header config from HomeScreen is now here */
     defaultNavigationOptions: {

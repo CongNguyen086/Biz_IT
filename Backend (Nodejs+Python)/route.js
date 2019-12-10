@@ -2,11 +2,17 @@ const express = require('express')
 const mysql = require('mysql')
 const bodyParser = require('body-parser');
 const multer = require('multer');
+const cors = require('cors')
+
+const GeoCalculate = require('./models/GeoCalculate')
+const Store = require('./models/Store')
+const Category = require('./models/Category')
 
 // mysql://bb0fa2c19d3675:8fbf3bba@us-cdbr-iron-east-05.cleardb.net/heroku_35c3d24bcc95fd7?reconnect=true
 
 const app = express()
 
+app.use(cors())
 app.use(bodyParser.json());
 // app.use(express.static('upload'));
 app.use(express.static(__dirname + '/uploads'));
@@ -14,7 +20,7 @@ app.use(express.static(__dirname + '/uploads'));
 const connection = mysql.createConnection({
     host: '127.0.0.1',
     user: 'root',
-    password: 'Khang20.09',
+    password: 'sa123',
     database: 'bit_system',
     port: '3306',
     multipleStatements: true
@@ -227,6 +233,37 @@ app.get('/getcategory', (req, res) => {
             res.send(rows)
         } else console.log(error)
     })
+})
+
+app.post('/getMiddlePoint', (req, res) => {
+    const data = {
+        locationList: req.body.locationList
+    }
+    const middleCoords = GeoCalculate.getCenterPoint(data.locationList)
+    if(middleCoords !== 'undefined') {
+        res.send(middleCoords)
+        console.log(middleCoords)
+    }
+})
+
+app.post('/getStoresInRange/', async (req, res) => {
+    const data = {
+        middleLat: req.body.middleLat,
+        middleLng: req.body.middleLng,
+        radius: req.body.radius,
+    }
+    let storeList = await Store.getStoresInRange(data.middleLat, data.middleLng, data.radius)
+    
+    if (storeList != null) {
+        res.send(storeList)
+    }
+})
+
+app.get('/getAllCategories', async (req, res) => {
+    const list = await Category.getAllCategory()
+    if (list != null) {
+        res.send(list)
+    }
 })
 
 const port = process.env.PORT || 3000

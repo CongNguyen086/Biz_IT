@@ -10,6 +10,8 @@ export default {
   bgColor,
   extraText,
   button,
+  defaultMarkerColor: '#F54848',
+  blueMarker: 'rgb(25,183,255)',
 
   tabIconDefault: '#ccc',
   tabIconSelected: tintColor,

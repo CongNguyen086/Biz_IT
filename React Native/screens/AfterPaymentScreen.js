@@ -27,7 +27,7 @@ class AfterPaymentScreen extends Component {
     onShare = async () => {
         try {
             const result = await Share.share({
-                message: this.state.randomCode
+                message: 'Hi, mình muốn gửi cho bạn mã tích điểm. ' + this.state.randomCode
             });
 
             if (result.action === Share.sharedAction) {
