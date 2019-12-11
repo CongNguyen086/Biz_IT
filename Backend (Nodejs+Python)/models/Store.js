@@ -1,6 +1,7 @@
 const geolib = require('geolib')
 // const Builder = require('./DB')
-import { builder } from './DB'
+// import { builder }  from './DB'
+const builder = require('./DB');
 // const GeoCalculate = require('./GeoCalculate')
 
 const getAllStores = async () => {

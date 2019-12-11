@@ -23,7 +23,7 @@ app.use(express.static(__dirname + '/uploads'));
 const connection = mysql.createConnection({
     host: '127.0.0.1',
     user: 'root',
-    password: 'sa123',
+    password: 'Khang20.09',
     database: 'bit_system',
     port: '3306',
     multipleStatements: true
@@ -34,31 +34,6 @@ connection.connect((error) => {
         console.log('Connect database succeeded')
     } else
         console.log('Connect database failed', error)
-});
-
-//POST NEW TRANSACTION INTO DATABASE - API 1
-app.post('/transaction/post', (req, res) => {
-    const transactionTime = req.query.transactionTime
-    const userId = req.query.userId
-    const storeId = req.query.storeId
-    const amount = req.query.amount
-
-    const queryString = 'INSERT INTO transactions (transactionsTime, userId, storeId, amount) VALUES (?, ?, ? ,?)'
-    connection.query(queryString, [transactionTime, userId, storeId, amount], (error, rows, fields) => {
-        if (!error) {
-            res.send('Insert into transactions successfully')
-            console.log(rows)
-        } else console.log(error);
-    })
-})
-
-//GET DEAL FROM DATABASE - API 4
-app.get('/deal', (req, res) => {
-    connection.query('SELECT * FROM deal', (error, rows, fields) => {
-        if (!error) {
-            res.send(rows)
-        } else console.log(error);
-    })
 });
 
 // UserId: 8159657106479438377
@@ -438,6 +413,16 @@ app.put('/redeemreward', (req, res) => {
     const userReward = req.query.userReward
 
     connection.query('UPDATE users SET userScore = ?, userReward = ?  WHERE userId = ?;', [userScore, userReward, userId], (error, rows, fields) => {
+        if (!error) {
+            res.send(rows)
+        } else console.log(error)
+    })
+})
+
+app.get('/getmerchantimage', (req, res) => {
+    const serviceId = req.query.serviceId
+
+    connection.query('SELECT * FROM merchants WHERE serviceId = ?;', [serviceId], (error, rows, fields) => {
         if (!error) {
             res.send(rows)
         } else console.log(error)

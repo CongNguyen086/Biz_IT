@@ -15,6 +15,21 @@ class MainProfile extends Component {
         Linking.openURL(url);
     }
 
+    async componentDidMount() {
+        await this.getMerchantImage(this.props.serviceId)
+    }
+
+    getMerchantImage = async (serviceId) => {
+        try {
+            const response = await fetch(ROOT + `/getmerchantimage?serviceId=${serviceId}`);
+            const jsonData = await response.json();
+            this.setState({ reviewImage: jsonData[0].reviewImage })
+            console.log(this.state.reviewImage);
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     render() {
         const { name, star, address, distance, storeId, latitude, longitude } = this.props;
         return (
