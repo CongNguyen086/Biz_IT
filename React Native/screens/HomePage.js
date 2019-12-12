@@ -140,6 +140,7 @@ export default class HomePage extends Component {
   }
   componentWillUnmount() {
     this.listener && Notifications.removeListener(this.listen)
+    this.focusListener.remove();
   }
   listen = (notification) => {
     if (notification.origin == 'selected') {
@@ -154,10 +155,13 @@ export default class HomePage extends Component {
     this.putUserScore(this.state.userScore + 20, this.state.userScoreTotal + 20)
   }
   async componentDidMount() {
-    await this.getTimeRecommendation();
-    await this.getRecommendation();
-    await this.getPopular();
-    await this.getUserCash();
+    const { navigation } = this.props;
+    this.focusListener = await navigation.addListener('didFocus', async () => {
+      await this.getTimeRecommendation();
+      await this.getRecommendation();
+      await this.getPopular();
+      await this.getUserCash();
+    });
   }
   render() {
     return (

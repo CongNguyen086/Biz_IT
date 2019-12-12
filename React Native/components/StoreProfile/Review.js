@@ -5,6 +5,7 @@ import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-nat
 
 import ReviewElement from '../StoreProfile/ReviewElement';
 import ROOT from '../../constants/Root';
+import Colors from '../../constants/Colors'
 
 class Review extends Component {
     constructor(props) {
@@ -13,13 +14,34 @@ class Review extends Component {
             reviewData: [],
         }
     }
-    componentDidMount () {
+    componentDidMount() {
         this.getReviewData(this.props.storeId)
     }
     getReviewData = async (storeId) => {
         const response = await fetch(ROOT + `/getreview?storeId=${storeId}`);
         const jsonData = await response.json();
         this.setState({ reviewData: jsonData })
+    }
+    renderReview = () => {
+        const { reviewData } = this.state
+        if (reviewData.length == 0) {
+            return (
+                <View style={[styles.reviewElementContainer, styles.noReviewContainer]}>
+                    <Text style={styles.noReviewText}>
+                        Chưa có nhận xét nào. Hãy đóng góp cho chúng tôi
+                    </Text>
+                </View>
+            )
+        }
+        return (
+            <View style={styles.reviewElementContainer}>
+                <FlatList
+                    data={this.state.reviewData.reverse()}
+                    renderItem={({ item }) => <ReviewElement name={item.fullName} star={item.reviewRating} comment={item.reviewComment} reviewId={item.reviewId} />}
+                    keyExtractor={(item, index) => index.toString()}
+                />
+            </View>
+        )
     }
     render() {
         return (
@@ -28,13 +50,7 @@ class Review extends Component {
                     <FontAwesome name='star' size={hp(4)} color='grey' style={styles.headerIcon} />
                     <Text style={styles.headerLabel}>Đánh giá cửa hàng</Text>
                 </View>
-                <View style={styles.reviewElementContainer}>
-                    <FlatList
-                        data={this.state.reviewData.reverse()}
-                        renderItem={({ item }) => <ReviewElement name={item.fullName} star={item.reviewRating} comment={item.reviewComment} reviewId={item.reviewId} />}
-                        keyExtractor={ (item, index) => index.toString() }
-                    />
-                </View>
+                {this.renderReview()}
             </View>
         );
     }
@@ -69,7 +85,15 @@ const styles = StyleSheet.create({
         flex: 0.8,
         borderBottomWidth: 1,
         borderBottomColor: 'grey'
-    }
+    },
+    noReviewContainer: {
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    noReviewText: {
+        fontSize: hp(2),
+        color: Colors.extraText,
+    },
 });
 
 export default Review;

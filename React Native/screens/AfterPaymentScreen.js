@@ -89,7 +89,7 @@ class AfterPaymentScreen extends Component {
         try {
             const result = await Share.share({
                 title: 'Hello',
-                message: 'Hãy tham gia cuộc vui với tôi tại địa chỉ: ' + this.state.storeAddress + ' và nhận những ưu đãi hấp dẫn khi thanh toán nhé. Đây là mã của tôi: ' + this.state.randomCode
+                message: this.state.randomCode + '. Hãy nhập mã khuyến mãi này tại ' + this.state.storeAddress + ' để tham gia cuộc vui cùng tôi và nhận những ưu đãi hấp dẫn khi thanh toán nhé.'
             });
 
             if (result.action === Share.sharedAction) {
