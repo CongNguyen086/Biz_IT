@@ -70,6 +70,7 @@ class StoreProfile extends Component {
                         distance={distance}
                         latitude={info.latitude}
                         longitude={info.longitude}
+                        serviceId={info.serviceId}
                     />
                 </View>
                 <View style={styles.review}>

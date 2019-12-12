@@ -330,8 +330,7 @@ class ConnectScreen extends Component {
 }
 
 ConnectScreen.navigationOptions = {
-    title: "Kết Nối",
-
+    headerTitle: <HeaderTitle title='Kết nối' />
 };
 
 const styles = StyleSheet.create({
