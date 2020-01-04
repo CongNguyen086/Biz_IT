@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { StyleSheet, Text, View, Image } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
-import ROOT from '../../constants/Root'
 
 import Colors from '../../constants/Colors';
 

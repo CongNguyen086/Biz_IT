@@ -3,11 +3,12 @@ const mysql = require('mysql')
 const bodyParser = require('body-parser');
 const multer = require('multer');
 const cors = require('cors')
+const { Expo } = require('expo-server-sdk');
 
 const GeoCalculate = require('./models/GeoCalculate')
 const Store = require('./models/Store')
 const Category = require('./models/Category')
-const { Expo } = require('expo-server-sdk');
+const DB = require('./models/DB')
 
 let expo = new Expo();
 
@@ -20,14 +21,7 @@ app.use(bodyParser.json());
 // app.use(express.static('upload'));
 app.use(express.static(__dirname + '/uploads'));
 
-const connection = mysql.createConnection({
-    host: '127.0.0.1',
-    user: 'root',
-    password: 'Khang20.09',
-    database: 'bit_system',
-    port: '3306',
-    multipleStatements: true
-});
+const connection = mysql.createConnection(DB.connection);
 
 connection.connect((error) => {
     if (!error) {

@@ -1,8 +1,6 @@
 const geolib = require('geolib')
 // const Builder = require('./DB')
-// import { builder }  from './DB'
-const builder = require('./DB');
-// const GeoCalculate = require('./GeoCalculate')
+import { builder }  from './DB'
 
 const getAllStores = async () => {
     try {
@@ -21,7 +19,6 @@ const getAllStores = async () => {
 const getStoresInRange = async (middleLat, middleLng, radius) => {
     let storeInRangeList = []
     try {
-        // let middleCoords = GeoCalculate.getCenterPoint()
         let allStores = await getAllStores()
         if (allStores != null) {
             allStores.forEach(element => {

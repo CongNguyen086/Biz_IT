@@ -13,7 +13,7 @@ import FBLoginButton from '../components/FBLoginButton';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import * as Facebook from 'expo-facebook';
 // Constants
-import ROOT from '../constants/Root';
+import config from '../constants/config';
 
 const BG_IMAGE = require('../assets/images/login_background.png');
 
@@ -56,7 +56,7 @@ export default class LoginScreen extends Component {
     this.setState({ showLoading: !showLoading });
     Keyboard.dismiss();
     // await AsyncStorage.clear();
-    const response = await fetch(ROOT + `/login?phone=${phone}&password=${password}`);
+    const response = await fetch(config.ROOT + `/login?phone=${phone}&password=${password}`);
     const jsonData = await response.json();
     console.log(jsonData[0])
     if (jsonData[0] != null) {
@@ -74,13 +74,10 @@ export default class LoginScreen extends Component {
       const {
         type,
         token,
-      } = await Facebook.logInWithReadPermissionsAsync('795764707522976', 
+      } = await Facebook.logInWithReadPermissionsAsync(config.API_ID, 
       {
         permissions: [
           'public_profile',
-
-          // 'manage_pages', 
-          // 'publish_pages',
         ],        
       });
       if (type === 'success') {

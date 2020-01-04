@@ -14,7 +14,7 @@ import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-nat
 // Constants
 import HeaderTitle from '../components/HeaderTitle';
 import Colors from '../constants/Colors';
-import ROOT from '../constants/Root';
+import config from '../constants/config';
 // Components
 import DealInfo from '../components/DealDetails/DealInfo';
 import StoreList from '../components/DealDetails/StoreList';
@@ -39,7 +39,7 @@ class DealDetails extends Component {
 
     getStoreDealList = async () => {
         // const passedData = navigation.getParam('info', 'No info');
-        const response = await fetch(ROOT + `/getstorepromotion?dealId=${passedData.dealId}`)
+        const response = await fetch(config.ROOT + `/getstorepromotion?dealId=${passedData.dealId}`)
         const jsonData = await response.json();
         this.setState({ data: jsonData });
         // this.setState({ data: jsonData }, ()=>console.log(this.state.data));

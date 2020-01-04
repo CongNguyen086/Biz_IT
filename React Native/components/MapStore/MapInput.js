@@ -4,7 +4,7 @@ import { Icon } from 'react-native-elements'
 import { Ionicons } from '@expo/vector-icons'
 import { GoogleAutoComplete } from 'react-native-google-autocomplete'
 // Constant
-import { ApiKey } from '../../constants/Root'
+import config from '../../constants/config'
 import Colors from '../../constants/Colors'
 // Component
 import LocationList from './LocationList'
@@ -47,7 +47,7 @@ class MapInput extends Component {
             info: { title, markColor }, hideAdd, onPressAdd } = this.props
         return (
             <GoogleAutoComplete
-                apiKey={ApiKey}
+                apiKey={config.API_KEY}
                 debounce={300}
                 language='vi'
                 minLength={2}

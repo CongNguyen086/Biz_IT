@@ -4,7 +4,7 @@ import { FontAwesome } from '@expo/vector-icons';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
 import ReviewElement from '../StoreProfile/ReviewElement';
-import ROOT from '../../constants/Root';
+import config from '../../constants/config';
 import Colors from '../../constants/Colors'
 
 class Review extends Component {
@@ -18,7 +18,7 @@ class Review extends Component {
         this.getReviewData(this.props.storeId)
     }
     getReviewData = async (storeId) => {
-        const response = await fetch(ROOT + `/getreview?storeId=${storeId}`);
+        const response = await fetch(config.ROOT + `/getreview?storeId=${storeId}`);
         const jsonData = await response.json();
         this.setState({ reviewData: jsonData })
     }

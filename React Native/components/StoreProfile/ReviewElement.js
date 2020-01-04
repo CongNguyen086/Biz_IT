@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { StyleSheet, Text, View, Image, FlatList } from 'react-native';
 import { Rating, ListItem } from 'react-native-elements'
-import ROOT from '../../constants/Root'
+import config from '../../constants/config'
 
 class ReviewElement extends Component {
     constructor(props) {
@@ -14,12 +14,12 @@ class ReviewElement extends Component {
         this.getImageData(this.props.reviewId)
     }
     getReviewData = async (storeId) => {
-        const response = await fetch(ROOT + `/getreview?storeId=${storeId}`);
+        const response = await fetch(config.ROOT + `/getreview?storeId=${storeId}`);
         const jsonData = await response.json();
         this.setState({ reviewData: jsonData })
     }
     getImageData = async (reviewId) => {
-        const response = await fetch(ROOT + `/getimage?reviewId=${reviewId}`);
+        const response = await fetch(config.ROOT + `/getimage?reviewId=${reviewId}`);
         const jsonData = await response.json();
         this.setState({ dataImage: jsonData })
     }
@@ -47,7 +47,7 @@ class ReviewElement extends Component {
                 <View style={styles.imageContainer}>
                     <FlatList
                         data={this.state.dataImage}
-                        renderItem={({ item }) => <Image style={styles.image} source={{ uri: ROOT + '/' + item.reviewPhoto.substring(8) }} />}
+                        renderItem={({ item }) => <Image style={styles.image} source={{ uri: config.ROOT + '/' + item.reviewPhoto.substring(8) }} />}
                         keyExtractor={item => item.reviewPhoto}
                         horizontal={true}
                     />

@@ -7,7 +7,7 @@ import * as Permissions from 'expo-permissions';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 // Constant
 import Colors from '../../constants/Colors';
-import ROOT from '../../constants/Root';
+import config from '../../constants/config';
 
 class ReviewProfile extends Component {
     constructor(props) {
@@ -51,10 +51,10 @@ class ReviewProfile extends Component {
     }
 
     updateStoreRating = async (storeId) => {
-        const getResponse = await fetch(ROOT + `/getstorerating?storeId=${storeId}`);
+        const getResponse = await fetch(config.ROOT + `/getstorerating?storeId=${storeId}`);
         const getData = await getResponse.json();
 
-        const putResponse = await fetch(ROOT + `/updatestorerating?storeRating=${getData[0].rating}&storeId=${storeId}`, {
+        const putResponse = await fetch(config.ROOT + `/updatestorerating?storeRating=${getData[0].rating}&storeId=${storeId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -65,7 +65,7 @@ class ReviewProfile extends Component {
 
     clearText = async (storeId) => {
         const userId = await AsyncStorage.getItem('@userToken');
-        const response = await fetch(ROOT + `/sendreview?rating=${this.state.rating}&comment=${this.state.text}&userId=${userId}&storeId=${storeId}`, {
+        const response = await fetch(config.ROOT + `/sendreview?rating=${this.state.rating}&comment=${this.state.text}&userId=${userId}&storeId=${storeId}`, {
             method: 'POST',
             headers: {
                 Accept: 'application/json',
@@ -94,7 +94,7 @@ class ReviewProfile extends Component {
 
             let data = new FormData();
             data.append('upload', { uri: localUri, name: filename, type })
-            const response = await fetch(ROOT + `/upload?reviewId=${reviewId}`, {
+            const response = await fetch(config.ROOT + `/upload?reviewId=${reviewId}`, {
                 method: 'POST',
                 headers: {
                     Accept: 'application/json',

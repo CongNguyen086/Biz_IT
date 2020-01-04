@@ -6,7 +6,7 @@ import * as Permissions from 'expo-permissions';
 import { Feather } from '@expo/vector-icons';
 import Modal from "react-native-modal";
 // Constants
-import ROOT from '../constants/Root'
+import config from '../constants/config'
 // Components
 import Header_HomePage from '../components/HomePage/Header_HomePage'
 import Categories_HomePage from '../components/HomePage/Categories_HomePage'
@@ -34,7 +34,7 @@ export default class HomePage extends Component {
       const token = await AsyncStorage.getItem('@userToken');
       const today = new Date();
       const current_time = today.getHours() + ':' + today.getMinutes() + ':' + today.getSeconds();
-      const response = await fetch(ROOT + `/gettimerecommendationdeal?userId=${token}&currentTime=${current_time}`);
+      const response = await fetch(config.ROOT + `/gettimerecommendationdeal?userId=${token}&currentTime=${current_time}`);
       const jsonData = await response.json();
       this.setState({ timeData: jsonData[0] })
     } catch (error) {
@@ -44,7 +44,7 @@ export default class HomePage extends Component {
   getUserCash = async () => {
     try {
       const userId = await AsyncStorage.getItem('@userToken');
-      const response = await fetch(ROOT + `/getuserinfobyid?userId=${userId}`);
+      const response = await fetch(config.ROOT + `/getuserinfobyid?userId=${userId}`);
       const jsonData = await response.json();
       this.setState({ cash: jsonData[0].userCash })
       this.setState({ userReward: jsonData[0].userReward })
@@ -57,7 +57,7 @@ export default class HomePage extends Component {
   getRecommendation = async () => {
     try {
       const token = await AsyncStorage.getItem('@userToken');
-      const response = await fetch(ROOT + `/getrecommendeddeal?userId=${token}`);
+      const response = await fetch(config.ROOT + `/getrecommendeddeal?userId=${token}`);
       const jsonData = await response.json();
       this.setState({ recommendData: jsonData[0] })
     } catch (error) {
@@ -66,7 +66,7 @@ export default class HomePage extends Component {
   }
   getPopular = async () => {
     try {
-      const response = await fetch(ROOT + `/getpopulardeal`);
+      const response = await fetch(config.ROOT + `/getpopulardeal`);
       const jsonData = await response.json();
       this.setState({ popularData: jsonData[0] })
     } catch (error) {
@@ -93,7 +93,7 @@ export default class HomePage extends Component {
   postUserToken = async (userToken) => {
     try {
       const userId = await AsyncStorage.getItem('@userToken');
-      const response = await fetch(ROOT + `/postusertoken?userToken=${userToken}&userId=${userId}`, {
+      const response = await fetch(config.ROOT + `/postusertoken?userToken=${userToken}&userId=${userId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -106,7 +106,7 @@ export default class HomePage extends Component {
   }
   putUserScore = async (userScore, userScoreTotal) => {
     const userId = await AsyncStorage.getItem('@userToken');
-    const response = await fetch(ROOT + `/applyscore?userScore=${userScore}&userId=${userId}&userScoreTotal=${userScoreTotal}`, {
+    const response = await fetch(config.ROOT + `/applyscore?userScore=${userScore}&userId=${userId}&userScoreTotal=${userScoreTotal}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -168,7 +168,7 @@ export default class HomePage extends Component {
       <SafeAreaView style={styles.safeAreaViewStyle}>
         <View style={styles.container}>
           <Modal isVisible={this.state.isModalVisible}>
-            <View style={{ flex: 0.5, backgroundColor: 'white', borderRadius: 10, alignItems: 'center' }}>
+            <View style={{ flex: 0.47, backgroundColor: 'white', borderRadius: 10, alignItems: 'center' }}>
               <ImageBackground
                 source={require('../assets/images/light-box-bg.png')}
                 style={{

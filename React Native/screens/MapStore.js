@@ -7,7 +7,7 @@ import { getDistance } from 'geolib'
 import * as Location from 'expo-location'
 import * as Permissions from 'expo-permissions'
 // Constants
-import ROOT from '../constants/Root'
+import config from '../constants/config'
 import Colors from '../constants/Colors'
 // Components
 import MapInput from '../components/MapStore/MapInput'
@@ -88,7 +88,7 @@ class MapStore extends Component {
                 longitude: loc.coords.lng
             })
         })
-        const respond = await fetch(ROOT + `/getMiddlePoint`, {
+        const respond = await fetch(config.ROOT + `/getMiddlePoint`, {
             method: 'POST',
             headers: {
                 "Content-Type": "application/json"
@@ -131,7 +131,7 @@ class MapStore extends Component {
 
     getStoresInRange = async () => {
         const { latitude, longitude } = this.state.middleCoords
-        const respond = await fetch(ROOT + `/getStoresInRange/`, {
+        const respond = await fetch(config.ROOT + `/getStoresInRange/`, {
             method: 'POST',
             headers: {
                 "Content-Type": "application/json"
@@ -290,7 +290,7 @@ class MapStore extends Component {
     }
 
     renderFilter = async () => {
-        const res = await fetch(ROOT + '/getAllCategories')
+        const res = await fetch(config.ROOT + '/getAllCategories')
         const cateList = await res.json()
         if (cateList != null) {
             this.setState({
