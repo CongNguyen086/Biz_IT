@@ -10,5 +10,4 @@ npm-debug.*
 web-build/
 web-report/
 config.js
-python/data/
 */python/data/
