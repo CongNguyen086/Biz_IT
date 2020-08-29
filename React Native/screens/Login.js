@@ -243,7 +243,7 @@ const styles = StyleSheet.create({
     // marginTop: hp(0),
   },
   plusTitle: {
-    fontFamily: 'Roboto',
+    fontFamily: 'Roboto-Regular',
     color: '#CCCCCC',
     fontSize: hp(2),
   },

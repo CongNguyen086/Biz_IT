@@ -329,7 +329,7 @@ class PaymentScreen extends Component {
                             <View style={{ justifyContent: 'center', alignItems: 'center', paddingTop: hp(5) }}>
                                 <Text
                                     style={{
-                                        fontFamily: 'Roboto',
+                                        fontFamily: 'Roboto-Regular',
                                         fontWeight: 'bold',
                                         textAlign: 'center',
                                         fontSize: hp(3),
@@ -344,14 +344,14 @@ class PaymentScreen extends Component {
                                     fontWeight: 'bold',
                                     textAlign: 'center',
                                     color: '#AE2070',
-                                    fontFamily: 'Roboto'
+                                    fontFamily: 'Roboto-Regular'
                                 }}
                             >Chia sẻ ngay - nhận điểm liền tay</Text>
                             <Text
                                 style={{
                                     fontSize: hp(2.5),
                                     textAlign: 'center',
-                                    fontFamily: 'Roboto',
+                                    fontFamily: 'Roboto-Regular',
                                     marginVertical: hp(2)
                                 }}
                             >Chia sẻ lên facebook và nhận 20 điểm {'\n'} kết nối ngay</Text>

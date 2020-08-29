@@ -126,7 +126,7 @@ class AfterPaymentScreen extends Component {
                             <View style={{ justifyContent: 'center', alignItems: 'center', paddingTop: hp(3) }}>
                                 <Text
                                     style={{
-                                        fontFamily: 'Roboto',
+                                        fontFamily: 'Roboto-Regular',
                                         fontWeight: 'bold',
                                         textAlign: 'center',
                                         fontSize: hp(3),
@@ -141,7 +141,7 @@ class AfterPaymentScreen extends Component {
                                     fontWeight: 'bold',
                                     textAlign: 'center',
                                     color: '#828282',
-                                    fontFamily: 'Roboto',
+                                    fontFamily: 'Roboto-Regular',
                                     marginTop: hp(2)
                                 }}
                             >Bạn đã chia sẻ và nhận được 20 điểm kết nối</Text>

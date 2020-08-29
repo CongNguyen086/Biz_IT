@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { ListItem } from 'react-native-elements';
-import PercentageCircle from 'react-native-percentage-circle';
+import PercentageCircle from 'react-native-progress-circle';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Icon } from 'react-native-elements';
 import Modal from "react-native-modal";
@@ -145,7 +145,7 @@ class ConnectScreen extends Component {
                             <View style={{ justifyContent: 'center', alignItems: 'center', paddingTop: hp(1) }}>
                                 <Text
                                     style={{
-                                        fontFamily: 'Roboto',
+                                        fontFamily: 'Roboto-Regular',
                                         fontWeight: 'bold',
                                         textAlign: 'center',
                                         fontSize: hp(3),                                        
@@ -160,7 +160,7 @@ class ConnectScreen extends Component {
                                     fontWeight: 'bold',
                                     textAlign: 'center',
                                     color: '#828282',
-                                    fontFamily: 'Roboto',
+                                    fontFamily: 'Roboto-Regular',
                                     marginTop: hp(2)
                                 }}
                             >Quy đổi {this.state.dealPoint / 50 * 300} điểm kết nối{'\n'}thành {this.state.dealPoint} điểm ưu đãi?</Text>
