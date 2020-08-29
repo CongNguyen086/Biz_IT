@@ -37,7 +37,7 @@ export default class LightBox extends Component {
                         <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                             <Text
                                 style={{
-                                    fontFamily: 'Roboto',
+                                    fontFamily: 'Roboto-Regular',
                                     fontWeight: 'bold',
                                     textAlign: 'center',
                                     fontSize: hp(3),
@@ -52,14 +52,14 @@ export default class LightBox extends Component {
                                 fontWeight: 'bold',
                                 textAlign: 'center',
                                 color: '#AE2070',
-                                fontFamily: 'Roboto'
+                                fontFamily: 'Roboto-Regular'
                             }}
                         >Bạn nhận được ưu đãi</Text>
                         <Text
                             style={{
                                 fontSize: hp(2.5),
                                 textAlign: 'center',
-                                fontFamily: 'Roboto',
+                                fontFamily: 'Roboto-Regular',
                                 marginVertical: hp(2)
                             }}
                         >Giảm 20.000 khi thanh toán trên{'\n'} Google Play</Text>
