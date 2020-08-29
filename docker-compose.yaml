@@ -1,12 +1,12 @@
 version: "3"
 services:
   mysql-server:
-    image: "mysql:latest"
+    image: "mysql:5.7"
     ports:
-      - 5000:5000
+      - 9090:3306
     environment:
-      - MYSQL_PASSWORD=root
-      - MYSQL_USER=sa123
+      - MYSQL_USER=root
+      - MYSQL_ROOT_PASSWORD=root
     volumes:
       - ./backup:/app
   node-server:
@@ -19,5 +19,5 @@ services:
     volumes:
       - /app/node_modules
       - ./Backend:/app
-    expose:
-      - 3000
+    ports: 
+      - 3000:3000

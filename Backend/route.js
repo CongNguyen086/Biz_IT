@@ -39,6 +39,10 @@ app.get('/getpopulardeal', (req, res) => {
     })
 })
 
+app.get('/', (req,res) => {
+    res.json({"connected": 'connected'}).status(200)
+})
+
 app.get('/getrecommendeddeal', (req, res) => {
     const userId = req.query.userId
     connection.query('CALL GetRecommendedDeal(?)', [userId], (error, rows, fields) => {

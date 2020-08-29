@@ -1,10 +1,10 @@
 const connection = {
-    host: '127.0.0.1',
+    host: 'mysql-server',
     user: "root",
-    password: "sa123",
+    password: "root",
     database: "bit_system",
-    port: '5000',
-    multipleStatements: true
+    port: '3306',
+    multipleStatements: true,
 }
 
 const builder = require('knex')({
