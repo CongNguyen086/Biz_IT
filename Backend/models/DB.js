@@ -3,7 +3,7 @@ const connection = {
     user: "root",
     password: "sa123",
     database: "bit_system",
-    port: '3306',
+    port: '5000',
     multipleStatements: true
 }
 

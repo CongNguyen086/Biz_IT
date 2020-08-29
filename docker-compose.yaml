@@ -1,0 +1,23 @@
+version: "3"
+services:
+  mysql-server:
+    image: "mysql:latest"
+    ports:
+      - 5000:5000
+    environment:
+      - MYSQL_PASSWORD=root
+      - MYSQL_USER=sa123
+    volumes:
+      - ./backup:/app
+  node-server:
+    restart: always
+    depends_on:
+      - mysql-server
+    build:
+      context: "./Backend"
+      dockerfile: "./Dockerfile"
+    volumes:
+      - /app/node_modules
+      - ./Backend:/app
+    expose:
+      - 3000
