@@ -329,10 +329,10 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   headerContaier: {
-    flex: 0.45
+    // flex: 0.45
   },
   bodyContainer: {
-    flex: 0.65
+    // flex: 0.65
   },
   categories: {
     flex: 1 / 3,
