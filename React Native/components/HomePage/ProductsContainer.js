@@ -24,16 +24,12 @@ export default class ProductsContainer extends Component {
                 <View style={styles.labelContainer}>
                     <Text style={styles.label}>{this.props.title}</Text>
                 </View>
-                <FlatList
-                    data={products}
-                    renderItem={({ item }) =>
-                        <ProductElement
-                            style={styles.products}
-                            item={item}
-                            navigation={this.props.navigation} />
-                    }
-                    keyExtractor={item => item.topServiceId}
-                />
+                {products && products.map(item => (
+                    <ProductElement
+                        key={item.dealId}
+                        item={item}
+                    />
+                ))}
             </View>
         );
     }
@@ -42,7 +38,7 @@ export default class ProductsContainer extends Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        minHeight: 100,
+        // minHeight: 100,
         padding: 15,
         alignItems: 'flex-start',
     },
@@ -53,9 +49,5 @@ const styles = StyleSheet.create({
     label: {
         textAlign: 'left',
         fontWeight: '600',
-    },
-    products: {
-        flex: 0.8,
-        borderRadius: 12,
     },
 });

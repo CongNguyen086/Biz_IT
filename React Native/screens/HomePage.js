@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
-import { StyleSheet, AsyncStorage, View, SafeAreaView, Platform, ScrollView, Text, ImageBackground, Button, TouchableOpacity, Share, Alert } from 'react-native';
-import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import { StyleSheet, AsyncStorage, View, SafeAreaView, Platform, ScrollView, Text, ImageBackground, Button, TouchableOpacity, Share, Image } from 'react-native';
+import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { Notifications } from 'expo';
 import * as Permissions from 'expo-permissions';
 import { Feather } from '@expo/vector-icons';
@@ -9,8 +9,8 @@ import Modal from "react-native-modal";
 import config from '../constants/config'
 // Components
 import Header_HomePage from '../components/HomePage/Header_HomePage'
-import Categories_HomePage from '../components/HomePage/Categories_HomePage'
 import ProductsContainer from '../components/HomePage/ProductsContainer'
+import Categories_HomePage from '../components/HomePage/Categories_HomePage';
 
 export default class HomePage extends Component {
   constructor(props) {
@@ -255,11 +255,11 @@ export default class HomePage extends Component {
             cash={this.state.cash}
             userReward={this.state.userReward}
           />
-          <ScrollView style={{flex: 1}} contentContainerStyle={styles.bodyContainer} >
+          <ScrollView contentContainerStyle={styles.bodyContainer}>
             <View style={styles.card}>
               <Categories_HomePage />
             </View>
-            <View style={styles.card}>
+            <View style={[styles.card, {flex: 1, marginBottom: 15}]}>
               <ProductsContainer
                 title='Phổ biến'
                 products={products}
@@ -289,12 +289,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#EDEEEE',
   },
   bodyContainer: {
-    // flex: 0.65
     paddingHorizontal: 15,
-    flex: 1,
   },
   card: {
-    flex: 1 / 3,
+    justifyContent: 'flex-start',
+    flexDirection: 'row',
     marginTop: hp(2.5),
     backgroundColor: 'white',
     borderRadius: 10,
