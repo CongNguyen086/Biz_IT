@@ -5,31 +5,17 @@ import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-nat
 //Component
 import ProductElement from './ProductElement';
 
-
-
 export default class ProductsContainer extends Component {
     constructor(props) {
         super(props)
-        this.state = {
-            data: [],
-            loading: false
-        }
-    }
-    componentDidMount() {
-        this.setState({ loading: true})
-    }
-    componentWillReceiveProps() {
-        this.setState({ data: this.props.data })
-        if(this.state.data != null) {
-            this.setState({loading: false})
-        }
     }
 
     render() {
-        if (this.state.loading) {
+        const {loading, products} = this.props;
+        if (loading) {
             return (
                 <View style={styles.container}>
-                    <ActivityIndicator size="large" color="purple" animating={this.state.loading} />
+                    <ActivityIndicator size="large" color="purple" />
                 </View>
             );
         }
@@ -39,7 +25,7 @@ export default class ProductsContainer extends Component {
                     <Text style={styles.label}>{this.props.title}</Text>
                 </View>
                 <FlatList
-                    data={this.state.data}
+                    data={products}
                     renderItem={({ item }) =>
                         <ProductElement
                             style={styles.products}
@@ -47,8 +33,6 @@ export default class ProductsContainer extends Component {
                             navigation={this.props.navigation} />
                     }
                     keyExtractor={item => item.topServiceId}
-                    horizontal={true}
-                    refreshing={this.state.refreshing}
                 />
             </View>
         );
@@ -58,29 +42,17 @@ export default class ProductsContainer extends Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: 'white',
-        borderRadius: 10,
-        width: wp(100),
-        justifyContent: 'center',
-        paddingBottom: hp(2),
-
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 1,
-        },
-        shadowOpacity: 0.22,
-        shadowRadius: 2.22,
-        elevation: 3,
+        minHeight: 100,
+        padding: 15,
+        alignItems: 'flex-start',
     },
     labelContainer: {
-        flex: 0.2,
-        justifyContent: 'center'
+        alignItems: 'flex-start',
+        marginBottom: 10,
     },
     label: {
-        fontWeight: 'bold',
-        fontSize: hp(2.2),
-        marginLeft: 20
+        textAlign: 'left',
+        fontWeight: '600',
     },
     products: {
         flex: 0.8,
