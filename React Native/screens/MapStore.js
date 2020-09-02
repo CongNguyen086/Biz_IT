@@ -230,13 +230,21 @@ class MapStore extends Component {
             locationList: [...prevState.locationList, {coords: null, description: null}]
         }))
     }
+    onRemoveLocation = (locationIndex) => {
+        const {locationList} = this.state;
+        const newLocationList = [...locationList]
+        newLocationList.splice(locationIndex, 1)
+        this.setState({
+            locationList: newLocationList
+        })
+    }
 
     renderOtherMapInput = () => {
         const { currentRegion, locationList } = this.state
+        const {onRemoveLocation} = this
         return (
             locationList.map((loc, index) => {
                 if (index === 0) return null
-                console.log('loc.description',loc.description)
                 return (
                     <React.Fragment key={index}>
                         <Divider style={styles.separator} />
@@ -249,6 +257,7 @@ class MapStore extends Component {
                             info={{ title: `Bạn số ${index}`, markColor: Colors.defaultMarkerColor }}
                             hideAdd={!loc.description || index !== locationList.length - 1}
                             onPressAdd={this.addNewInput}
+                            onRemove={loc.description && index < locationList.length - 1 ? () => onRemoveLocation(index) : null}
                         />
                     </React.Fragment> 
                 )

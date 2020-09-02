@@ -44,7 +44,7 @@ class MapInput extends Component {
 
     render() {
         const { currentLat, currentLng, inputText, onPress, hide, 
-            info: { title, markColor }, hideAdd, onPressAdd } = this.props
+            info: { title, markColor }, hideAdd, onPressAdd, onRemove } = this.props
         return (
             <GoogleAutoComplete
                 apiKey={config.API_KEY}
@@ -64,8 +64,6 @@ class MapInput extends Component {
                 }) => {
                     return (
                         <React.Fragment>
-                            {console.log('Location Results: \n', locationResults)}
-                            {console.log('\n\nInput Value: \n', inputValue)}
                             <View style={styles.container}>
                                 <View style={styles.titleWrapper}>
                                     <Text style={styles.title}>{title}</Text>
@@ -82,6 +80,11 @@ class MapInput extends Component {
                                         value={inputText}
                                     />
                                     {this.renderAddButton(hideAdd, onPressAdd)}
+                                    {typeof onRemove === 'function' && (
+                                        <TouchableHighlight onPress={onRemove}>
+                                            <Ionicons name='md-remove-circle-outline' size={27} color={Colors.defaultMarkerColor} />
+                                        </TouchableHighlight>
+                                    )}
                                 </View>
                             </View>
 
