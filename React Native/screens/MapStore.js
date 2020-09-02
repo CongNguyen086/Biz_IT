@@ -26,9 +26,7 @@ class MapStore extends Component {
             currentLocation: {},
             middleCoords: {},
             storeList: [],
-            inputLocationList: [],
-            inputList: [1],
-            currentInputText: '',
+            locationList: [],
             statusBarHeight: 0,
             hideList: true,
             isStoreVisible: false,
@@ -41,6 +39,7 @@ class MapStore extends Component {
     componentDidMount = async () => {
         radius = 1000
         await this.getPosition()
+        this.addNewInput()
         // await this.getStoresInRange()
         setTimeout(() => this.setState({ statusBarHeight: 10 }), 5000)
     }
@@ -52,7 +51,7 @@ class MapStore extends Component {
         }
 
         let location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.BestForNavigation });
-        let newList = this.state.inputLocationList
+        let newList = this.state.locationList
         newList.push({
             description: 'Vị trí của bạn',
             coords: {
@@ -72,18 +71,18 @@ class MapStore extends Component {
                 latitude: location.coords.latitude,
                 longitude: location.coords.longitude,
             },
-            inputLocationList: newList,
-            currentInputText: newList[0].description,
+            locationList: newList,
             // latitude: location.coords.latitude,
             // longitude: location.coords.longitude,
         });
     };
 
     getMiddlePoint = async () => {
-        const { inputLocationList } = this.state
-        const locationList = []
-        inputLocationList.forEach((loc) => {
-            locationList.push({
+        const { locationList } = this.state
+        const payload = []
+        locationList.forEach((loc) => {
+            if (!loc || !loc.coords || !loc.description) return
+            payload.push({
                 latitude: loc.coords.lat,
                 longitude: loc.coords.lng
             })
@@ -94,7 +93,7 @@ class MapStore extends Component {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                locationList: locationList
+                locationList: payload
             })
         })
         const middlePoint = await respond.json()
@@ -165,12 +164,10 @@ class MapStore extends Component {
         })
     }
 
-    addNewLocation = (num) => {
-        const newList = this.state.inputList
-        newList.push(num)
-    }
-
-    getCoordsFromName = async (fetchDetails, place_id) => {
+    getCoordsFromName = async (fetchDetails, place_id, locationIndex = 0) => {
+        if (locationIndex === 0) {
+            return
+        }
         const res = await fetchDetails(place_id)
         const resLocation = res.geometry.location
         const currentRegion = {
@@ -179,14 +176,20 @@ class MapStore extends Component {
             latitudeDelta: 0.0922,
             longitudeDelta: 0.0421,
         }
-        const newList = this.state.inputLocationList
-        newList.push({ description: res.formatted_address, coords: resLocation })
-        this.setState({
-            inputLocationList: newList,
-            currentRegion: currentRegion
-        })
         Keyboard.dismiss()
-        console.log('Fetch Details: ', res)
+        const {locationList} = this.state
+        if (locationList.length > 1 && locationIndex < locationList.length) {
+            const newLocationList = [...locationList]
+            newLocationList[locationIndex] = {
+                ...newLocationList[locationIndex],
+                coords: resLocation,
+                description: res.formatted_address
+            }
+            this.setState({
+                locationList: newLocationList,
+                currentRegion,
+            })
+        }
     }
 
     onRegionChange = (currentRegion) => {
@@ -194,23 +197,25 @@ class MapStore extends Component {
     }
 
     renderMarker = () => {
-        const { inputLocationList } = this.state
+        const { locationList } = this.state
         return (
-            inputLocationList.map((marker, index) => {
-                console.log('Marker: ', marker)
-                let color = Colors.defaultMarkerColor
+            locationList.map((loc, index) => {
+                if (!loc.description || !loc.coords) {
+                    return null
+                }
+                let color = Colors.blueMarker
                 let title = 'Vị trí của tôi'
-                if (index == 0) {
-                    color = Colors.blueMarker
-                } else {
+                if (index > 0) {
+                    color = Colors.defaultMarkerColor   
                     title = `Vị trí bạn số ${index}`
                 }
+                
                 return (
                     <Marker
                         key={index}
                         coordinate={{
-                            latitude: marker.coords.lat,
-                            longitude: marker.coords.lng
+                            latitude: loc.coords.lat,
+                            longitude: loc.coords.lng
                         }}
                         title={title}
                         pinColor={color}
@@ -221,58 +226,31 @@ class MapStore extends Component {
     }
 
     addNewInput = () => {
-        const { inputList } = this.state
-        const num = inputList.length + 1
-        const newList = this.state.inputList
-        newList.push(num)
-        this.setState({ inputList: newList })
+        this.setState(prevState => ({
+            locationList: [...prevState.locationList, {coords: null, description: null}]
+        }))
     }
 
-    renderOtherMapInput = (inputList) => {
-        const { currentRegion, inputLocationList } = this.state
-        console.log('Result', this.state.inputLocationList)
+    renderOtherMapInput = () => {
+        const { currentRegion, locationList } = this.state
         return (
-            inputList.map((el, index) => {
-                const title = `Bạn số ${el}`
-                const markColor = Colors.defaultMarkerColor
-                let hideAdd = true
-                // Last input
-                if (el == inputList.length) {
-                    hideAdd = false
-                }
-                if (el >= inputLocationList.length) {
-                    // Input has been filled
-                    return (
-                        <React.Fragment key={index}>
-                            <Divider style={styles.separator} />
-                            <MapInput
-                                currentLat={currentRegion.latitude}
-                                currentLng={currentRegion.longitude}
-                                // inputText={inputText}
-                                onPress={this.getCoordsFromName}
-                                hide={false}
-                                info={{ title: title, markColor: markColor }}
-                                hideAdd={hideAdd}
-                                onPressAdd={this.addNewInput}
-                            />
-                        </React.Fragment>
-                    )
-                }
-                // Input has been empty
+            locationList.map((loc, index) => {
+                if (index === 0) return null
+                console.log('loc.description',loc.description)
                 return (
                     <React.Fragment key={index}>
                         <Divider style={styles.separator} />
                         <MapInput
                             currentLat={currentRegion.latitude}
                             currentLng={currentRegion.longitude}
-                            inputText={inputLocationList[el].description}
-                            onPress={this.getCoordsFromName}
-                            hide={true}
-                            info={{ title: title, markColor: markColor }}
-                            hideAdd={hideAdd}
+                            inputText={loc.description}
+                            onPress={(fetchDetails, place_id) => this.getCoordsFromName(fetchDetails, place_id, index)}
+                            hide={!!loc.description}
+                            info={{ title: `Bạn số ${index}`, markColor: Colors.defaultMarkerColor }}
+                            hideAdd={!loc.description || index !== locationList.length - 1}
                             onPressAdd={this.addNewInput}
                         />
-                    </React.Fragment>
+                    </React.Fragment> 
                 )
             })
         )
@@ -283,7 +261,6 @@ class MapStore extends Component {
         if (storeList.length == 0) {
             return null
         }
-        console.log('Store List: ', storeList)
         return (
             <MapStoreList data={storeList} onPress={this.renderFilter} />
         )
@@ -316,10 +293,8 @@ class MapStore extends Component {
     }
 
     render() {
-        const { currentRegion, storeList, hideList, currentInputText, 
-            inputList, isFilterVisible, categoryList } = this.state
+        const { currentRegion, storeList, locationList, isFilterVisible, categoryList } = this.state
         if (currentRegion.latitude == null) {
-            console.log('Current: ', currentRegion)
             return null
         }
         
@@ -359,7 +334,7 @@ class MapStore extends Component {
                             <MapInput
                                 currentLat={currentRegion.latitude}
                                 currentLng={currentRegion.longitude}
-                                inputText={currentInputText}
+                                inputText={locationList[0].description}
                                 onPress={this.getCoordsFromName}
                                 hide={true}
                                 info={{ title: 'Vị trí của tôi', markColor: Colors.blueMarker }}
@@ -367,7 +342,7 @@ class MapStore extends Component {
                             />
 
                             {/* Render Other Input */}
-                            {this.renderOtherMapInput(inputList)}
+                            {this.renderOtherMapInput()}
                             
                             <Divider style={styles.separator} />
                             <LongButton onPress={this.getMiddlePoint} />
