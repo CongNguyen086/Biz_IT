@@ -1,8 +1,20 @@
 import React, { Component } from 'react'
-import { StyleSheet, Dimensions, Platform, View, StatusBar, Keyboard, KeyboardAvoidingView, ScrollView, SectionList } from 'react-native'
+import { 
+    StyleSheet, 
+    Dimensions, 
+    Platform, 
+    View, 
+    Text, 
+    Keyboard, 
+    KeyboardAvoidingView, 
+    ScrollView, 
+    LayoutAnimation, 
+    UIManager, 
+    TouchableOpacity
+} from 'react-native'
 import {SafeAreaConsumer} from 'react-native-safe-area-context'
 import MapView, { Marker, Circle, Callout } from 'react-native-maps'
-import { Divider } from 'react-native-elements'
+import { Divider, Icon, Button } from 'react-native-elements'
 import { getDistance } from 'geolib'
 // import { Svg, Circle } from 'react-native-svg'
 import * as Location from 'expo-location'
@@ -15,9 +27,16 @@ import MapInput from '../components/MapStore/MapInput'
 import LongButton from '../components/LongButton'
 import MapStoreList from '../components/MapStore/MapStoreModal'
 import FilterModal from '../components/MapStore/FilterModal'
+import * as Animatable from 'react-native-animatable'
 
 const windowHeight = Dimensions.get('window').height
 const windowWidth = Dimensions.get('window').width
+
+if (Platform.OS === 'android') {
+    if (UIManager.setLayoutAnimationEnabledExperimental) {
+        UIManager.setLayoutAnimationEnabledExperimental(true);
+    }
+}
 
 class MapStore extends Component {
     constructor(props) {
@@ -34,6 +53,7 @@ class MapStore extends Component {
             isFilterVisible: false,
             categoryList: [],
             keyboardHeight: 0,
+            collapsed: false,
         }
         radius = this.props;
     }
@@ -119,6 +139,7 @@ class MapStore extends Component {
             })
         })
         const middlePoint = await respond.json()
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.spring)
         this.setState({
             middleCoords: {
                 latitude: middlePoint.latitude,
@@ -129,7 +150,8 @@ class MapStore extends Component {
                 longitude: middlePoint.longitude,
                 latitudeDelta: 0.0922,
                 longitudeDelta: 0.0421,
-            }
+            },
+            collapsed: true,
         }, () => console.log('Middle Point:', this.state.middleCoords))
         await this.getStoresInRange()
     }
@@ -323,15 +345,29 @@ class MapStore extends Component {
         this.setState({ isFilterVisible: !this.state.isFilterVisible })
     }
 
+    toggleCallout = () => {
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.spring)
+        this.setState(prevState => ({
+            collapsed: !prevState.collapsed
+        }))
+    }
+
     render() {
-        const { currentRegion, storeList, locationList, isFilterVisible, categoryList, keyboardHeight } = this.state
+        const { currentRegion, storeList, locationList, isFilterVisible, categoryList, keyboardHeight, collapsed } = this.state
         if (currentRegion.latitude == null) {
             return null
         }
 
         const callOutWrapperStyle = keyboardHeight !== 0 ? {
-            height: windowHeight - keyboardHeight - 20
+            height: windowHeight - keyboardHeight - 20,
+            minHeight: 260,
         } : {}
+
+        const lastFriend = locationList[locationList.length - 1]
+
+        const friendsNumber = lastFriend.description && lastFriend.coords 
+            ? locationList.length - 1 
+            : locationList.length - 2 
         
         return (
             <KeyboardAvoidingView style={{flex: 1}} behavior={Platform.OS === 'ios' ? 'padding' : null}>
@@ -374,20 +410,56 @@ class MapStore extends Component {
                                 </MapView>
                                 <Callout style={[styles.mapCallout, callOutWrapperStyle]}>
                                     <View style={[styles.inputCallout]}>
-                                        <ScrollView style={{flex: 1}}>
-                                            <MapInput
-                                                currentLat={currentRegion.latitude}
-                                                currentLng={currentRegion.longitude}
-                                                inputText={locationList[0].description}
-                                                onPress={this.getCoordsFromName}
-                                                hide={true}
-                                                info={{ title: 'Vị trí của tôi', markColor: Colors.blueMarker }}
-                                                hideAdd={true}
-                                            />
-                                            {this.renderOtherMapInput()}
-                                        </ScrollView>
-                                        <Divider style={styles.separator} />
-                                        <LongButton onPress={this.getMiddlePoint} />
+                                        {collapsed ? 
+                                        (
+                                            <TouchableOpacity style={styles.collapsedPlace} onPress={this.toggleCallout}>
+                                                <View style={styles.placeTitle}>
+                                                    <Text style={{fontSize: 16, fontWeight: 700}}>Điểm hẹn &nbsp;</Text>
+                                                    <Text style={{fontSize: 16, fontWeight: 500}}>{`(${friendsNumber ?? 0} bạn bè)`}</Text>
+                                                </View>
+                                                <View style={styles.arrowDown}>
+                                                    <Animatable.View animation='fadeIn' iterationCount='infinite' direction='alternate' duration={1000}>
+                                                        <Icon name='chevron-double-down' type='material-community' size={20} />
+                                                    </Animatable.View>
+                                                </View>
+                                            </TouchableOpacity>
+                                        ) 
+                                        : (
+                                            <React.Fragment>
+                                                <ScrollView style={{flex: 1}}>
+                                                    <MapInput
+                                                        currentLat={currentRegion.latitude}
+                                                        currentLng={currentRegion.longitude}
+                                                        inputText={locationList[0].description}
+                                                        onPress={this.getCoordsFromName}
+                                                        hide={true}
+                                                        info={{ title: 'Vị trí của tôi', markColor: Colors.blueMarker }}
+                                                        hideAdd={true}
+                                                    />
+                                                    {this.renderOtherMapInput()}
+                                                </ScrollView>
+                                                <Divider style={styles.separator} />
+                                                <View style={styles.buttonContainer}>
+                                                    <Button type='solid'
+                                                        title='Tìm điểm hẹn'
+                                                        buttonStyle={[styles.button, styles.submitButton]}
+                                                        containerStyle={{flex: 1}}
+                                                        titleStyle={{ fontSize: 18 }}
+                                                        onPress={this.getMiddlePoint} 
+                                                    />
+                                                    <Button
+                                                        icon={<Icon 
+                                                            name='chevron-double-up' 
+                                                            type='material-community' 
+                                                            size={18} 
+                                                            color='#fff' 
+                                                        />} 
+                                                        buttonStyle={[styles.button, styles.collapsedButton]}
+                                                        onPress={this.toggleCallout}
+                                                    />
+                                                </View>
+                                            </React.Fragment>  
+                                        )}
                                     </View>
                                 </Callout>
                             </View>
@@ -420,7 +492,6 @@ const styles = StyleSheet.create({
     },
     mapCallout: {
         width: '90%', 
-        minHeight: 260
     },
     inputCallout: {
         borderRadius: 5,
@@ -457,6 +528,45 @@ const styles = StyleSheet.create({
         height: 2,
         backgroundColor: Colors.bgColor,
     },
+    collapsedPlace: {
+        flex: 1,
+        paddingHorizontal: 10,
+        paddingTop: 10,
+        paddingBottom: 5
+    },
+    placeTitle: {
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+    },
+    arrowDown: {
+        marginTop: 5
+    },
+    buttonContainer: {
+        width: '100%',
+        flexDirection: 'row',
+        paddingVertical: 10,
+        alignItems: 'center',
+    },
+    button: {
+        borderRadius: 5,
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 4,
+        },
+        shadowOpacity: 0.32,
+        shadowRadius: 5.46,
+        elevation: 3,
+        height: 40,
+    },
+    submitButton: {
+        backgroundColor: Colors.button,
+        flex: 1,
+    },
+    collapsedButton: {
+        marginLeft: 15,
+        width: 40
+    }
 })
 
 export default MapStore
