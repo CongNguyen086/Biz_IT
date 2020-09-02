@@ -294,6 +294,7 @@ const styles = StyleSheet.create({
   card: {
     justifyContent: 'flex-start',
     flexDirection: 'row',
+    minHeight: 150,
     marginTop: hp(2.5),
     backgroundColor: 'white',
     borderRadius: 10,

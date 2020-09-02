@@ -14,7 +14,7 @@ export default class ProductsContainer extends Component {
         const {loading, products} = this.props;
         if (loading) {
             return (
-                <View style={styles.container}>
+                <View style={[styles.container, styles.productsLoading]}>
                     <ActivityIndicator size="large" color="purple" />
                 </View>
             );
@@ -50,4 +50,8 @@ const styles = StyleSheet.create({
         textAlign: 'left',
         fontWeight: '600',
     },
+    productsLoading: {
+        justifyContent: 'center',
+        alignItems: 'center'
+    }
 });
