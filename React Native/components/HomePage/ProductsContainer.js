@@ -53,5 +53,5 @@ const styles = StyleSheet.create({
     productsLoading: {
         justifyContent: 'center',
         alignItems: 'center'
-    }
+    },
 });

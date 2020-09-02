@@ -25,7 +25,7 @@ function ElementProducts({navigation, item, style}) {
                 source={{uri: item.image}}
             />
             <View style={styles.labelContainer}>
-                <Text style={{ fontSize: hp(2.1), flex: 0.9, paddingLeft: wp(2) }}>{item.description}</Text>
+                <Text style={{ fontSize: 16, flex: 0.9 }}>{item.description}</Text>
                 <View style={styles.iconContainer}>
                     <Ionicons
                         style={styles.heartIcon}
@@ -52,14 +52,16 @@ const styles = StyleSheet.create({
         width: '100%',
         minHeight: 200,
         borderTopRightRadius: 12,
-        borderTopLeftRadius: 12
+        borderTopLeftRadius: 12,
     },
     labelContainer: {
         flex: 0.25,
         flexDirection: 'row',
         alignItems: 'center',
-        borderTopWidth: 1,
-        borderTopColor: '#E5E5E5',
+        borderBottomWidth: 1,
+        borderBottomColor: '#E5E5E5',
+        marginVertical: 10,
+        paddingBottom: 3
     },
     iconContainer: {
         flex: 0.2,

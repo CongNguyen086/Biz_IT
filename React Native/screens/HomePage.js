@@ -133,8 +133,8 @@ export default class HomePage extends Component {
   }
   async componentDidMount() {
     const { navigation } = this.props;
+    await this.getPopular();
     this.focusListener = await navigation.addListener('didFocus', async () => {
-      await this.getPopular();
       await this.getUserCash();
     });
   }
