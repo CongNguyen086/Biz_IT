@@ -76,14 +76,13 @@ class MapStore extends Component {
         this.addNewInput()
         // await this.getStoresInRange()
         setTimeout(() => this.setState({ statusBarHeight: 10 }), 5000)
-        Keyboard.addListener('keyboardWillShow', this._handleKeyboardShow)
-        Keyboard.addListener('keyboardWillHide', this._handleKeyboardHide)
-        Dimensions.addEventListener('change', this._handleDimensionChanged)
+        Keyboard.addListener('keyboardDidShow', this._handleKeyboardShow)
+        Keyboard.addListener('keyboardDidHide', this._handleKeyboardHide)
     }
 
     componentWillUnmount() {
-        Keyboard.removeListener('keyboardWillShow', this._handleKeyboardShow)
-        Keyboard.removeListener('keyboardWillHide', this._handleKeyboardHide)
+        Keyboard.removeListener('keyboardDidShow', this._handleKeyboardShow)
+        Keyboard.removeListener('keyboardDidHide', this._handleKeyboardHide)
     }
 
     getPosition = async () => {
@@ -362,15 +361,16 @@ class MapStore extends Component {
             height: windowHeight - keyboardHeight - 20,
             minHeight: 260,
         } : {}
+        console.log("MapStore -> render -> callOutWrapperStyle", callOutWrapperStyle)
 
         const lastFriend = locationList[locationList.length - 1]
 
         const friendsNumber = lastFriend.description && lastFriend.coords 
             ? locationList.length - 1 
-            : locationList.length - 2 
+            : locationList.length - 2
         
         return (
-            <KeyboardAvoidingView style={{flex: 1}} behavior={Platform.OS === 'ios' ? 'padding' : null}>
+            <KeyboardAvoidingView style={{flex: 1}} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
                 <SafeAreaConsumer>
                     {insets=> (
                         <View style={{
@@ -408,14 +408,19 @@ class MapStore extends Component {
 
                                     {this.renderMarker()}
                                 </MapView>
-                                <Callout style={[styles.mapCallout, callOutWrapperStyle]}>
+                                <Callout style={[
+                                    styles.mapCallout, 
+                                    callOutWrapperStyle, 
+                                    callOutWrapperStyle.height && Platform.OS === 'android' && 
+                                        {height: callOutWrapperStyle.height - 50}
+                                ]}>
                                     <View style={[styles.inputCallout]}>
                                         {collapsed ? 
                                         (
                                             <TouchableOpacity style={styles.collapsedPlace} onPress={this.toggleCallout}>
                                                 <View style={styles.placeTitle}>
-                                                    <Text style={{fontSize: 16, fontWeight: 700}}>Điểm hẹn &nbsp;</Text>
-                                                    <Text style={{fontSize: 16, fontWeight: 500}}>{`(${friendsNumber ?? 0} bạn bè)`}</Text>
+                                                    <Text style={{fontSize: 16, fontWeight: '700'}}>Điểm hẹn &nbsp;</Text>
+                                                    <Text style={{fontSize: 16, fontWeight: '500'}}>{`(${friendsNumber ?? 0} bạn bè)`}</Text>
                                                 </View>
                                                 <View style={styles.arrowDown}>
                                                     <Animatable.View animation='fadeIn' iterationCount='infinite' direction='alternate' duration={1000}>
@@ -425,7 +430,7 @@ class MapStore extends Component {
                                             </TouchableOpacity>
                                         ) 
                                         : (
-                                            <React.Fragment>
+                                            <View style={{flex: 1}}>
                                                 <ScrollView style={{flex: 1}}>
                                                     <MapInput
                                                         currentLat={currentRegion.latitude}
@@ -458,7 +463,7 @@ class MapStore extends Component {
                                                         onPress={this.toggleCallout}
                                                     />
                                                 </View>
-                                            </React.Fragment>  
+                                            </View>  
                                         )}
                                     </View>
                                 </Callout>

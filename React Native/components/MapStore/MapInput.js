@@ -22,7 +22,7 @@ class MapInput extends Component {
             }
 
             return (locationResults || []).map(loc => (
-                <LocationItem item={loc} onPress={onPress} fetchDetails={fetchDetails} />
+                <LocationItem key={loc.description} item={loc} onPress={onPress} fetchDetails={fetchDetails} />
             ))
         }
     }
