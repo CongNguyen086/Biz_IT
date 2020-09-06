@@ -18,6 +18,11 @@ import DealInfo from '../components/DealDetails/DealInfo';
 import StoreList from '../components/DealDetails/StoreList';
 import { Menu, MenuTrigger, MenuOptions, MenuOption } from 'react-native-popup-menu';
 
+const FILTER_OPTIONS = {
+    DISTANCE: 'DISTANCE',
+    RATING: 'RATING'
+}
+
 class DealDetails extends Component {
     constructor(props) {
         super(props);
@@ -27,6 +32,7 @@ class DealDetails extends Component {
             category: null,
             latitude: null,
             longitude: null,
+            filter: FILTER_OPTIONS.DISTANCE
         }
         this.passedData = this.props.navigation.getParam('info', 'No info');
     }
@@ -117,8 +123,8 @@ class DealDetails extends Component {
         return store1Distance - store2Distance;
     }
 
-    compareByRating() {
-        
+    compareByRating = (store1, store2) => {
+        return store2.storeRating - store1.storeRating
     }
 
     sortStore(stores = [], compareFunction = () => {}) {
@@ -130,6 +136,30 @@ class DealDetails extends Component {
         const topServiceStores = sorted.filter(store => store.serviceId === topServiceId);
         const otherStores = sorted.filter(store => store.serviceId !== topServiceId);
         return [...topServiceStores, ...otherStores]
+    }
+
+    onFilterSelect = (value) => {
+        const {filter, stores} = this.state
+        if (filter !== value) {
+            let sorted = []
+            let compareFunction = undefined
+            switch(value) {
+                case FILTER_OPTIONS.DISTANCE:
+                    compareFunction = this.compareByDistance
+                    break
+                case FILTER_OPTIONS.RATING:
+                    compareFunction = this.compareByRating
+                    break
+            }
+
+            if (typeof compareFunction !== 'undefined') {
+                sorted = this.sortStore(stores, compareFunction)
+                this.setState({
+                    stores: sorted,
+                    filter: value,
+                })
+            }
+        }
     }
 
     static navigationOptions = {
@@ -147,7 +177,7 @@ class DealDetails extends Component {
                     />
                 </View>
                 <View style={styles.filterWrapper}>
-                    <Menu>
+                    <Menu onSelect={this.onFilterSelect}>
                         <MenuTrigger>
                             <View style={styles.filterView}>
                                 <Icon name='filter' type='font-awesome' color={Colors.extraText} size={16} />
@@ -156,10 +186,10 @@ class DealDetails extends Component {
                             </View>
                         </MenuTrigger>
                         <MenuOptions customStyles={{optionsWrapper: styles.optionsWrapper}}>
-                            <MenuOption customStyles={{optionWrapper: styles.optionStyle}}>
+                            <MenuOption value={FILTER_OPTIONS.DISTANCE} customStyles={{optionWrapper: styles.optionStyle}}>
                                 <Text>Khoảng cách</Text>
                             </MenuOption>
-                            <MenuOption customStyles={{optionWrapper: {
+                            <MenuOption value={FILTER_OPTIONS.RATING} customStyles={{optionWrapper: {
                                 ...styles.optionStyle,
                                 ...{borderBottomWidth: 0}}
                             }}>
