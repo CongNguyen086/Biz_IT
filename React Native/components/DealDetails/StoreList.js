@@ -9,66 +9,44 @@ import { StoreInfo, Avatar  } from './StoreInfo';
 class StoreList extends Component {
     constructor(props) {
         super(props)
-        this.state = {
-            categoryName: '',
-            data: [],
-            loading: false
-        }
     }
-    componentDidMount() {
-        this.getCategory(this.props.categoryId)
-        this.setState({loading: true})
-    }
-    componentWillReceiveProps() {
-        this.setState({ data: this.props.data })
-        if(this.state.data != null) {
-            this.setState({loading: false})
-        }
-    }
-    getCategory = async (categoryId) => {
-        const response = await fetch(ROOT + `/getcategory?categoryId=${categoryId}`);
-        const jsonData = await response.json();
-        this.setState({ categoryName: jsonData[0].categoryName})
-    }
-    renderList = ({ item }) => (
-        <ListItem
-            containerStyle={styles.listItem}
-            contentContainerStyle={{ flex:0.01 }}
-            leftElement={<Avatar data={item} />}
-            rightElement={<StoreInfo data={item} categoryName={this.state.categoryName} />}
-            pad={3}
-            onPress={() => {
-                this.props.navigation.navigate('StoreProfile', {
-                    info: item,
-                    categoryName: this.state.categoryName
-                })
-                
-            }}
-        />
-    );
-    
-    renderKeyExtractor = (item, index) => index.toString();
-    
-    renderSeparator = () => {
+    renderList = ({ item }) => {
+        const {name: categoryName} = this.props?.category || {}
+
         return (
-            <View style={styles.separator} />
-        );
-    };
+            <ListItem
+                containerStyle={styles.listItem}
+                contentContainerStyle={{ flex:0.01 }}
+                leftElement={<Avatar data={item} />}
+                rightElement={<StoreInfo data={item} categoryName={categoryName} />}
+                pad={3}
+                onPress={() => {
+                    this.props.navigation.navigate('StoreProfile', {
+                        info: item,
+                        categoryName
+                    })
+                    
+                }}
+            />
+        )
+    }
+    
     render() {
-        if (this.state.loading) {
+        const {loading, stores} = this.props
+        if (loading) {
             return (
                 <Card containerStyle={styles.container}>
-                    <ActivityIndicator size="large" color="purple" animating={this.state.loading} style={{marginTop: hp(10)}}/>
+                    <ActivityIndicator size="large" color="purple" style={{marginTop: hp(10)}}/>
                 </Card>
             );
         }
         return (
             <Card containerStyle={styles.container}>
                 <FlatList
-                    data={this.state.data}
+                    data={stores}
                     renderItem={this.renderList}
-                    keyExtractor={this.renderKeyExtractor}
-                    ItemSeparatorComponent={this.renderSeparator}
+                    keyExtractor={(item, index) => item.storeId}
+                    ItemSeparatorComponent={() => <View style={styles.separator} />}
                 />
             </Card>
         );

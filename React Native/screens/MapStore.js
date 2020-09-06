@@ -1,7 +1,20 @@
 import React, { Component } from 'react'
-import { StyleSheet, Dimensions, Platform, View, StatusBar, SafeAreaView, Keyboard } from 'react-native'
+import { 
+    StyleSheet, 
+    Dimensions, 
+    Platform, 
+    View, 
+    Text, 
+    Keyboard, 
+    KeyboardAvoidingView, 
+    ScrollView, 
+    LayoutAnimation, 
+    UIManager, 
+    TouchableOpacity
+} from 'react-native'
+import {SafeAreaConsumer} from 'react-native-safe-area-context'
 import MapView, { Marker, Circle, Callout } from 'react-native-maps'
-import { Divider } from 'react-native-elements'
+import { Divider, Icon, Button } from 'react-native-elements'
 import { getDistance } from 'geolib'
 // import { Svg, Circle } from 'react-native-svg'
 import * as Location from 'expo-location'
@@ -14,9 +27,16 @@ import MapInput from '../components/MapStore/MapInput'
 import LongButton from '../components/LongButton'
 import MapStoreList from '../components/MapStore/MapStoreModal'
 import FilterModal from '../components/MapStore/FilterModal'
+import * as Animatable from 'react-native-animatable'
 
-const screenHeight = Dimensions.get('window').height
-const screenWidth = Dimensions.get('window').width
+const windowHeight = Dimensions.get('window').height
+const windowWidth = Dimensions.get('window').width
+
+if (Platform.OS === 'android') {
+    if (UIManager.setLayoutAnimationEnabledExperimental) {
+        UIManager.setLayoutAnimationEnabledExperimental(true);
+    }
+}
 
 class MapStore extends Component {
     constructor(props) {
@@ -26,23 +46,43 @@ class MapStore extends Component {
             currentLocation: {},
             middleCoords: {},
             storeList: [],
-            inputLocationList: [],
-            inputList: [1],
-            currentInputText: '',
+            locationList: [],
             statusBarHeight: 0,
             hideList: true,
             isStoreVisible: false,
             isFilterVisible: false,
             categoryList: [],
+            keyboardHeight: 0,
+            collapsed: false,
         }
         radius = this.props;
+    }
+
+    _handleKeyboardShow = (event) => {
+        this.setState({
+            keyboardHeight: event.endCoordinates.height
+        })
+    }
+
+    _handleKeyboardHide = () => {
+        this.setState({
+            keyboardHeight: 0,
+        })
     }
 
     componentDidMount = async () => {
         radius = 1000
         await this.getPosition()
+        this.addNewInput()
         // await this.getStoresInRange()
         setTimeout(() => this.setState({ statusBarHeight: 10 }), 5000)
+        Keyboard.addListener('keyboardDidShow', this._handleKeyboardShow)
+        Keyboard.addListener('keyboardDidHide', this._handleKeyboardHide)
+    }
+
+    componentWillUnmount() {
+        Keyboard.removeListener('keyboardDidShow', this._handleKeyboardShow)
+        Keyboard.removeListener('keyboardDidHide', this._handleKeyboardHide)
     }
 
     getPosition = async () => {
@@ -52,7 +92,7 @@ class MapStore extends Component {
         }
 
         let location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.BestForNavigation });
-        let newList = this.state.inputLocationList
+        let newList = this.state.locationList
         newList.push({
             description: 'Vị trí của bạn',
             coords: {
@@ -72,18 +112,18 @@ class MapStore extends Component {
                 latitude: location.coords.latitude,
                 longitude: location.coords.longitude,
             },
-            inputLocationList: newList,
-            currentInputText: newList[0].description,
+            locationList: newList,
             // latitude: location.coords.latitude,
             // longitude: location.coords.longitude,
         });
     };
 
     getMiddlePoint = async () => {
-        const { inputLocationList } = this.state
-        const locationList = []
-        inputLocationList.forEach((loc) => {
-            locationList.push({
+        const { locationList } = this.state
+        const payload = []
+        locationList.forEach((loc) => {
+            if (!loc || !loc.coords || !loc.description) return
+            payload.push({
                 latitude: loc.coords.lat,
                 longitude: loc.coords.lng
             })
@@ -94,10 +134,11 @@ class MapStore extends Component {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                locationList: locationList
+                locationList: payload
             })
         })
         const middlePoint = await respond.json()
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.spring)
         this.setState({
             middleCoords: {
                 latitude: middlePoint.latitude,
@@ -108,7 +149,8 @@ class MapStore extends Component {
                 longitude: middlePoint.longitude,
                 latitudeDelta: 0.0922,
                 longitudeDelta: 0.0421,
-            }
+            },
+            collapsed: true,
         }, () => console.log('Middle Point:', this.state.middleCoords))
         await this.getStoresInRange()
     }
@@ -165,12 +207,10 @@ class MapStore extends Component {
         })
     }
 
-    addNewLocation = (num) => {
-        const newList = this.state.inputList
-        newList.push(num)
-    }
-
-    getCoordsFromName = async (fetchDetails, place_id) => {
+    getCoordsFromName = async (fetchDetails, place_id, locationIndex = 0) => {
+        if (locationIndex === 0) {
+            return
+        }
         const res = await fetchDetails(place_id)
         const resLocation = res.geometry.location
         const currentRegion = {
@@ -179,14 +219,20 @@ class MapStore extends Component {
             latitudeDelta: 0.0922,
             longitudeDelta: 0.0421,
         }
-        const newList = this.state.inputLocationList
-        newList.push({ description: res.formatted_address, coords: resLocation })
-        this.setState({
-            inputLocationList: newList,
-            currentRegion: currentRegion
-        })
         Keyboard.dismiss()
-        console.log('Fetch Details: ', res)
+        const {locationList} = this.state
+        if (locationList.length > 1 && locationIndex < locationList.length) {
+            const newLocationList = [...locationList]
+            newLocationList[locationIndex] = {
+                ...newLocationList[locationIndex],
+                coords: resLocation,
+                description: res.formatted_address
+            }
+            this.setState({
+                locationList: newLocationList,
+                currentRegion,
+            })
+        }
     }
 
     onRegionChange = (currentRegion) => {
@@ -194,23 +240,25 @@ class MapStore extends Component {
     }
 
     renderMarker = () => {
-        const { inputLocationList } = this.state
+        const { locationList } = this.state
         return (
-            inputLocationList.map((marker, index) => {
-                console.log('Marker: ', marker)
-                let color = Colors.defaultMarkerColor
+            locationList.map((loc, index) => {
+                if (!loc.description || !loc.coords) {
+                    return null
+                }
+                let color = Colors.blueMarker
                 let title = 'Vị trí của tôi'
-                if (index == 0) {
-                    color = Colors.blueMarker
-                } else {
+                if (index > 0) {
+                    color = Colors.defaultMarkerColor   
                     title = `Vị trí bạn số ${index}`
                 }
+                
                 return (
                     <Marker
                         key={index}
                         coordinate={{
-                            latitude: marker.coords.lat,
-                            longitude: marker.coords.lng
+                            latitude: loc.coords.lat,
+                            longitude: loc.coords.lng
                         }}
                         title={title}
                         pinColor={color}
@@ -221,58 +269,40 @@ class MapStore extends Component {
     }
 
     addNewInput = () => {
-        const { inputList } = this.state
-        const num = inputList.length + 1
-        const newList = this.state.inputList
-        newList.push(num)
-        this.setState({ inputList: newList })
+        this.setState(prevState => ({
+            locationList: [...prevState.locationList, {coords: null, description: null}]
+        }))
+    }
+    onRemoveLocation = (locationIndex) => {
+        const {locationList} = this.state;
+        const newLocationList = [...locationList]
+        newLocationList.splice(locationIndex, 1)
+        this.setState({
+            locationList: newLocationList
+        })
     }
 
-    renderOtherMapInput = (inputList) => {
-        const { currentRegion, inputLocationList } = this.state
-        console.log('Result', this.state.inputLocationList)
+    renderOtherMapInput = () => {
+        const { currentRegion, locationList } = this.state
+        const {onRemoveLocation} = this
         return (
-            inputList.map((el, index) => {
-                const title = `Bạn số ${el}`
-                const markColor = Colors.defaultMarkerColor
-                let hideAdd = true
-                // Last input
-                if (el == inputList.length) {
-                    hideAdd = false
-                }
-                if (el >= inputLocationList.length) {
-                    // Input has been filled
-                    return (
-                        <React.Fragment key={index}>
-                            <Divider style={styles.separator} />
-                            <MapInput
-                                currentLat={currentRegion.latitude}
-                                currentLng={currentRegion.longitude}
-                                // inputText={inputText}
-                                onPress={this.getCoordsFromName}
-                                hide={false}
-                                info={{ title: title, markColor: markColor }}
-                                hideAdd={hideAdd}
-                                onPressAdd={this.addNewInput}
-                            />
-                        </React.Fragment>
-                    )
-                }
-                // Input has been empty
+            locationList.map((loc, index) => {
+                if (index === 0) return null
                 return (
                     <React.Fragment key={index}>
                         <Divider style={styles.separator} />
                         <MapInput
                             currentLat={currentRegion.latitude}
                             currentLng={currentRegion.longitude}
-                            inputText={inputLocationList[el].description}
-                            onPress={this.getCoordsFromName}
-                            hide={true}
-                            info={{ title: title, markColor: markColor }}
-                            hideAdd={hideAdd}
+                            inputText={loc.description}
+                            onPress={(fetchDetails, place_id) => this.getCoordsFromName(fetchDetails, place_id, index)}
+                            hide={!!loc.description}
+                            info={{ title: `Bạn số ${index}`, markColor: Colors.defaultMarkerColor }}
+                            hideAdd={!loc.description || index !== locationList.length - 1}
                             onPressAdd={this.addNewInput}
+                            onRemove={loc.description && index < locationList.length - 1 ? () => onRemoveLocation(index) : null}
                         />
-                    </React.Fragment>
+                    </React.Fragment> 
                 )
             })
         )
@@ -283,7 +313,6 @@ class MapStore extends Component {
         if (storeList.length == 0) {
             return null
         }
-        console.log('Store List: ', storeList)
         return (
             <MapStoreList data={storeList} onPress={this.renderFilter} />
         )
@@ -315,75 +344,142 @@ class MapStore extends Component {
         this.setState({ isFilterVisible: !this.state.isFilterVisible })
     }
 
+    toggleCallout = () => {
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.spring)
+        this.setState(prevState => ({
+            collapsed: !prevState.collapsed
+        }))
+    }
+
     render() {
-        const { currentRegion, storeList, hideList, currentInputText, 
-            inputList, isFilterVisible, categoryList } = this.state
+        const { currentRegion, storeList, locationList, isFilterVisible, categoryList, keyboardHeight, collapsed } = this.state
         if (currentRegion.latitude == null) {
-            console.log('Current: ', currentRegion)
             return null
         }
+
+        const callOutWrapperStyle = keyboardHeight !== 0 ? {
+            height: windowHeight - keyboardHeight - 20,
+            minHeight: 260,
+        } : {}
+        console.log("MapStore -> render -> callOutWrapperStyle", callOutWrapperStyle)
+
+        const lastFriend = locationList[locationList.length - 1]
+
+        const friendsNumber = lastFriend.description && lastFriend.coords 
+            ? locationList.length - 1 
+            : locationList.length - 2
         
         return (
-            <SafeAreaView style={styles.androidSafeArea} >
-                <StatusBar backgroundColor='rgba(0,0,0,0.2)' barStyle='default' />
-                <View style={[styles.container, { marginBottom: this.state.statusBarHeight }]}>
-                    <MapView
-                        region={currentRegion}
-                        style={styles.mapStyle}
-                        showsMyLocationButton={true}
-                        showsUserLocation={true}
-                        followsUserLocation={true}
-                        mapPadding={styles.mapPadding}
-                    >
-                        {this.renderCircle()}
+            <KeyboardAvoidingView style={{flex: 1}} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+                <SafeAreaConsumer>
+                    {insets=> (
+                        <View style={{
+                            flex: 1,
+                            paddingTop: insets.top, 
+                            paddingBottom: insets.bottom, 
+                            paddingLeft: insets.left, 
+                            paddingRight: insets.right
+                        }}
+                        >
+                            <View style={[styles.container]}>
+                                <MapView
+                                    region={currentRegion}
+                                    style={styles.mapStyle}
+                                    showsMyLocationButton={true}
+                                    showsUserLocation={true}
+                                    followsUserLocation={true}
+                                    mapPadding={styles.mapPadding}
+                                    onPress={Keyboard.dismiss}
+                                >
+                                    {this.renderCircle()}
 
-                        {storeList.map((marker, index) => (
-                            <Marker
-                                key={index}
-                                coordinate={{
-                                    latitude: parseFloat(marker.latitude),
-                                    longitude: parseFloat(marker.longitude),
-                                }}
-                                title={marker.storeName}
-                                description={marker.storeAddress}
-                                pinColor={Colors.momoColor}
+                                    {storeList.map((marker, index) => (
+                                        <Marker
+                                            key={index}
+                                            coordinate={{
+                                                latitude: parseFloat(marker.latitude),
+                                                longitude: parseFloat(marker.longitude),
+                                            }}
+                                            title={marker.storeName}
+                                            description={marker.storeAddress}
+                                            pinColor={Colors.momoColor}
+                                        />
+                                    ))}
+
+                                    {this.renderMarker()}
+                                </MapView>
+                                <Callout style={[
+                                    styles.mapCallout, 
+                                    callOutWrapperStyle, 
+                                    callOutWrapperStyle.height && Platform.OS === 'android' && 
+                                        {height: callOutWrapperStyle.height - 50}
+                                ]}>
+                                    <View style={[styles.inputCallout]}>
+                                        {collapsed ? 
+                                        (
+                                            <TouchableOpacity style={styles.collapsedPlace} onPress={this.toggleCallout}>
+                                                <View style={styles.placeTitle}>
+                                                    <Text style={{fontSize: 16, fontWeight: '700'}}>Điểm hẹn &nbsp;</Text>
+                                                    <Text style={{fontSize: 16, fontWeight: '500'}}>{`(${friendsNumber ?? 0} bạn bè)`}</Text>
+                                                </View>
+                                                <View style={styles.arrowDown}>
+                                                    <Animatable.View animation='fadeIn' iterationCount='infinite' direction='alternate' duration={1000}>
+                                                        <Icon name='chevron-double-down' type='material-community' size={20} />
+                                                    </Animatable.View>
+                                                </View>
+                                            </TouchableOpacity>
+                                        ) 
+                                        : (
+                                            <View style={{flex: 1}}>
+                                                <ScrollView style={{flex: 1}}>
+                                                    <MapInput
+                                                        currentLat={currentRegion.latitude}
+                                                        currentLng={currentRegion.longitude}
+                                                        inputText={locationList[0].description}
+                                                        onPress={this.getCoordsFromName}
+                                                        hide={true}
+                                                        info={{ title: 'Vị trí của tôi', markColor: Colors.blueMarker }}
+                                                        hideAdd={true}
+                                                    />
+                                                    {this.renderOtherMapInput()}
+                                                </ScrollView>
+                                                <Divider style={styles.separator} />
+                                                <View style={styles.buttonContainer}>
+                                                    <Button type='solid'
+                                                        title='Tìm điểm hẹn'
+                                                        buttonStyle={[styles.button, styles.submitButton]}
+                                                        containerStyle={{flex: 1}}
+                                                        titleStyle={{ fontSize: 18 }}
+                                                        onPress={this.getMiddlePoint} 
+                                                    />
+                                                    <Button
+                                                        icon={<Icon 
+                                                            name='chevron-double-up' 
+                                                            type='material-community' 
+                                                            size={18} 
+                                                            color='#fff' 
+                                                        />} 
+                                                        buttonStyle={[styles.button, styles.collapsedButton]}
+                                                        onPress={this.toggleCallout}
+                                                    />
+                                                </View>
+                                            </View>  
+                                        )}
+                                    </View>
+                                </Callout>
+                            </View>
+
+                            {this.renderStoreModal()}
+                            <FilterModal 
+                                modalVisible={isFilterVisible}
+                                categoryList={categoryList}
+                                onPress={this.filter}
+                                onDismiss={this.dismissModal} 
                             />
-                        ))}
-
-                        {/* Render Marker */}
-                        {this.renderMarker()}
-                    </MapView>
-
-                    <Callout style={styles.mapCallout}>
-                        <View style={styles.inputCallout}>
-                            <MapInput
-                                currentLat={currentRegion.latitude}
-                                currentLng={currentRegion.longitude}
-                                inputText={currentInputText}
-                                onPress={this.getCoordsFromName}
-                                hide={true}
-                                info={{ title: 'Vị trí của tôi', markColor: Colors.blueMarker }}
-                                hideAdd={true}
-                            />
-
-                            {/* Render Other Input */}
-                            {this.renderOtherMapInput(inputList)}
-                            
-                            <Divider style={styles.separator} />
-                            <LongButton onPress={this.getMiddlePoint} />
                         </View>
-                    </Callout>
-                    {/* </View> */}
-                </View>
-
-                {this.renderStoreModal()}
-                <FilterModal 
-                    modalVisible={isFilterVisible}
-                    categoryList={categoryList}
-                    onPress={this.filter}
-                    onDismiss={this.dismissModal} 
-                />
-            </SafeAreaView>
+                    )}
+                </SafeAreaConsumer>
+            </KeyboardAvoidingView>
         )
     }
 }
@@ -394,36 +490,38 @@ const styles = StyleSheet.create({
     androidSafeArea: {
         flex: 1,
         backgroundColor: "rgba(0,0,0,0.3)",
-        paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0
     },
     container: {
         flex: 1,
         alignItems: 'center',
     },
-    mapView: {
-        flex: 1,
-    },
     mapCallout: {
-        width: '90%',
+        width: '90%', 
     },
     inputCallout: {
         borderRadius: 5,
-        marginTop: 10,
+        marginVertical: 10,
         paddingHorizontal: 10,
         paddingVertical: 5,
         backgroundColor: 'white',
-        shadowColor: "#000",
+        borderRadius: 10,
+        flex: 1,
+        justifyContent: 'flex-start',
+        borderColor: '#ddd',
+        borderWidth: 1,
+
+        shadowColor: "rgba(0,0,0,0.2)",
         shadowOffset: {
-            width: 0,
-            height: 4,
+            width: 2,
+            height: 8,
         },
-        shadowOpacity: 0.32,
-        shadowRadius: 5.46,
+        shadowOpacity: 0.5,
+        zIndex: 2,
         elevation: 8,
     },
     mapStyle: {
-        width: screenWidth,
-        height: screenHeight,
+        width: windowWidth,
+        height: windowHeight,
     },
     mapPadding: {
         top: 0,
@@ -435,6 +533,45 @@ const styles = StyleSheet.create({
         height: 2,
         backgroundColor: Colors.bgColor,
     },
+    collapsedPlace: {
+        flex: 1,
+        paddingHorizontal: 10,
+        paddingTop: 10,
+        paddingBottom: 5
+    },
+    placeTitle: {
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+    },
+    arrowDown: {
+        marginTop: 5
+    },
+    buttonContainer: {
+        width: '100%',
+        flexDirection: 'row',
+        paddingVertical: 10,
+        alignItems: 'center',
+    },
+    button: {
+        borderRadius: 5,
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 4,
+        },
+        shadowOpacity: 0.32,
+        shadowRadius: 5.46,
+        elevation: 3,
+        height: 40,
+    },
+    submitButton: {
+        backgroundColor: Colors.button,
+        flex: 1,
+    },
+    collapsedButton: {
+        marginLeft: 15,
+        width: 40
+    }
 })
 
 export default MapStore

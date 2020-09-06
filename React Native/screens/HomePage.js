@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
-import { StyleSheet, AsyncStorage, View, SafeAreaView, Platform, ScrollView, Text, ImageBackground, Button, TouchableOpacity, Share, Alert } from 'react-native';
-import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import { StyleSheet, AsyncStorage, View, SafeAreaView, Platform, ScrollView, Text, ImageBackground, Button, TouchableOpacity, Share, Image } from 'react-native';
+import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { Notifications } from 'expo';
 import * as Permissions from 'expo-permissions';
 import { Feather } from '@expo/vector-icons';
@@ -9,16 +9,15 @@ import Modal from "react-native-modal";
 import config from '../constants/config'
 // Components
 import Header_HomePage from '../components/HomePage/Header_HomePage'
-import Categories_HomePage from '../components/HomePage/Categories_HomePage'
 import ProductsContainer from '../components/HomePage/ProductsContainer'
+import Categories_HomePage from '../components/HomePage/Categories_HomePage';
 
 export default class HomePage extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      timeData: [],
-      recommendData: [],
-      popularData: [],
+      loading: true,
+      products: [],
       cash: 0,
       isModalVisible: false,
       isModal2Visible: false,
@@ -27,20 +26,7 @@ export default class HomePage extends Component {
       userScoreTotal: 0,
     }
   }
-  // const myRef = React.createRef()
 
-  getTimeRecommendation = async () => {
-    try {
-      const token = await AsyncStorage.getItem('@userToken');
-      const today = new Date();
-      const current_time = today.getHours() + ':' + today.getMinutes() + ':' + today.getSeconds();
-      const response = await fetch(config.ROOT + `/gettimerecommendationdeal?userId=${token}&currentTime=${current_time}`);
-      const jsonData = await response.json();
-      this.setState({ timeData: jsonData[0] })
-    } catch (error) {
-      console.log(error)
-    }
-  }
   getUserCash = async () => {
     try {
       const userId = await AsyncStorage.getItem('@userToken');
@@ -54,21 +40,12 @@ export default class HomePage extends Component {
       console.log(error)
     }
   }
-  getRecommendation = async () => {
-    try {
-      const token = await AsyncStorage.getItem('@userToken');
-      const response = await fetch(config.ROOT + `/getrecommendeddeal?userId=${token}`);
-      const jsonData = await response.json();
-      this.setState({ recommendData: jsonData[0] })
-    } catch (error) {
-      console.log(error)
-    }
-  }
   getPopular = async () => {
     try {
+      this.setState({loading: true})
       const response = await fetch(config.ROOT + `/getpopulardeal`);
       const jsonData = await response.json();
-      this.setState({ popularData: jsonData[0] })
+      this.setState({ products: jsonData[0], loading: false })
     } catch (error) {
       console.log(error)
     }
@@ -156,14 +133,13 @@ export default class HomePage extends Component {
   }
   async componentDidMount() {
     const { navigation } = this.props;
+    await this.getPopular();
     this.focusListener = await navigation.addListener('didFocus', async () => {
-      await this.getTimeRecommendation();
-      await this.getRecommendation();
-      await this.getPopular();
       await this.getUserCash();
     });
   }
   render() {
+    const {products, loading} = this.state;
     return (
       <SafeAreaView style={styles.safeAreaViewStyle}>
         <View style={styles.container}>
@@ -275,34 +251,19 @@ export default class HomePage extends Component {
               </View>
             </View>
           </Modal>
-          <View style={styles.headerContaier}>
-            <Header_HomePage
-              cash={this.state.cash}
-              userReward={this.state.userReward}
-            />
-          </View>
-          <ScrollView style={styles.bodyContainer} >
-            <View style={styles.categories}>
+          <Header_HomePage
+            cash={this.state.cash}
+            userReward={this.state.userReward}
+          />
+          <ScrollView contentContainerStyle={styles.bodyContainer}>
+            <View style={styles.card}>
               <Categories_HomePage />
             </View>
-            <View style={styles.bodyElement}>
-              <ProductsContainer
-                title='Dành riêng cho bạn'
-                data={this.state.timeData}
-                navigation={this.props.navigation}
-              />
-            </View>
-            <View style={styles.bodyElement}>
-              <ProductsContainer
-                title='Có thể bạn hứng thú'
-                data={this.state.recommendData}
-                navigation={this.props.navigation}
-              />
-            </View>
-            <View style={styles.bodyElement}>
+            <View style={[styles.card, {flex: 1, marginBottom: 15}]}>
               <ProductsContainer
                 title='Phổ biến'
-                data={this.state.popularData}
+                products={products}
+                loading={loading}
                 navigation={this.props.navigation}
               />
             </View>
@@ -326,35 +287,24 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#EDEEEE',
-    alignItems: 'center'
-  },
-  headerContaier: {
-    flex: 0.45
   },
   bodyContainer: {
-    flex: 0.65
+    paddingHorizontal: 15,
   },
-  categories: {
-    flex: 1 / 3,
-    height: hp(30),
-    justifyContent: 'center',
-    alignItems: 'center',
+  card: {
+    justifyContent: 'flex-start',
+    flexDirection: 'row',
+    minHeight: 150,
+    marginTop: hp(2.5),
     backgroundColor: 'white',
     borderRadius: 10,
-    marginTop: hp(2.5),
 
-    shadowColor: "#000",
+    shadowColor: "rgba(0,0,0,0.2)",
     shadowOffset: {
-      width: 0,
-      height: 1,
+      width: 2,
+      height: 8,
     },
-    shadowOpacity: 0.22,
-    shadowRadius: 2.22,
+    shadowOpacity: 0.5,
     elevation: 3,
   },
-  bodyElement: {
-    flex: 1 / 3,
-    height: hp(36),
-    marginTop: hp(2.5),
-  }
 });

@@ -5,31 +5,17 @@ import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-nat
 //Component
 import ProductElement from './ProductElement';
 
-
-
 export default class ProductsContainer extends Component {
     constructor(props) {
         super(props)
-        this.state = {
-            data: [],
-            loading: false
-        }
-    }
-    componentDidMount() {
-        this.setState({ loading: true})
-    }
-    componentWillReceiveProps() {
-        this.setState({ data: this.props.data })
-        if(this.state.data != null) {
-            this.setState({loading: false})
-        }
     }
 
     render() {
-        if (this.state.loading) {
+        const {loading, products} = this.props;
+        if (loading) {
             return (
-                <View style={styles.container}>
-                    <ActivityIndicator size="large" color="purple" animating={this.state.loading} />
+                <View style={[styles.container, styles.productsLoading]}>
+                    <ActivityIndicator size="large" color="purple" />
                 </View>
             );
         }
@@ -38,18 +24,12 @@ export default class ProductsContainer extends Component {
                 <View style={styles.labelContainer}>
                     <Text style={styles.label}>{this.props.title}</Text>
                 </View>
-                <FlatList
-                    data={this.state.data}
-                    renderItem={({ item }) =>
-                        <ProductElement
-                            style={styles.products}
-                            item={item}
-                            navigation={this.props.navigation} />
-                    }
-                    keyExtractor={item => item.topServiceId}
-                    horizontal={true}
-                    refreshing={this.state.refreshing}
-                />
+                {products && products.map(item => (
+                    <ProductElement
+                        key={item.dealId}
+                        item={item}
+                    />
+                ))}
             </View>
         );
     }
@@ -58,32 +38,20 @@ export default class ProductsContainer extends Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: 'white',
-        borderRadius: 10,
-        width: wp(100),
-        justifyContent: 'center',
-        paddingBottom: hp(2),
-
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 1,
-        },
-        shadowOpacity: 0.22,
-        shadowRadius: 2.22,
-        elevation: 3,
+        // minHeight: 100,
+        padding: 15,
+        alignItems: 'flex-start',
     },
     labelContainer: {
-        flex: 0.2,
-        justifyContent: 'center'
+        alignItems: 'flex-start',
+        marginBottom: 10,
     },
     label: {
-        fontWeight: 'bold',
-        fontSize: hp(2.2),
-        marginLeft: 20
+        textAlign: 'left',
+        fontWeight: '600',
     },
-    products: {
-        flex: 0.8,
-        borderRadius: 12,
+    productsLoading: {
+        justifyContent: 'center',
+        alignItems: 'center'
     },
 });

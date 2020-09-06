@@ -6,8 +6,10 @@ import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-nat
 export default function Search_HomePage() {
     return (
         <View style={styles.container}>
-            <Ionicons name="ios-search" size={hp(3)} color="white" style={styles.searchIcon}/>
-            <TextInput placeholder="Tìm Kiếm" style={styles.searchBar}/>
+            <View style={styles.searchIcon}>
+                <Ionicons name="ios-search" size={hp(3)} color="white"/>
+            </View>
+            <TextInput placeholder="Tìm Kiếm" style={styles.searchBar} placeholderTextColor='#fff'/>
         </View>
     );
 }
@@ -18,24 +20,21 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     searchIcon: {
-        backgroundColor: 'gray',
-        height: hp(3.5),
-        opacity: 0.7,
+        backgroundColor: 'rgba(0,0,0,0.4)',
+        height: hp(4.5),
         borderTopLeftRadius: 8,
         borderBottomLeftRadius: 8,
-        paddingLeft: wp(2),
+        paddingHorizontal: 15,
         paddingTop: hp(0.3),
         marginLeft: wp(2),
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        overflow: 'hidden'
     },
     searchBar: {
-        width: wp(71),
-        height: hp(3.5),
-        backgroundColor: 'gray',
-        fontWeight: 'bold',
-        paddingLeft: wp(2),
-        opacity: 0.7,
+        width: wp(65),
+        height: hp(4.5),
+        backgroundColor: 'rgba(0,0,0,0.4)',
         borderTopRightRadius: 8,
         borderBottomRightRadius: 8,
         color: 'white'
