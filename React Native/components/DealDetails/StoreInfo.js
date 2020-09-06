@@ -7,10 +7,14 @@ import Colors from '../../constants/Colors';
 export class StoreInfo extends Component {
     constructor(props) {
         super(props)
-        this.state = { }
+        this.openTime = 8
+        this.closeTime = 22
     }
     render() {
         const { data: { storeName, description, distance, storeRating } } = this.props;
+        const currentHour = new Date().getHours()
+        const isOpen = currentHour >= this.openTime && currentHour < this.closeTime
+
         return (
             <View style={styles.container}>
                 <View style={styles.mainInfo}>
@@ -19,8 +23,8 @@ export class StoreInfo extends Component {
                         <View style={styles.details}>
                             <FontAwesome name='star' size={15} color='#FFC601' />
                             <Text style={styles.extraText}>{storeRating}</Text>
-                            <FontAwesome name='circle' size={15} color='#40E247' />
-                            <Text style={styles.extraText}>8:00 - 22:00</Text>
+                            <FontAwesome name='circle' size={15} color={isOpen ? '#40E247' : '#bdc3c7'} />
+                            <Text style={styles.extraText}>{`${this.openTime}:00 - ${this.closeTime}:00`}</Text>
                             <Text style={styles.extraText}>{this.props.categoryName}</Text>
                         </View>
                     </View>
@@ -30,7 +34,7 @@ export class StoreInfo extends Component {
                 </View>
 
                 <View style={styles.distanceView}>
-                    <Text style={styles.distance}>{distance} m</Text>
+                    <Text style={styles.distance}>{Number(distance / 1000).toFixed(1)} km</Text>
                 </View>
             </View>
         );
@@ -55,10 +59,10 @@ const styles = StyleSheet.create({
         alignItems: 'flex-start',
     },
     mainInfo: {
-        flex: 0.86,
+        flex: 0.8,
     },
     distanceView: {
-        flex: 0.14,
+        flex: 0.2,
     },
     storeInfo: {
         flex: 0.5,

@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import {
-    Platform,
     StyleSheet,
     Text,
     View,
@@ -10,7 +9,6 @@ import { Icon } from 'react-native-elements'
 import { getDistance } from 'geolib';
 import * as Location from 'expo-location';
 import * as Permissions from 'expo-permissions';
-import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 // Constants
 import HeaderTitle from '../components/HeaderTitle';
 import Colors from '../constants/Colors';
@@ -18,85 +16,120 @@ import config from '../constants/config';
 // Components
 import DealInfo from '../components/DealDetails/DealInfo';
 import StoreList from '../components/DealDetails/StoreList';
+import { Menu, MenuTrigger, MenuOptions, MenuOption } from 'react-native-popup-menu';
 
 class DealDetails extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            data: [],
+            loading: true,
+            stores: [],
+            category: null,
             latitude: null,
             longitude: null,
         }
-        passedData = this.props.navigation.getParam('info', 'No info');
+        this.passedData = this.props.navigation.getParam('info', 'No info');
     }
 
-    async componentDidMount() {
-        await this.getPosition();
-        await this.getStoreDealList();
-        this.storeInSort();
-        console.log(passedData)
+    componentDidMount() {
+        this.fetchData()
     }
 
-    getStoreDealList = async () => {
-        // const passedData = navigation.getParam('info', 'No info');
-        const response = await fetch(config.ROOT + `/getstorepromotion?dealId=${passedData.dealId}`)
+    async fetchData() {
+        try {
+            if (!this.state.loading) {
+                this.setState({
+                    loading: true
+                })
+            }
+            const [stores, location, categoryName] = await Promise.all([
+                this.getStoreDealList(),
+                this.getPosition(),
+                this.getCategoryName()
+            ])
+
+            this.setState({
+                latitude: location.coords.latitude,
+                longitude: location.coords.longitude,
+                category: {
+                    id: this.passedData.categoryId,
+                    name: categoryName,
+                }
+            }, () => {
+                const sortedStores = this.sortStore(stores, this.compareByDistance)
+                this.setState({
+                    stores: sortedStores,
+                    loading: false,
+                })
+            });
+
+        }
+        catch(e) {
+            Alert.alert('Lỗi', e.message || 'Có lỗi xảy ra.')
+        }
+    }
+
+    async getCategoryName(categoryId) {
+        const response = await fetch(config.ROOT + `/getcategory?categoryId=${categoryId}`);
         const jsonData = await response.json();
-        this.setState({ data: jsonData });
-        // this.setState({ data: jsonData }, ()=>console.log(this.state.data));
+        return jsonData?.[0]?.categoryName
     }
 
-    getPosition = async () => {
+    async getStoreDealList() {
+        const response = await fetch(config.ROOT + `/getstorepromotion?dealId=${this.passedData.dealId}`)
+        const stores = await response.json();
+
+        return stores;
+    }
+
+    async getPosition() {
         let { status } = await Permissions.askAsync(Permissions.LOCATION);
         if (status !== 'granted') {
-            Alert.alert('Permission to access location was denied')
+            throw new Error('Bạn phải cấp quyền để lấy vị trí hiện tại!')
         }
 
-        let location = await Location.getCurrentPositionAsync({});
-        this.setState({
-            latitude: location.coords.latitude,
-            longitude: location.coords.longitude,
-        }, () => console.log('Current location: ', location.coords));
+        return await Location.getCurrentPositionAsync({});
     };
 
-    storeInSort = async () => {
-        const { data } = this.state;
-
-        this.sortData(data);
-
-        // Move the top store of Top Service list to top of full list
-        let top = await data.find(store => store.serviceId == passedData.topServiceId);
-        let sortedStoreList = data.sort((x, y) => { return x == top ? -1 : y == top ? 1 : 0; });
-        console.log(passedData.topServiceId)
-        this.setState({ data: sortedStoreList })
+    compareByDistance = (store1, store2) => {
+        const store1Distance = getDistance(
+            {
+                latitude: store1.latitude,
+                longitude: store1.longitude
+            },
+            {
+                latitude: this.state.latitude,
+                longitude: this.state.longitude
+            }
+        )
+        const store2Distance = getDistance(
+            {
+                latitude: store2.latitude,
+                longitude: store2.longitude
+            },
+            {
+                latitude: this.state.latitude,
+                longitude: this.state.longitude
+            }
+        )
+        store1.distance = store1Distance
+        store2.distance = store2Distance
+        return store1Distance - store2Distance;
     }
 
-    // Sort data by distance
-    sortData(data) {
-        data.sort((a, b) => {
-            const aDist = getDistance(
-                {
-                    latitude: a.latitude,
-                    longitude: a.longitude
-                },
-                {
-                    latitude: this.state.latitude,
-                    longitude: this.state.longitude
-                }
-            )
-            const bDist = getDistance(
-                {
-                    latitude: b.latitude,
-                    longitude: b.longitude
-                },
-                {
-                    latitude: this.state.latitude,
-                    longitude: this.state.longitude
-                }
-            )
-            a.distance = aDist
-            b.distance = bDist
-            return aDist - bDist;
-        })
+    compareByRating() {
+        
+    }
+
+    sortStore(stores = [], compareFunction = () => {}) {
+        const sorted = [...(stores || [])]
+        const {topServiceId} = this.passedData || {}
+
+        sorted.sort(compareFunction)
+
+        const topServiceStores = sorted.filter(store => store.serviceId === topServiceId);
+        const otherStores = sorted.filter(store => store.serviceId !== topServiceId);
+        return [...topServiceStores, ...otherStores]
     }
 
     static navigationOptions = {
@@ -104,22 +137,42 @@ class DealDetails extends Component {
     };
 
     render() {
+        const {stores, loading, category} = this.state
+        const {image} = this.passedData
         return (
             <View style={styles.container}>
                 <View style={styles.dealInfo}>
                     <DealInfo 
-                        image={{ uri: passedData.image}}
+                        image={{ uri: image}}
                     />
                 </View>
-                <View style={styles.filterView}>
-                    <Icon name='filter' type='font-awesome' color={Colors.extraText} />
-                    <Text style={styles.filter}>Bộ lọc</Text>
-                    <Icon name='angle-down' type='font-awesome' size={17} color={Colors.extraText} />
+                <View style={styles.filterWrapper}>
+                    <Menu>
+                        <MenuTrigger>
+                            <View style={styles.filterView}>
+                                <Icon name='filter' type='font-awesome' color={Colors.extraText} size={16} />
+                                <Text style={styles.filter}>Bộ lọc</Text>
+                                <Icon name='angle-down' type='font-awesome' size={16} color={Colors.extraText} />
+                            </View>
+                        </MenuTrigger>
+                        <MenuOptions customStyles={{optionsWrapper: styles.optionsWrapper}}>
+                            <MenuOption customStyles={{optionWrapper: styles.optionStyle}}>
+                                <Text>Khoảng cách</Text>
+                            </MenuOption>
+                            <MenuOption customStyles={{optionWrapper: {
+                                ...styles.optionStyle,
+                                ...{borderBottomWidth: 0}}
+                            }}>
+                                <Text>Đánh giá</Text>
+                            </MenuOption>
+                        </MenuOptions>
+                    </Menu>
                 </View>
                 <View style={styles.storeList}>
                     <StoreList 
-                        data={this.state.data}
-                        categoryId={passedData.categoryId}
+                        stores={stores}
+                        loading={loading}
+                        category={category}
                     />
                 </View>
             </View>
@@ -136,20 +189,35 @@ const styles = StyleSheet.create({
         flex: 0.35,
     },
     filterView: {
-        flex: 0.07,
         flexDirection: 'row',
         justifyContent: 'flex-end',
         alignItems: 'center',
-        paddingRight: wp(3),
+        paddingRight: 10,
     },
     filter: {
-        fontSize: hp(2),
+        fontSize: 16,
         color: Colors.extraText,
-        marginHorizontal: wp(2),
+        marginHorizontal: 5,
     },
     storeList: {
         flex: 0.65,
     },
+    filterWrapper: {
+        paddingVertical: 15,
+        alignItems: 'flex-end',
+        justifyContent: 'center'
+    },
+    optionsWrapper: {
+        marginRight: 10,
+    },
+    optionStyle: {
+        paddingHorizontal: 10,
+        paddingVertical: 12,
+        justifyContent: 'center',
+        alignItems: 'flex-start',
+        borderBottomColor: '#ddd',
+        borderBottomWidth: 1,
+    }
 });
 
 export default DealDetails;

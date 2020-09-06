@@ -42,6 +42,7 @@
     "react-native-google-places-autocomplete": "^1.4.0",
     "react-native-maps": "^0.25.0",
     "react-native-modal": "^11.5.3",
+    "react-native-popup-menu": "^0.15.9",
     "react-native-progress": "^4.0.2",
     "react-native-progress-circle": "^2.1.0",
     "react-native-qrcode": "^0.2.7",
