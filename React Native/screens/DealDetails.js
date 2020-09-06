@@ -185,9 +185,6 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: Colors.bgColor,
     },
-    dealInfo: {
-        flex: 0.35,
-    },
     filterView: {
         flexDirection: 'row',
         justifyContent: 'flex-end',
@@ -200,7 +197,7 @@ const styles = StyleSheet.create({
         marginHorizontal: 5,
     },
     storeList: {
-        flex: 0.65,
+        flex: 1,
     },
     filterWrapper: {
         paddingVertical: 15,
