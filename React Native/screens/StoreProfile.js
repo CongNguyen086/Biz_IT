@@ -78,7 +78,6 @@ class StoreProfile extends Component {
                         storeId={info.storeId}
                     />
                 </View>
-                {console.log(info)}
             </View>
         );
     }
@@ -95,13 +94,13 @@ const styles = StyleSheet.create({
         borderBottomRightRadius: 10,
         borderBottomLeftRadius: 10,
 
-        shadowColor: "#000",
+        shadowColor: "rgba(0,0,0,0.4)",
         shadowOffset: {
             width: 0,
-            height: 4,
+            height: 3,
         },
         shadowOpacity: 0.32,
-        shadowRadius: 5.46,
+        zIndex: 3,
         elevation: 3,
     },
     review: {
@@ -111,14 +110,14 @@ const styles = StyleSheet.create({
         borderTopLeftRadius: 10,
         borderTopRightRadius: 10,
 
-        shadowColor: "#000",
+        shadowColor: "rgba(0,0,0,0.4)",
         shadowOffset: {
             width: 4,
             height: 4,
         },
         shadowOpacity: 0.32,
-        shadowRadius: 5.46,
-        elevation: 10,
+        elevation: 3,
+        zIndex: 3,
     },
 });
 
