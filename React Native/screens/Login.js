@@ -20,6 +20,7 @@ import { SafeAreaConsumer } from 'react-native-safe-area-context';
 import { connect } from 'react-redux';
 import { LOGIN_WITH_PHONE } from '../services/auth/constants';
 import { getCurrentUser } from '../services/auth/getters';
+import Colors from '../constants/Colors';
 
 class LoginScreen extends Component {
   constructor(props) {
@@ -120,14 +121,15 @@ class LoginScreen extends Component {
                     <Icon
                       name="user-o"
                       type="font-awesome"
-                      color="rgba(171, 189, 219, 1)"
+                      color="#fff"
                       size={hp(3)}
                     />
                   }
                   containerStyle={{ marginVertical: hp(1.5) }}
+                  inputContainerStyle={{borderBottomColor: '#fff'}}
                   onChangeText={phone => this.setState({ phone: phone })}
                   value={phone}
-                  inputStyle={{ marginLeft: wp(3), color: 'white' }}
+                  inputStyle={{ marginLeft: wp(3), color: '#fff' }}
                   keyboardAppearance="light"
                   placeholder="Số điện thoại"
                   autoFocus={false}
@@ -141,7 +143,7 @@ class LoginScreen extends Component {
                     this.passwordInput.focus();
                   }}
                   blurOnSubmit={false}
-                  placeholderTextColor="#E5E5E5"
+                  placeholderTextColor="#fff"
                   errorStyle={{ textAlign: 'center', fontSize: hp(2) }}
                   errorMessage={
                     phone_valid ? null : 'Please enter a valid email address'
@@ -152,14 +154,15 @@ class LoginScreen extends Component {
                     <Icon
                       name="lock"
                       type="font-awesome"
-                      color="rgba(171, 189, 219, 1)"
+                      color="#fff"
                       size={hp(3)}
                     />
                   }
                   containerStyle={{ marginVertical: hp(1.5) }}
+                  inputContainerStyle={{borderBottomColor: '#fff'}}
                   onChangeText={password => this.setState({ password })}
                   value={password}
-                  inputStyle={{ marginLeft: wp(4), color: 'white' }}
+                  inputStyle={{ marginLeft: wp(4), color: '#fff' }}
                   secureTextEntry={true}
                   keyboardAppearance="light"
                   placeholder="Mật khẩu"
@@ -169,7 +172,7 @@ class LoginScreen extends Component {
                   returnKeyType="done"
                   ref={input => (this.passwordInput = input)}
                   blurOnSubmit={true}
-                  placeholderTextColor="#E5E5E5"
+                  placeholderTextColor="#fff"
                 />
               </View>
               <View style={styles.plusView}>
@@ -242,7 +245,7 @@ export default connect(mapStateToProps, null)(LoginScreen)
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0652DD',
+    backgroundColor: Colors.primary,
   },
   logoContainer: {
     alignItems: 'center',
@@ -272,7 +275,7 @@ const styles = StyleSheet.create({
   },
   plusTitle: {
     fontFamily: 'Roboto-Regular',
-    color: '#ccc',
+    color: '#fff',
     fontSize: 20,
     textAlign: 'center'
   },
@@ -289,7 +292,7 @@ const styles = StyleSheet.create({
   orBar: {
     flex: 1,
     height: 2,
-    backgroundColor: '#ccc',
+    backgroundColor: '#fff',
     marginHorizontal: 10,
   },
   loginFBView: {

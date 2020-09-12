@@ -12,14 +12,21 @@ import StoreProfile from '../screens/StoreProfile';
 import PaymentScreen from '../screens/PaymentScreen';
 import AfterPaymentScreen from '../screens/AfterPaymentScreen';
 import ConnectScreen from '../screens/ConnectScreen';
-import SendCodeScreen from '../screens/SendCodeScreen';
 
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import TabBarIcon from '../components/TabBarIcon';
 
 import Colors from '../constants/Colors';
 
-// import MainTabNavigator from './MainTabNavigator';
+const tabBarOptions = {
+  activeTintColor: Colors.primary,
+  inactiveTintColor: Colors.tabIconDefault,
+  style: {
+    paddingTop: 5
+  },
+  labelStyle: {
+    marginTop: 2,
+  }
+}
 
 const HomeStack = createStackNavigator(
   {
@@ -31,12 +38,9 @@ HomeStack.navigationOptions = {
   header: null,
   tabBarLabel: 'Ưu Đãi',
   tabBarIcon: ({ focused }) => (
-    <Ionicons name='ios-gift' size={28} color={focused ? Colors.momoColor : Colors.tabIconDefault} />
+    <Ionicons name='ios-gift' size={28} color={focused ? Colors.primary : Colors.tabIconDefault} />
   ),
-  tabBarOptions: {
-    activeTintColor: Colors.momoColor,
-    inactiveTintColor: Colors.tabIconDefault,
-  },
+  tabBarOptions
 };
 
 const MapStack = createStackNavigator(
@@ -49,12 +53,9 @@ MapStack.navigationOptions = {
   header: null,
   tabBarLabel: 'Điểm Hẹn',
   tabBarIcon: ({ focused }) => (
-    <MaterialCommunityIcons name='map-marker-radius' size={30} color={focused ? Colors.momoColor : Colors.tabIconDefault} />
+    <MaterialCommunityIcons name='map-marker-radius' size={30} color={focused ? Colors.primary : Colors.tabIconDefault} />
   ),
-  tabBarOptions: {
-    activeTintColor: Colors.momoColor,
-    inactiveTintColor: Colors.tabIconDefault,
-  },
+  tabBarOptions
 };
 
 const ConnectStack = createStackNavigator(
@@ -78,12 +79,9 @@ const ConnectStack = createStackNavigator(
 ConnectStack.navigationOptions = {
   tabBarLabel: 'Kết nối',
   tabBarIcon: ({ focused }) => (
-    <Ionicons name='ios-people' size={35} color={focused ? Colors.momoColor : Colors.tabIconDefault} />
+    <Ionicons name='ios-people' size={35} color={focused ? Colors.primary : Colors.tabIconDefault} />
   ),
-  tabBarOptions: {
-    activeTintColor: Colors.momoColor,
-    inactiveTintColor: Colors.tabIconDefault,
-  },
+  tabBarOptions
 };
 
 const WalletStack = createStackNavigator(
@@ -95,10 +93,7 @@ const WalletStack = createStackNavigator(
 WalletStack.navigationOptions = {
   tabBarLabel: 'Ví Của Tôi',
   tabBarIcon: (<Image  style={{width: 25, height: 25}} source={require('../assets/icons/my_wallet.png')} />),
-  tabBarOptions: {
-    activeTintColor: Colors.momoColor,
-    inactiveTintColor: 'gray',
-  },
+  tabBarOptions
 };
 
 const TabNavigator = createBottomTabNavigator({
@@ -110,7 +105,7 @@ const TabNavigator = createBottomTabNavigator({
 {
   navigationOptions: {
     header: null
-  }
+  },
 }
 );
 
