@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import {
-  AsyncStorage,
   StyleSheet,
   Image,
   Text,
@@ -18,18 +17,19 @@ import * as Facebook from 'expo-facebook';
 // Constants
 import config from '../constants/config';
 import { SafeAreaConsumer } from 'react-native-safe-area-context';
+import { connect } from 'react-redux';
+import { LOGIN_WITH_PHONE } from '../services/auth/constants';
+import { getCurrentUser } from '../services/auth/getters';
 
-export default class LoginScreen extends Component {
+class LoginScreen extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      userId: '',
       phone: '',
       phone_valid: true,
       password: '',
-      login_failed: false,
-      showLoading: false,
+      loading: false,
     };
   }
 
@@ -39,36 +39,24 @@ export default class LoginScreen extends Component {
     return re.test(phone);
   }
 
-  submitLoginCredentials() {
-    const { showLoading } = this.state;
-
-    this.setState({
-      showLoading: !showLoading,
-    });
-  }
-
-  async _signInAsync(userId) {
-    await AsyncStorage.removeItem('@userToken')
-    await AsyncStorage.setItem('@userToken', userId);
-    this.props.navigation.navigate('Loading');
-  };
-
-  _checkLogin = async () => {
-    const { phone, password, showLoading } = this.state;
-    this.setState({ showLoading: !showLoading });
+  _checkLogin = () => {
+    const { phone, password } = this.state;
     Keyboard.dismiss();
-    // await AsyncStorage.clear();
-    const response = await fetch(config.ROOT + `/login?phone=${phone}&password=${password}`);
-    const jsonData = await response.json();
-    console.log(jsonData[0])
-    if (jsonData[0] != null) {
-      this._signInAsync(jsonData[0].userId);
-    } else {
-      this.setState({
-        showLoading: false,
-      }, () => Alert.alert('Logged in failed', `Please check your phone/password`));
-    }
-
+    this.setState({ loading: true });
+    this.props.dispatch({
+      type: LOGIN_WITH_PHONE,
+      payload: {
+        phoneNumber: phone,
+        password
+      },
+      meta: {
+        onFailed: () => {
+          this.setState({
+            loading: false
+          })
+        }
+      }
+    })
   };
 
   async loginFacebook() {
@@ -102,7 +90,7 @@ export default class LoginScreen extends Component {
   }
 
   render() {
-    const { phone, password, phone_valid, showLoading } = this.state;
+    const { phone, password, phone_valid, loading } = this.state;
     // console.log(SCREEN_HEIGHT);
     return (
       <KeyboardAvoidingView 
@@ -195,13 +183,14 @@ export default class LoginScreen extends Component {
                 />
               </View>
               <Button
-                title="TIẾP TỤC"
+                title="Đăng nhập"
                 activeOpacity={1}
-                // underlayColor="transparent"
+                underlayColor="transparent"
                 onPress={this._checkLogin}
-                loading={showLoading}
+                loading={loading}
                 loadingProps={{ size: 'small', color: 'white' }}
-                disabled={!phone_valid && password.length < 8}
+                disabledStyle={{backgroundColor: 'transparent'}}
+                disabled={(!phone_valid && password.length < 8) || loading}
                 buttonStyle={{
                   height: 50,
                   backgroundColor: 'transparent',
@@ -210,7 +199,7 @@ export default class LoginScreen extends Component {
                   borderRadius: 30,
                 }}
                 containerStyle={styles.nextButton}
-                titleStyle={{ fontWeight: '600', color: '#fff' }}
+                titleStyle={{ fontWeight: '600', color: '#fff', textTransform: 'uppercase' }}
               />
               <View style={styles.footerView}>
                 <View style={styles.plusOrView}>
@@ -243,6 +232,12 @@ export default class LoginScreen extends Component {
     );
   }
 }
+
+const mapStateToProps = state => ({
+  currentUser:  getCurrentUser(state)
+})
+
+export default connect(mapStateToProps, null)(LoginScreen)
 
 const styles = StyleSheet.create({
   container: {

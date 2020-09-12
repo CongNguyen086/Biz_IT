@@ -1,4 +1,4 @@
-import { SET_CURRENT_USER } from "./actions";
+import { SET_CURRENT_USER } from "./constants";
 
 const initialState = {
   currentUser: null,
@@ -7,7 +7,7 @@ const initialState = {
 export default function(state = initialState, action) {
   switch(action.type) {
     case SET_CURRENT_USER:
-      if (!state.currentUser) {
+      if (!state.currentUser || !payload.user) {
         return {
           ...state,
           currentUser: action.payload.user

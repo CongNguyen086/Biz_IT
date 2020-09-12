@@ -9,6 +9,7 @@ import { Ionicons } from '@expo/vector-icons';
 import AppNavigator from './navigation/AppNavigator';
 import { MenuProvider } from 'react-native-popup-menu';
 import store from './store';
+import AppNavigation from './services/navigation';
 
 export default function App(props) {
   const [isLoadingComplete, setLoadingComplete] = useState(false);
@@ -28,7 +29,7 @@ export default function App(props) {
           <MenuProvider>
             <View style={styles.container}>
               {Platform.OS === 'ios' && <StatusBar barStyle="default" />}
-              <AppNavigator />
+              <AppNavigator ref={AppNavigation.setNavigationRef} />
             </View>
           </MenuProvider>
         </SafeAreaProvider>
