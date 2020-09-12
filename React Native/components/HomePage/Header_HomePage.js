@@ -6,7 +6,7 @@ import { withNavigation } from 'react-navigation';
 //Component
 import Search_HomePage from './Search_HomePage'
 
-function Header_HomePage(props) {
+function Header_HomePage() {
     return (
         <View style={styles.container}>
             <ImageBackground style={styles.header} source={require('../../assets/Header_HomePage/leaves.jpg')} blurRadius={2}>
