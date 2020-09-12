@@ -24,7 +24,6 @@ import config from '../constants/config'
 import Colors from '../constants/Colors'
 // Components
 import MapInput from '../components/MapStore/MapInput'
-import LongButton from '../components/LongButton'
 import MapStoreList from '../components/MapStore/MapStoreModal'
 import FilterModal from '../components/MapStore/FilterModal'
 import * as Animatable from 'react-native-animatable'
@@ -59,12 +58,14 @@ class MapStore extends Component {
     }
 
     _handleKeyboardShow = (event) => {
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.spring)
         this.setState({
             keyboardHeight: event.endCoordinates.height
         })
     }
 
     _handleKeyboardHide = () => {
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.spring)
         this.setState({
             keyboardHeight: 0,
         })
@@ -164,9 +165,8 @@ class MapStore extends Component {
             <Circle
                 center={middleCoords}
                 radius={radius}
-                strokeWidth={0}
-                // strokeColor = 'rgba(205,214,208,0.5)'
-                fillColor='rgba(205,214,208,0.6)'
+                strokeWidth={2}
+                fillColor='rgba(205,214,208,0.7)'
             />
         )
     }
@@ -358,10 +358,9 @@ class MapStore extends Component {
         }
 
         const callOutWrapperStyle = keyboardHeight !== 0 ? {
-            height: windowHeight - keyboardHeight - 20,
+            height: windowHeight - keyboardHeight - 50,
             minHeight: 260,
         } : {}
-        console.log("MapStore -> render -> callOutWrapperStyle", callOutWrapperStyle)
 
         const lastFriend = locationList[locationList.length - 1]
 

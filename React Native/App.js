@@ -1,3 +1,4 @@
+import {Provider} from 'react-redux'
 import { AppLoading } from 'expo';
 import { Asset } from 'expo-asset';
 import * as Font from 'expo-font';
@@ -7,6 +8,8 @@ import {SafeAreaProvider} from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons';
 import AppNavigator from './navigation/AppNavigator';
 import { MenuProvider } from 'react-native-popup-menu';
+import store from './store';
+import AppNavigation from './services/navigation';
 
 export default function App(props) {
   const [isLoadingComplete, setLoadingComplete] = useState(false);
@@ -21,14 +24,16 @@ export default function App(props) {
     );
   } else {
     return (
-      <SafeAreaProvider>
-        <MenuProvider>
-          <View style={styles.container}>
-            {Platform.OS === 'ios' && <StatusBar barStyle="default" />}
-            <AppNavigator />
-          </View>
-        </MenuProvider>
-      </SafeAreaProvider>
+      <Provider store={store}>
+        <SafeAreaProvider>
+          <MenuProvider>
+            <View style={styles.container}>
+              {Platform.OS === 'ios' && <StatusBar barStyle="default" />}
+              <AppNavigator ref={AppNavigation.setNavigationRef} />
+            </View>
+          </MenuProvider>
+        </SafeAreaProvider>
+      </Provider>
     );
   }
 }

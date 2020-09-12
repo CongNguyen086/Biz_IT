@@ -1,12 +1,14 @@
 import React, { Component } from 'react';
 import {
-  AsyncStorage,
   StyleSheet,
+  Image,
   Text,
   View,
-  ImageBackground,
+  ScrollView,
   Alert,
-  Keyboard
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform
 } from 'react-native';
 import { Input, Button, Icon } from 'react-native-elements';
 import FBLoginButton from '../components/FBLoginButton';
@@ -14,20 +16,21 @@ import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-nat
 import * as Facebook from 'expo-facebook';
 // Constants
 import config from '../constants/config';
+import { SafeAreaConsumer } from 'react-native-safe-area-context';
+import { connect } from 'react-redux';
+import { LOGIN_WITH_PHONE } from '../services/auth/constants';
+import { getCurrentUser } from '../services/auth/getters';
+import Colors from '../constants/Colors';
 
-const BG_IMAGE = require('../assets/images/login_background.png');
-
-export default class LoginScreen extends Component {
+class LoginScreen extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      userId: '',
       phone: '',
       phone_valid: true,
       password: '',
-      login_failed: false,
-      showLoading: false,
+      loading: false,
     };
   }
 
@@ -37,36 +40,24 @@ export default class LoginScreen extends Component {
     return re.test(phone);
   }
 
-  submitLoginCredentials() {
-    const { showLoading } = this.state;
-
-    this.setState({
-      showLoading: !showLoading,
-    });
-  }
-
-  async _signInAsync(userId) {
-    await AsyncStorage.removeItem('@userToken')
-    await AsyncStorage.setItem('@userToken', userId);
-    this.props.navigation.navigate('Loading');
-  };
-
-  async _checkLogin() {
-    const { phone, password, showLoading } = this.state;
-    this.setState({ showLoading: !showLoading });
+  _checkLogin = () => {
+    const { phone, password } = this.state;
     Keyboard.dismiss();
-    // await AsyncStorage.clear();
-    const response = await fetch(config.ROOT + `/login?phone=${phone}&password=${password}`);
-    const jsonData = await response.json();
-    console.log(jsonData[0])
-    if (jsonData[0] != null) {
-      this._signInAsync(jsonData[0].userId);
-    } else {
-      this.setState({
-        showLoading: false,
-      }, () => Alert.alert('Logged in failed', `Please check your phone/password`));
-    }
-
+    this.setState({ loading: true });
+    this.props.dispatch({
+      type: LOGIN_WITH_PHONE,
+      payload: {
+        phoneNumber: phone,
+        password
+      },
+      meta: {
+        onFailed: () => {
+          this.setState({
+            loading: false
+          })
+        }
+      }
+    })
   };
 
   async loginFacebook() {
@@ -100,180 +91,211 @@ export default class LoginScreen extends Component {
   }
 
   render() {
-    const { phone, password, phone_valid, showLoading } = this.state;
+    const { phone, password, phone_valid, loading } = this.state;
     // console.log(SCREEN_HEIGHT);
     return (
-      <View style={styles.container}>
-        <ImageBackground source={BG_IMAGE} style={styles.bgImage}>
-          <View style={styles.loginView}>
-            <View style={styles.loginInput}>
-              <Input
-                leftIcon={
-                  <Icon
-                    name="user-o"
-                    type="font-awesome"
-                    color="rgba(171, 189, 219, 1)"
-                    size={hp(3)}
-                  />
+      <KeyboardAvoidingView 
+        style={styles.container} 
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <SafeAreaConsumer style={{flex: 1}}>
+          {insets => (
+            <ScrollView 
+              style={[
+                styles.loginView, 
+                {
+                  paddingTop: insets.top,
+                  paddingBottom: insets.bottom,
+                  paddingLeft: insets.left,
+                  paddingRight: insets.right
                 }
-                containerStyle={{ marginVertical: hp(1.5) }}
-                onChangeText={phone => this.setState({ phone: phone })}
-                value={phone}
-                inputStyle={{ marginLeft: wp(3), color: 'white' }}
-                keyboardAppearance="light"
-                placeholder="Số điện thoại"
-                autoFocus={false}
-                autoCapitalize="none"
-                autoCorrect={false}
-                keyboardType="number-pad"
-                returnKeyType="next"
-                ref={input => (this.emailInput = input)}
-                onSubmitEditing={() => {
-                  this.setState({ phone_valid: this.validatePhone(phone) });
-                  this.passwordInput.focus();
-                }}
-                blurOnSubmit={false}
-                placeholderTextColor="#E5E5E5"
-                errorStyle={{ textAlign: 'center', fontSize: hp(2) }}
-                errorMessage={
-                  phone_valid ? null : 'Please enter a valid email address'
-                }
-              />
-              <Input
-                leftIcon={
-                  <Icon
-                    name="lock"
-                    type="font-awesome"
-                    color="rgba(171, 189, 219, 1)"
-                    size={hp(3)}
-                  />
-                }
-                containerStyle={{ marginVertical: hp(1.5) }}
-                onChangeText={password => this.setState({ password })}
-                value={password}
-                inputStyle={{ marginLeft: wp(4), color: 'white' }}
-                secureTextEntry={true}
-                keyboardAppearance="light"
-                placeholder="Mật khẩu"
-                autoCapitalize="none"
-                autoCorrect={false}
-                keyboardType="number-pad"
-                returnKeyType="done"
-                ref={input => (this.passwordInput = input)}
-                blurOnSubmit={true}
-                placeholderTextColor="#E5E5E5"
-              />
-            </View>
-            <View style={styles.plusView}>
+              ]}
+              contentContainerStyle={styles.scrollViewContent}
+            >
+              <View style={styles.logoContainer}>
+                <Image style={styles.logoImage} source={require('../assets/images/logo.png')} />
+              </View>
+              <View style={styles.loginInput}>
+                <Input
+                  leftIcon={
+                    <Icon
+                      name="user-o"
+                      type="font-awesome"
+                      color="#fff"
+                      size={hp(3)}
+                    />
+                  }
+                  containerStyle={{ marginVertical: hp(1.5) }}
+                  inputContainerStyle={{borderBottomColor: '#fff'}}
+                  onChangeText={phone => this.setState({ phone: phone })}
+                  value={phone}
+                  inputStyle={{ marginLeft: wp(3), color: '#fff' }}
+                  keyboardAppearance="light"
+                  placeholder="Số điện thoại"
+                  autoFocus={false}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  keyboardType="number-pad"
+                  returnKeyType="next"
+                  ref={input => (this.emailInput = input)}
+                  onSubmitEditing={() => {
+                    this.setState({ phone_valid: this.validatePhone(phone) });
+                    this.passwordInput.focus();
+                  }}
+                  blurOnSubmit={false}
+                  placeholderTextColor="#fff"
+                  errorStyle={{ textAlign: 'center', fontSize: hp(2) }}
+                  errorMessage={
+                    phone_valid ? null : 'Please enter a valid email address'
+                  }
+                />
+                <Input
+                  leftIcon={
+                    <Icon
+                      name="lock"
+                      type="font-awesome"
+                      color="#fff"
+                      size={hp(3)}
+                    />
+                  }
+                  containerStyle={{ marginVertical: hp(1.5) }}
+                  inputContainerStyle={{borderBottomColor: '#fff'}}
+                  onChangeText={password => this.setState({ password })}
+                  value={password}
+                  inputStyle={{ marginLeft: wp(4), color: '#fff' }}
+                  secureTextEntry={true}
+                  keyboardAppearance="light"
+                  placeholder="Mật khẩu"
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  keyboardType="number-pad"
+                  returnKeyType="done"
+                  ref={input => (this.passwordInput = input)}
+                  blurOnSubmit={true}
+                  placeholderTextColor="#fff"
+                />
+              </View>
+              <View style={styles.plusView}>
+                <Button
+                  title="Quên mật khẩu?"
+                  type="clear"
+                  activeOpacity={0.5}
+                  titleStyle={styles.plusTitle}
+                  // containerStyle={styles.plusText}
+                  onPress={() => console.log('You press forgot password')}
+                />
+              </View>
               <Button
-                title="Quên mật khẩu?"
-                type="clear"
-                activeOpacity={0.5}
-                titleStyle={styles.plusTitle}
-                // containerStyle={styles.plusText}
-                onPress={() => console.log('You press forgot password')}
+                title="Đăng nhập"
+                activeOpacity={1}
+                underlayColor="transparent"
+                onPress={this._checkLogin}
+                loading={loading}
+                loadingProps={{ size: 'small', color: 'white' }}
+                disabledStyle={{backgroundColor: 'transparent'}}
+                disabled={(!phone_valid && password.length < 8) || loading}
+                buttonStyle={{
+                  height: 50,
+                  backgroundColor: 'transparent',
+                  borderWidth: 1.5,
+                  borderColor: 'white',
+                  borderRadius: 30,
+                }}
+                containerStyle={styles.nextButton}
+                titleStyle={{ fontWeight: '600', color: '#fff', textTransform: 'uppercase' }}
               />
-            </View>
-            <Button
-              title="TIẾP TỤC"
-              activeOpacity={1}
-              underlayColor="transparent"
-              onPress={() => this._checkLogin()}
-              loading={showLoading}
-              loadingProps={{ size: 'small', color: 'white' }}
-              disabled={!phone_valid && password.length < 8}
-              buttonStyle={{
-                height: hp(6),
-                width: wp(74),
-                backgroundColor: 'transparent',
-                borderWidth: 2,
-                borderColor: 'white',
-                borderRadius: 30,
-              }}
-              containerStyle={styles.nextButton}
-              titleStyle={{ fontWeight: 'bold', color: 'white' }}
-            />
-            <View style={styles.footerView}>
-              <View style={styles.loginFBView}>
+              <View style={styles.footerView}>
                 <View style={styles.plusOrView}>
+                  <View style={styles.orBar} />
                   <Text style={styles.plusTitle}>Hoặc</Text>
+                  <View style={styles.orBar} />
                 </View>
-                <View style={styles.facebookButton}>
+                <Button 
+                  title="Đăng ký"
+                  activeOpacity={1}
+                  disabled={!phone_valid && password.length < 8}
+                  buttonStyle={{
+                    height: 50,
+                    backgroundColor: 'transparent',
+                    borderWidth: 1.5,
+                    borderColor: 'white',
+                    borderRadius: 30,
+                  }}
+                  containerStyle={styles.nextButton}
+                  titleStyle={{ fontWeight: '500', color: '#fff' }} 
+                />
+                <View style={styles.loginFBView}>
                   <FBLoginButton loginWithFacebook={this.loginFacebook} />
                 </View>
               </View>
-              <View style={styles.signUpView}>
-                <Text style={styles.signUpText}>Đăng Ký</Text>
-              </View>
-            </View>
-          </View>
-        </ImageBackground>
-      </View>
+            </ScrollView>
+          )}
+        </SafeAreaConsumer>
+      </KeyboardAvoidingView>
     );
   }
 }
 
+const mapStateToProps = state => ({
+  currentUser:  getCurrentUser(state)
+})
+
+export default connect(mapStateToProps, null)(LoginScreen)
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: Colors.primary,
   },
-  bgImage: {
-    flex: 1,
+  logoContainer: {
     alignItems: 'center',
-    resizeMode: 'stretch',
+  },
+  logoImage: {
+    width: 200,
+    height: 200,
+    resizeMode: 'contain'
   },
   loginView: {
     flex: 1,
-    marginTop: hp(38),
-    backgroundColor: 'transparent',
-    width: wp(75),
+  },
+  scrollViewContent: {
+    maxWidth: 500,
+    paddingHorizontal: 50,
+    flex: 1,
   },
   loginInput: {
-    flex: 0.2,
     justifyContent: 'center',
     alignItems: 'center',
   },
   plusView: {
-    flex: 0.14,
     alignItems: 'flex-end',
-    // marginTop: hp(0),
   },
   nextButton: {
-    flex: 0.06,
-    // marginTop: hp(0),
+    marginTop: 35,
   },
   plusTitle: {
     fontFamily: 'Roboto-Regular',
-    color: '#CCCCCC',
-    fontSize: hp(2),
+    color: '#fff',
+    fontSize: 20,
+    textAlign: 'center'
   },
   footerView: {
-    marginTop: hp(10),
-    flex: 0.6,
+    marginTop: 50,
     justifyContent: 'space-between',
-    alignItems: 'center',
   },
   plusOrView: {
-    width: wp(75),
-    borderTopColor: '#979aa2',
-    borderTopWidth: 1,
-    paddingTop: hp(2),
+    width: '100%',
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center'
+  },
+  orBar: {
+    flex: 1,
+    height: 2,
+    backgroundColor: '#fff',
+    marginHorizontal: 10,
   },
   loginFBView: {
-    flex: 0.8,
-    alignItems: 'center',
-  },
-  facebookButton: {
-    marginTop: hp(2),
-  },
-  signUpView: {
-    flex: 0.2,
-    alignItems: 'center',
-  },
-  signUpText: {
-    color: '#CCCCCC',
-    fontSize: hp(2),
-    fontWeight: 'bold',
+    marginTop: 20,
   },
 });
