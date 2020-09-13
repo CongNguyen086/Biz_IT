@@ -5,6 +5,9 @@ import {
   SafeAreaView, 
   Platform, 
   ScrollView,
+  Image,
+  Text, 
+  TouchableOpacity, Alert
 } from 'react-native';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 // Constants
@@ -12,7 +15,7 @@ import config from '../constants/config'
 // Components
 import Header_HomePage from '../components/HomePage/Header_HomePage'
 import ProductsContainer from '../components/HomePage/ProductsContainer'
-import Categories_HomePage from '../components/HomePage/Categories_HomePage';
+import Colors from '../constants/Colors'
 
 export default class HomePage extends Component {
   constructor(props) {
@@ -35,18 +38,32 @@ export default class HomePage extends Component {
       console.log(error)
     }
   }
+
+  onCategoryPress = (categoryId) => {
+    // this.props.navigation.navigate('DealDetails', {info: item})
+    Alert.alert('You press categoryId ' + categoryId)
+  }
+
   componentDidMount() {
     this.getPopular();
   }
   render() {
     const {products, loading} = this.state;
+    const {onCategoryPress} = this
     return (
       <SafeAreaView style={styles.safeAreaViewStyle}>
         <View style={styles.container}>
           <Header_HomePage />
           <ScrollView contentContainerStyle={styles.bodyContainer}>
-            <View style={styles.card}>
-              <Categories_HomePage />
+            <View style={[styles.card, {flexWrap: 'wrap', minHeight: null}]}>
+              {categories.map(cate => (
+                <TouchableOpacity key={cate.categoryId} style={styles.categoryItem} onPress={() => onCategoryPress(cate.categoryId)}>
+                  <View style={[styles.categoryImageWrapper, cate.color]}>
+                    <Image style={styles.categoryImage} source={cate.image} />
+                  </View>
+                  <Text style={styles.categoryName}>{cate.name}</Text>
+                </TouchableOpacity>
+              ))}
             </View>
             <View style={[styles.card, {flex: 1, marginBottom: 15}]}>
               <ProductsContainer
@@ -71,7 +88,7 @@ const styles = StyleSheet.create({
   safeAreaViewStyle: {
     flex: 1,
     paddingTop: Platform.OS === 'android' ? hp(3) : 0,
-    backgroundColor: '#325340',
+    backgroundColor: Colors.primary,
   },
   container: {
     flex: 1,
@@ -96,4 +113,70 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.5,
     elevation: 3,
   },
+  categoryItem: {
+    width: '50%',
+    alignItems: 'center',
+    padding: 15,
+  },
+  categoryImageWrapper: {
+    width: 50,
+    height: 50,
+    padding: 10,
+    borderRadius: 25,
+    backgroundColor: 'red',
+    shadowColor: 'rgba(0,0,0,0.2)',
+    shadowOffset: {
+      width: 4,
+      height: 6
+    },
+    shadowOpacity: 0.6,
+  },
+  colorBlue: {
+    backgroundColor: '#5ec9f3'
+  },
+  colorYellow: {
+    backgroundColor: '#ffc989'
+  },
+  colorPink: {
+    backgroundColor: '#fc888c'
+  },
+  colorRed: {
+    backgroundColor: '#fb7274'
+  },
+  categoryImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',
+  },
+  categoryName: {
+    marginTop: 10,
+    color: '#353b48'
+  }
 });
+
+const categories = [
+  {
+    categoryId: 13,
+    name: 'Cafe/Dessert',
+    image: require('../assets/icons/cafe.png'),
+    color: styles.colorBlue
+  },
+  {
+    categoryId: 14,
+    name: 'Restaurant',
+    image: require('../assets/icons/restaurant.png'),
+    color: styles.colorRed
+  },
+  {
+    categoryId: 17,
+    name: 'Amusement',
+    image: require('../assets/icons/amusement.png'),
+    color: styles.colorYellow
+  },
+  {
+    categoryId: 19,
+    name: 'Shopping',
+    image: require('../assets/icons/shopping.png'),
+    color: styles.colorPink
+  }
+]
