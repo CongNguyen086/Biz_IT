@@ -55,19 +55,22 @@ export default class HomePage extends Component {
         <View style={styles.container}>
           <Header_HomePage />
           <ScrollView contentContainerStyle={styles.bodyContainer}>
-            <View style={[styles.card, {flexWrap: 'wrap', minHeight: null}]}>
-              {categories.map(cate => (
-                <TouchableOpacity key={cate.categoryId} style={styles.categoryItem} onPress={() => onCategoryPress(cate.categoryId)}>
-                  <View style={[styles.categoryImageWrapper, cate.color]}>
-                    <Image style={styles.categoryImage} source={cate.image} />
-                  </View>
-                  <Text style={styles.categoryName}>{cate.name}</Text>
-                </TouchableOpacity>
-              ))}
+            <View style={[styles.card, styles.categoriesWrapper]}>
+              <Text style={styles.categoriesText}>Categories</Text>
+              <View style={styles.categories}>
+                {categories.map(cate => (
+                  <TouchableOpacity key={cate.categoryId} style={styles.categoryItem} onPress={() => onCategoryPress(cate.categoryId)}>
+                    <View style={[styles.categoryImageWrapper, cate.color]}>
+                      <Image style={styles.categoryImage} source={cate.image} />
+                    </View>
+                    <Text style={styles.categoryName}>{cate.name}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
             </View>
             <View style={[styles.card, {flex: 1, marginBottom: 15}]}>
               <ProductsContainer
-                title='Phổ biến'
+                title='Popular'
                 products={products}
                 loading={loading}
                 navigation={this.props.navigation}
@@ -97,6 +100,23 @@ const styles = StyleSheet.create({
   bodyContainer: {
     paddingHorizontal: 15,
   },
+  categoriesWrapper: {
+    flexDirection: 'column',
+    minHeight: null, 
+    paddingHorizontal: 5, 
+    paddingVertical: 20,
+  },
+  categoriesText: {
+    marginBottom: 15,
+    paddingLeft: 8,
+    fontSize: 16,
+    fontWeight: '600'
+  },
+  categories: {
+    flexWrap: 'wrap', 
+    justifyContent: 'center', 
+    flexDirection: 'row'
+  },
   card: {
     justifyContent: 'flex-start',
     flexDirection: 'row',
@@ -114,15 +134,15 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   categoryItem: {
-    width: '50%',
+    width: '25%',
     alignItems: 'center',
-    padding: 15,
+    padding: 2,
   },
   categoryImageWrapper: {
-    width: 50,
-    height: 50,
+    width: 45,
+    height: 45,
     padding: 10,
-    borderRadius: 25,
+    borderRadius: 22.5,
     backgroundColor: 'red',
     shadowColor: 'rgba(0,0,0,0.2)',
     shadowOffset: {
