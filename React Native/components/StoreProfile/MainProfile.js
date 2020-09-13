@@ -58,7 +58,7 @@ class MainProfile extends Component {
                             </View>
                         </View>
                         <View style={styles.timeView}>
-                            <Text style={styles.status}>Đang mở cửa</Text>
+                            <Text style={styles.status}>Opening</Text>
                             <Text style={styles.extraValue}>08:00 - 22:00</Text>
                         </View>
                     </View>
@@ -86,7 +86,7 @@ class MainProfile extends Component {
 
                     <View style={styles.bottomView}>
                         <Button type='solid'
-                            title='Thanh toán ngay'
+                            title='Add to appointment list'
                             buttonStyle={styles.button}
                             titleStyle={{ fontSize: 18 }}
                             onPress={() => this.props.navigation.navigate('Payment', { storeId: storeId })} />
@@ -196,7 +196,7 @@ const styles = StyleSheet.create({
         resizeMode: 'contain',
     },
     button: {
-        backgroundColor: '#EB5757',
+        backgroundColor: Colors.primary,
         borderRadius: 5,
         shadowColor: "#000",
         shadowOffset: {

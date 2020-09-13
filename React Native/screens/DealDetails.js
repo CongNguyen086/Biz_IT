@@ -163,7 +163,7 @@ class DealDetails extends Component {
     }
 
     static navigationOptions = {
-        headerTitle: <HeaderTitle title='Ưu đãi' />,
+        headerTitle: <HeaderTitle title='Stores' />,
     };
 
     render() {
@@ -181,19 +181,19 @@ class DealDetails extends Component {
                         <MenuTrigger>
                             <View style={styles.filterView}>
                                 <Icon name='filter' type='font-awesome' color={Colors.extraText} size={16} />
-                                <Text style={styles.filter}>Bộ lọc</Text>
+                                <Text style={styles.filter}>Filter</Text>
                                 <Icon name='angle-down' type='font-awesome' size={16} color={Colors.extraText} />
                             </View>
                         </MenuTrigger>
                         <MenuOptions customStyles={{optionsWrapper: styles.optionsWrapper}}>
                             <MenuOption value={FILTER_OPTIONS.DISTANCE} customStyles={{optionWrapper: styles.optionStyle}}>
-                                <Text>Khoảng cách</Text>
+                                <Text>Distance</Text>
                             </MenuOption>
                             <MenuOption value={FILTER_OPTIONS.RATING} customStyles={{optionWrapper: {
                                 ...styles.optionStyle,
                                 ...{borderBottomWidth: 0}}
                             }}>
-                                <Text>Đánh giá</Text>
+                                <Text>Rating</Text>
                             </MenuOption>
                         </MenuOptions>
                     </Menu>

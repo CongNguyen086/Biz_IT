@@ -51,14 +51,14 @@ class StoreProfile extends Component {
             }
         }
         return {
-            headerTitle: <HeaderTitle title={navigation.getParam('categoryName', 'No categoryName')} />,
+            headerTitle: <HeaderTitle title='Store profile' />,
             headerRight: <ShareButton onPress={shareAddress} />
         };
     };
 
     render() {
         const info = this.props.navigation.getParam('info', 'No info');
-        const distance = info.distance + ' m từ vị trí hiện tại'
+        const distance = info.distance + ' m from your current location'
         return (
             <View style={styles.container}>
                 <View style={styles.storeProfile}>

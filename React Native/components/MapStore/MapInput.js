@@ -71,7 +71,7 @@ class MapInput extends Component {
                                         <TextInput
                                             ref={(ref) => { this.text = ref }}
                                             style={styles.input}
-                                            placeholder='Tìm kiếm vị trí'
+                                            placeholder='Enter your friend location'
                                             onChangeText={handleTextChange}
                                             value={inputText}
                                         />

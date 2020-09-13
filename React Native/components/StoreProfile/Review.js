@@ -38,7 +38,7 @@ class Review extends Component {
             <View style={styles.container}>
                 <View style={styles.header}>
                     <FontAwesome name='star' size={30} color='#feca57' style={styles.headerIcon} />
-                    <Text style={styles.headerLabel}>Đánh giá cửa hàng</Text>
+                    <Text style={styles.headerLabel}>Store rating</Text>
                 </View>
                 {loading && (
                     <View style={styles.loadingView}>
@@ -48,7 +48,7 @@ class Review extends Component {
                 {!loading && reviews.length === 0 && (
                     <View style={[styles.reviewElementContainer, styles.noReviewContainer]}>
                         <Text style={styles.noReviewText}>
-                            {`Chưa có nhận xét nào.\nHãy đóng góp cho chúng tôi`}
+                            {`No rating.\nPlease rate us for better services`}
                         </Text>
                     </View>
                 )}
