@@ -125,7 +125,7 @@ const App = createStackNavigator(
   },
   {
     // initialRouteName: 'HomePage',
-    initialRouteName: 'HomePage',
+    initialRouteName: 'ContactList',
     /* The header config from HomeScreen is now here */
     defaultNavigationOptions: {
       headerStyle: {
