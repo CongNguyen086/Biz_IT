@@ -16,6 +16,7 @@ import ConnectScreen from '../screens/ConnectScreen';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 
 import Colors from '../constants/Colors';
+import ContactListScreen from '../screens/ContactList';
 
 const tabBarOptions = {
   activeTintColor: Colors.primary,
@@ -116,11 +117,12 @@ const App = createStackNavigator(
     StoreProfile: StoreProfile,
     Payment: PaymentScreen,
     AfterPayment: AfterPaymentScreen,
-    Connect: ConnectScreen
+    Connect: ConnectScreen,
+    ContactList: ContactListScreen
   },
   {
     // initialRouteName: 'HomePage',
-    initialRouteName: 'HomePage',
+    initialRouteName: 'ContactList',
     /* The header config from HomeScreen is now here */
     defaultNavigationOptions: {
       headerStyle: {
@@ -143,7 +145,7 @@ const AppNavigator = createSwitchNavigator(
     App: App,
   },
   {
-    initialRouteName: 'Login',
+    initialRouteName: 'App',
   }
 );
 

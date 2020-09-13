@@ -21,7 +21,7 @@
     "expo": "^35.0.0",
     "expo-asset": "^7.0.0",
     "expo-constants": "^7.0.0",
-    "expo-contacts": "^7.0.0",
+    "expo-contacts": "~7.0.0",
     "expo-facebook": "^7.0.0",
     "expo-font": "^7.0.0",
     "expo-image-picker": "^7.0.0",
