@@ -12,7 +12,7 @@ const screenHeight = Dimensions.get('window').height
 
 class MapStoreList extends Component {
     componentDidMount = () => {
-        this._panel.show(300)
+        // this._panel.show(300)
     }
 
     render() {
@@ -21,9 +21,7 @@ class MapStoreList extends Component {
             <SlidingUpPanel ref={c => this._panel = c}
                 draggableRange={{ top: screenHeight - 50, bottom: 65 }}
                 friction={0.05}
-            // animatedValue={this._draggedValue}
-            // snappingPoints={[360]}
-            // height={height + 180}
+                height={180}
             >
                 {/* {dragHandler => ( */}
                 <View style={styles.container}>

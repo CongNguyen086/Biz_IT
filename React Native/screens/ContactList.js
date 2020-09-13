@@ -1,6 +1,29 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { Text, View, StyleSheet, FlatList, Alert, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native'
-import {Avatar, ListItem, Button, SearchBar} from 'react-native-elements'
+import React, { 
+  useCallback, 
+  useEffect, 
+  useMemo, 
+  useRef, 
+  useState 
+} from 'react'
+import { 
+  Text, 
+  View, 
+  StyleSheet, 
+  FlatList, 
+  Alert, 
+  ActivityIndicator, 
+  KeyboardAvoidingView, 
+  Platform, 
+  LayoutAnimation, 
+  UIManager,
+  Dimensions
+} from 'react-native'
+import {
+  Avatar, 
+  ListItem, 
+  Button, 
+  SearchBar, 
+} from 'react-native-elements'
 import * as Contacts from 'expo-contacts'
 import * as Animatable from 'react-native-animatable'
 import * as Permissions from 'expo-permissions'
@@ -9,6 +32,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { getContactList } from '../services/app/getters'
 import { setContactList } from '../services/app/actions'
 import { SafeAreaView } from 'react-navigation'
+import SlidingUpPanel from '../components/SlidingUpPanel'
 
 const DATA = [
   {
@@ -31,11 +55,23 @@ const DATA = [
   },
 ]
 
+if (
+  Platform.OS === "android" &&
+  UIManager.setLayoutAnimationEnabledExperimental
+) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
+
+const screenHeight = Dimensions.get('window').height
+
 const ContactList = () => {
   const [isLoading, setLoading] = useState(false)
+  const [isOpenSliding, setOpenSliding] = useState(false)
   const [searchText, setSearchText] = useState('')
+  const slidingRef = useRef(null)
   const dispatch = useDispatch()
   const contacts = useSelector(getContactList)
+  const [checkedUsers, setCheckedUsers] = useState([])
   const getShortName = useCallback((fullName = '') => {
     return fullName.split(' ').reduce((acc, current) => (acc + current?.[0] ?? ''), '')
   }, [])
@@ -106,11 +142,38 @@ const ContactList = () => {
     )
   }, [contacts, searchText])
 
+  const onCheckedUser = useCallback((userId) => {
+    if (!!contactList.find(user => user.id === userId)) {
+      if (checkedUsers.length === 0) {
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.spring)
+      }
+      if (!checkedUsers.includes(userId)) {
+        setCheckedUsers([...checkedUsers, userId])
+      } else {
+        if (checkedUsers.length === 1) {
+          LayoutAnimation.configureNext(LayoutAnimation.Presets.spring)
+        }
+        setCheckedUsers(checkedUsers.filter(uId => uId !== userId))
+      }
+    }
+  }, [contactList, checkedUsers])
+
+  const onSlidingBottomReached = useCallback(() => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
+    setOpenSliding(false)
+  }, [])
+
+  const onSlidingDragEnd = useCallback((position, gestureState) => {
+    // mean move to top
+    if (gestureState.dy < 0) {
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
+      setOpenSliding(true)
+    }
+  })
+
   useEffect(() => {
     syncContacts()
   }, [syncContacts])
-
-  console.log('searchText', searchText)
 
   return (
     <KeyboardAvoidingView 
@@ -135,7 +198,7 @@ const ContactList = () => {
           onChangeText={onSearchChanged}
           onClear={onSearchClear}
         />
-        <View style={styles.card}>
+        <View style={[styles.card, checkedUsers.length > 0 && {marginBottom: 80}]}>
           <View style={styles.header}>
             <Text style={styles.textHeader}>All contacts</Text>
             <Button 
@@ -167,6 +230,10 @@ const ContactList = () => {
                       title={getShortName(item.fullName)}
                     />
                   }
+                  checkBox={{
+                    checked: !!checkedUsers.find(uId => uId === item.id),
+                    onIconPress: () => onCheckedUser(item.id)
+                  }}
                   title={item.fullName}
                   subtitle={item.phone}
                   titleStyle={styles.titleFullName}
@@ -178,6 +245,28 @@ const ContactList = () => {
             keyExtractor={item => `${item.id}`}
           />
         </View>
+
+        {checkedUsers.length > 0 && (
+          <SlidingUpPanel 
+            ref={slidingRef} 
+            onDragEnd={onSlidingDragEnd}
+            onBottomReached={onSlidingBottomReached}
+            draggableRange={{ top: screenHeight - 100, bottom: 100 }}
+          >
+            <View style={styles.slidingContainer}>
+              <View style={styles.minimal}>
+                <Text style={styles.selectedText}>{`${checkedUsers.length} selected`}</Text>
+                {!isOpenSliding && (
+                  <Button 
+                    title='Invite' 
+                    buttonStyle={[styles.inviteButton, {paddingVertical: 3, paddingHorizontal: 15}]}
+                    titleStyle={{fontWeight: '600'}}
+                  />
+                )}
+              </View>
+            </View>
+          </SlidingUpPanel>
+        )}
       </SafeAreaView>
     </KeyboardAvoidingView>
   )
@@ -202,7 +291,7 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   header: {
-    paddingTop: 10,
+    paddingVertical: 10,
     justifyContent: 'space-between',
     alignItems: 'center',
     flexDirection: 'row',
@@ -258,6 +347,21 @@ const styles = StyleSheet.create({
       height: 10,
     },
     shadowOpacity: 0.8,
+  },
+  slidingContainer: {
+    flex: 1,
+  },
+  minimal: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  },
+  selectedText: {
+    fontSize: 17,
+  },
+  inviteButton: {
+    borderRadius: 5,
+    backgroundColor: Colors.primary,
   }
 })
 
