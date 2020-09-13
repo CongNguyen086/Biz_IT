@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View, ImageBackground, Dimensions, Alert, Image, TouchableOpacity, Platform, Linking } from 'react-native';
+import { StyleSheet, Text, View, Image, TouchableOpacity, Platform, Linking } from 'react-native';
 import { Rating, Icon, Button } from 'react-native-elements'
 import { withNavigation } from 'react-navigation';
 // Contants
 import Colors from '../../constants/Colors';
 
+import Configs from '../../constants/config'
 class MainProfile extends Component {
 
     openMap(address, latitude, longitude) {
@@ -21,7 +22,7 @@ class MainProfile extends Component {
 
     getMerchantImage = async (serviceId) => {
         try {
-            const response = await fetch(ROOT + `/getmerchantimage?serviceId=${serviceId}`);
+            const response = await fetch(Configs.ROOT + `/getmerchantimage?serviceId=${serviceId}`);
             const jsonData = await response.json();
             this.setState({ reviewImage: jsonData[0].reviewImage })
             console.log(this.state.reviewImage);
