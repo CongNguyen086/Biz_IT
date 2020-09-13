@@ -164,7 +164,7 @@ class DealDetails extends Component {
     }
 
     static navigationOptions = {
-        headerTitle: <HeaderTitle title='Cafe/Dessert' />,
+        headerTitle: <HeaderTitle title='Stores' />,
     };
 
     render() {
