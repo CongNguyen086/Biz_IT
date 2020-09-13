@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect, useState } from 'react'
-import { Text, View, StyleSheet, FlatList, Alert, ActivityIndicator } from 'react-native'
-import {Avatar, ListItem, Button} from 'react-native-elements'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { Text, View, StyleSheet, FlatList, Alert, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native'
+import {Avatar, ListItem, Button, SearchBar} from 'react-native-elements'
 import * as Contacts from 'expo-contacts'
 import * as Animatable from 'react-native-animatable'
 import * as Permissions from 'expo-permissions'
@@ -33,6 +33,7 @@ const DATA = [
 
 const ContactList = () => {
   const [isLoading, setLoading] = useState(false)
+  const [searchText, setSearchText] = useState('')
   const dispatch = useDispatch()
   const contacts = useSelector(getContactList)
   const getShortName = useCallback((fullName = '') => {
@@ -82,60 +83,103 @@ const ContactList = () => {
     }
   }, [])
 
+  const onSearchChanged = useCallback(text => {
+    setSearchText(text)
+  }, [])
+
+  const onSearchClear = useCallback(() => {
+    setSearchText('')
+  }, [])
+
+  const contactList = useMemo(() => {
+    if (!searchText) {
+      return contacts
+    }
+
+    return (contacts || []).filter(c => 
+      (
+        c?.phone?.includes(searchText) || 
+        c?.firstName?.includes(searchText) || 
+        c?.lastName?.includes(searchText) || 
+        c?.fullName?.includes(searchText)
+      )
+    )
+  }, [contacts, searchText])
+
   useEffect(() => {
     syncContacts()
   }, [syncContacts])
 
+  console.log('searchText', searchText)
+
   return (
-    <SafeAreaView style={styles.container}>
-      {isLoading && (
-        <Animatable.View animation='fadeIn' duration={300} style={styles.loading}>
-          <ActivityIndicator size='large' color={Colors.primary} style={{zIndex: 10}} />
-        </Animatable.View>
-      )}
-      <View style={styles.card}>
-        <View style={styles.header}>
-          <Text style={styles.textHeader}>All contacts</Text>
-          <Button 
-            buttonStyle={styles.syncButton} 
-            icon={{
-              name: "sync",
-              size: 24,
-              color: "white"
-            }}
-            title='Sync'
-            onPress={syncContacts}
+    <KeyboardAvoidingView 
+      style={{flex: 1,}} 
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+      <SafeAreaView style={styles.container}>
+        {isLoading && (
+          <Animatable.View animation='fadeIn' duration={300} style={styles.loading}>
+            <ActivityIndicator size='large' color={Colors.primary} style={{zIndex: 10}} />
+          </Animatable.View>
+        )}
+        <SearchBar
+          placeholder='Find phone number/name' 
+          round
+          containerStyle={styles.searchContainer}
+          inputContainerStyle={styles.searchInput}
+          inputStyle={{fontSize: 18}}
+          placeholderTextColor='#ccc'
+          lightTheme
+          value={searchText}
+          onChangeText={onSearchChanged}
+          onClear={onSearchClear}
+        />
+        <View style={styles.card}>
+          <View style={styles.header}>
+            <Text style={styles.textHeader}>All contacts</Text>
+            <Button 
+              buttonStyle={styles.syncButton} 
+              icon={{
+                name: "sync",
+                size: 20,
+                color: "white"
+              }}
+              title='Sync'
+              titleStyle={{fontSize: 20}}
+              onPress={syncContacts}
+            />
+          </View>
+          <FlatList
+            style={{flex: 1}}
+            data={contactList}
+            renderItem={({item, index}) => (
+              <Animatable.View animation='fadeInUp' duration={300} delay={150 * index}>
+                <ListItem 
+                  bottomDivider
+                  containerStyle={{paddingHorizontal: 0}}
+                  leftAvatar={
+                    <Avatar
+                      rounded
+                      source={{
+                        uri: item.avatar
+                      }}
+                      title={getShortName(item.fullName)}
+                    />
+                  }
+                  title={item.fullName}
+                  subtitle={item.phone}
+                  titleStyle={styles.titleFullName}
+                  subtitleStyle={styles.phoneStyle}
+                  onPress={() => Alert.alert(`Press on user ${item.fullName}`)}
+                />
+              </Animatable.View>
+            )}
+            keyExtractor={item => `${item.id}`}
           />
         </View>
-        <FlatList
-          style={{flex: 1}}
-          data={contacts}
-          renderItem={({item, index}) => (
-            <Animatable.View animation='fadeInUp' duration={300} delay={150 * index}>
-              <ListItem 
-                bottomDivider
-                containerStyle={{paddingHorizontal: 0}}
-                leftAvatar={
-                  <Avatar
-                    rounded
-                    source={{
-                      uri: item.avatar
-                    }}
-                    title={getShortName(item.fullName)}
-                  />
-                }
-                title={item.fullName}
-                subtitle={item.phone}
-                titleStyle={styles.titleFullName}
-                subtitleStyle={styles.phoneStyle}
-                onPress={() => Alert.alert(`Press on user ${item.fullName}`)}
-              />
-            </Animatable.View>
-          )}
-          keyExtractor={item => `${item.id}`}
-        />
-      </View>
-    </SafeAreaView>
+      </SafeAreaView>
+    </KeyboardAvoidingView>
   )
 }
 
@@ -170,10 +214,10 @@ const styles = StyleSheet.create({
   syncButton: {
     borderRadius: 25,
     paddingRight: 15,
-    paddingVertical: 7,
+    paddingVertical: 5,
+    justifyContent: 'center'
   },
   card: {
-    marginTop: 40,
     backgroundColor: '#fff',
     borderRadius: 15,
     shadowColor: 'rgba(0,0,0,0.4)',
@@ -194,6 +238,26 @@ const styles = StyleSheet.create({
     marginTop: 5,
     fontSize: 14,
     color: '#636e72'
+  },
+  searchContainer: {
+    marginVertical: 25, 
+    backgroundColor: 'transparent', 
+    borderTopColor: 'transparent', 
+    borderBottomColor: 'transparent', 
+    padding: 0,
+  },
+  searchInput: {
+    backgroundColor: '#fff',
+    borderColor: '#ddd',
+    borderWidth: 1,
+    borderRadius: 40,
+    paddingHorizontal: 5,
+    shadowColor: 'rgba(0,0,0,0.8)',
+    shadowOffset: {
+      width: 3,
+      height: 10,
+    },
+    shadowOpacity: 0.8,
   }
 })
 
