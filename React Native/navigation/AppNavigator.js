@@ -16,6 +16,7 @@ import ConnectScreen from '../screens/ConnectScreen';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 
 import Colors from '../constants/Colors';
+import ContactListScreen from '../screens/ContactList';
 
 const tabBarOptions = {
   activeTintColor: Colors.primary,
@@ -36,9 +37,9 @@ const HomeStack = createStackNavigator(
 
 HomeStack.navigationOptions = {
   header: null,
-  tabBarLabel: 'Ưu Đãi',
+  tabBarLabel: 'Home',
   tabBarIcon: ({ focused }) => (
-    <Ionicons name='ios-gift' size={28} color={focused ? Colors.primary : Colors.tabIconDefault} />
+    <Ionicons name='ios-home' size={30} color={focused ? Colors.primary : Colors.tabIconDefault} />
   ),
   tabBarOptions
 };
@@ -51,7 +52,7 @@ const MapStack = createStackNavigator(
 
 MapStack.navigationOptions = {
   header: null,
-  tabBarLabel: 'Điểm Hẹn',
+  tabBarLabel: 'Map',
   tabBarIcon: ({ focused }) => (
     <MaterialCommunityIcons name='map-marker-radius' size={30} color={focused ? Colors.primary : Colors.tabIconDefault} />
   ),
@@ -77,9 +78,9 @@ const ConnectStack = createStackNavigator(
 );
 
 ConnectStack.navigationOptions = {
-  tabBarLabel: 'Kết nối',
+  tabBarLabel: 'Appointment',
   tabBarIcon: ({ focused }) => (
-    <Ionicons name='ios-people' size={35} color={focused ? Colors.primary : Colors.tabIconDefault} />
+    <Ionicons name='ios-calendar' size={30} color={focused ? Colors.primary : Colors.tabIconDefault} />
   ),
   tabBarOptions
 };
@@ -91,8 +92,11 @@ const WalletStack = createStackNavigator(
 );
 
 WalletStack.navigationOptions = {
-  tabBarLabel: 'Ví Của Tôi',
-  tabBarIcon: (<Image  style={{width: 25, height: 25}} source={require('../assets/icons/my_wallet.png')} />),
+  tabBarLabel: 'Account',
+  // tabBarIcon: (<Image  style={{width: 25, height: 25}} source={require('../assets/icons/my_wallet.png')} />),
+  tabBarIcon: ({ focused }) => (
+    <Ionicons name='ios-person' size={30} color={focused ? Colors.primary : Colors.tabIconDefault} />
+  ),
   tabBarOptions
 };
 
@@ -116,7 +120,8 @@ const App = createStackNavigator(
     StoreProfile: StoreProfile,
     Payment: PaymentScreen,
     AfterPayment: AfterPaymentScreen,
-    Connect: ConnectScreen
+    Connect: ConnectScreen,
+    ContactList: ContactListScreen
   },
   {
     // initialRouteName: 'HomePage',
@@ -143,7 +148,7 @@ const AppNavigator = createSwitchNavigator(
     App: App,
   },
   {
-    initialRouteName: 'Login',
+    initialRouteName: 'App',
   }
 );
 
