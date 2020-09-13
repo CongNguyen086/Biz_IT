@@ -1,56 +1,69 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View, FlatList } from 'react-native';
+import { StyleSheet, Text, View, FlatList, ActivityIndicator } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
 import ReviewElement from '../StoreProfile/ReviewElement';
 import config from '../../constants/config';
 import Colors from '../../constants/Colors'
+import ReviewData from '../../utils/ReviewData'
 
 class Review extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            reviewData: [],
+            loading: false,
+            reviews: ReviewData,
+            // reviews: [],
         }
     }
     componentDidMount() {
-        this.getReviewData(this.props.storeId)
+        // this.getReviewData(this.props.storeId)
     }
     getReviewData = async (storeId) => {
+        this.setState({
+            loading: true,
+        })
         const response = await fetch(config.ROOT + `/getreview?storeId=${storeId}`);
         const jsonData = await response.json();
-        this.setState({ reviewData: jsonData })
+        this.setState({
+            loading: false,
+            reviews: jsonData
+        })
     }
-    renderReview = () => {
-        const { reviewData } = this.state
-        if (reviewData.length == 0) {
-            return (
-                <View style={[styles.reviewElementContainer, styles.noReviewContainer]}>
-                    <Text style={styles.noReviewText}>
-                        Chưa có nhận xét nào. Hãy đóng góp cho chúng tôi
-                    </Text>
-                </View>
-            )
-        }
-        return (
-            <View style={styles.reviewElementContainer}>
-                <FlatList
-                    data={this.state.reviewData.reverse()}
-                    renderItem={({ item }) => <ReviewElement name={item.fullName} star={item.reviewRating} comment={item.reviewComment} reviewId={item.reviewId} />}
-                    keyExtractor={(item, index) => index.toString()}
-                />
-            </View>
-        )
-    }
+
     render() {
+        const {loading, reviews} = this.state
         return (
             <View style={styles.container}>
                 <View style={styles.header}>
-                    <FontAwesome name='star' size={hp(4)} color='grey' style={styles.headerIcon} />
-                    <Text style={styles.headerLabel}>Đánh giá cửa hàng</Text>
+                    <FontAwesome name='star' size={30} color='#feca57' style={styles.headerIcon} />
+                    <Text style={styles.headerLabel}>Store rating</Text>
                 </View>
-                {this.renderReview()}
+                {loading && (
+                    <View style={styles.loadingView}>
+                        <ActivityIndicator size='large' color={Colors.momoColor} />
+                    </View>
+                )}
+                {!loading && reviews.length === 0 && (
+                    <View style={[styles.reviewElementContainer, styles.noReviewContainer]}>
+                        <Text style={styles.noReviewText}>
+                            {`No rating.\nPlease rate us for better services`}
+                        </Text>
+                    </View>
+                )}
+                {!loading && reviews.length > 0 && (
+                    <View style={styles.reviewElementContainer}>
+                        <FlatList
+                            data={reviews.reverse()}
+                            renderItem={({ item }) => 
+                                <ReviewElement 
+                                    review={item}
+                                />}
+                            keyExtractor={(item) => `${item.id}`}
+                        />
+                    </View>
+                )}
             </View>
         );
     }
@@ -59,21 +72,13 @@ class Review extends Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 4,
-        },
-        shadowOpacity: 0.32,
-        shadowRadius: 5.46,
-        elevation: 3,
     },
     header: {
-        flex: 0.2,
+        height: 60,
         flexDirection: 'row',
         borderBottomWidth: 1,
         borderBottomColor: '#E8E9E9',
-        alignItems: 'center'
+        alignItems: 'center',
     },
     headerIcon: {
         padding: hp(1.6)
@@ -81,18 +86,23 @@ const styles = StyleSheet.create({
     headerLabel: {
         fontSize: hp(2.5),
     },
+    loadingView: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
     reviewElementContainer: {
-        flex: 0.8,
+        flex: 1,
         borderBottomWidth: 1,
         borderBottomColor: 'grey'
     },
     noReviewContainer: {
-        alignItems: 'center',
-        justifyContent: 'center'
+        marginTop: 25,
     },
     noReviewText: {
         fontSize: hp(2),
         color: Colors.extraText,
+        textAlign: 'center'
     },
 });
 

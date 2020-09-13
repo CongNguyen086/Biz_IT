@@ -1,94 +1,72 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { StyleSheet, Text, View, Image, FlatList } from 'react-native';
 import { Rating, ListItem } from 'react-native-elements'
-import config from '../../constants/config'
 
-class ReviewElement extends Component {
+class ReviewElement extends PureComponent {
     constructor(props) {
         super(props)
-        this.state = {
-            dataImage: null
-        }
-    }
-    componentDidMount () {
-        this.getImageData(this.props.reviewId)
-    }
-    getReviewData = async (storeId) => {
-        const response = await fetch(config.ROOT + `/getreview?storeId=${storeId}`);
-        const jsonData = await response.json();
-        this.setState({ reviewData: jsonData })
-    }
-    getImageData = async (reviewId) => {
-        const response = await fetch(config.ROOT + `/getimage?reviewId=${reviewId}`);
-        const jsonData = await response.json();
-        this.setState({ dataImage: jsonData })
     }
     render() {
+        const { review } = this.props
         return (
-            <View style={styles.container}>
-                <ListItem
-                    leftAvatar={{
-                        source: require('../../assets/avatars/avatar.png'),
-                    }}
-                    title={this.props.name}
-                    subtitle={
+            <ListItem
+                leftAvatar={{
+                    source: {
+                        uri: review.avatar
+                    }
+                }}
+                containerStyle={styles.container}
+                bottomDivider
+                title={review.fullName}
+                subtitle={
+                    <React.Fragment>
                         <Rating
                             imageSize={20}
-                            style={styles.rate}
+                            style={[styles.rate, styles.section]}
                             readonly
-                            startingValue={this.props.star}
+                            startingValue={review.star}
                         />
-                    }
-                    style={styles.list}
-                />
-                <View style={styles.commentContainer}>
-                    <Text style={styles.commentLabel}>{this.props.comment}</Text>
-                </View>
-                <View style={styles.imageContainer}>
-                    <FlatList
-                        data={this.state.dataImage}
-                        renderItem={({ item }) => <Image style={styles.image} source={{ uri: config.ROOT + '/' + item.reviewPhoto.substring(8) }} />}
-                        keyExtractor={item => item.reviewPhoto}
-                        horizontal={true}
-                    />
-                </View>
-            </View>
+                        <Text style={[styles.commentLabel, styles.section]}>{review.comment}</Text>
+                        <FlatList
+                            style={styles.section}
+                            data={review.pictures}
+                            renderItem={({ item }) => <Image style={styles.image} source={{ uri: item }} />}
+                            keyExtractor={item => item}
+                            ItemSeparatorComponent={() => <View style={styles.itemSeparator} />}
+                            horizontal={true}
+                            showsHorizontalScrollIndicator={false}
+                            alwaysBounceHorizontal={false}
+                        />
+                    </React.Fragment>
+                }
+            />
         );
     }
 }
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        borderBottomWidth: 0.5,
-        borderBottomColor: '#979aa2'
-    },
-    list: {
-        flex: 0.3
+        alignItems: 'flex-start',
     },
     rate: {
         alignItems: 'flex-start'
     },
-    commentContainer: {
-        flex: 0.2,
-        paddingLeft: 75
+    section: {
+        marginTop: 10,
     },
     commentLabel: {
-        fontSize: 14
+        fontSize: 16,
     },
     imageContainer: {
-        flex: 0.5,
-        paddingRight: 75,
         paddingBottom: 10,
-        paddingLeft: 75,
     },
     image: {
-        flex: 0.2,
         height: 100,
         width: 100,
         borderRadius: 10,
-        marginTop: 10,
-        marginRight: 10
+    },
+    itemSeparator: {
+        width: 15,
     }
 });
 

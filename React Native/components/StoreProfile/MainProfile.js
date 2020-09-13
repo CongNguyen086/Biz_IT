@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View, ImageBackground, Dimensions, Alert, Image, TouchableOpacity, Platform, Linking } from 'react-native';
+import { StyleSheet, Text, View, Image, TouchableOpacity, Platform, Linking } from 'react-native';
 import { Rating, Icon, Button } from 'react-native-elements'
 import { withNavigation } from 'react-navigation';
 // Contants
 import Colors from '../../constants/Colors';
 
+import Configs from '../../constants/config'
 class MainProfile extends Component {
 
     openMap(address, latitude, longitude) {
@@ -21,7 +22,7 @@ class MainProfile extends Component {
 
     getMerchantImage = async (serviceId) => {
         try {
-            const response = await fetch(ROOT + `/getmerchantimage?serviceId=${serviceId}`);
+            const response = await fetch(Configs.ROOT + `/getmerchantimage?serviceId=${serviceId}`);
             const jsonData = await response.json();
             this.setState({ reviewImage: jsonData[0].reviewImage })
             console.log(this.state.reviewImage);
@@ -58,7 +59,7 @@ class MainProfile extends Component {
                             </View>
                         </View>
                         <View style={styles.timeView}>
-                            <Text style={styles.status}>Đang mở cửa</Text>
+                            <Text style={styles.status}>Opening</Text>
                             <Text style={styles.extraValue}>08:00 - 22:00</Text>
                         </View>
                     </View>
@@ -86,7 +87,7 @@ class MainProfile extends Component {
 
                     <View style={styles.bottomView}>
                         <Button type='solid'
-                            title='Thanh toán ngay'
+                            title='Add to appointment list'
                             buttonStyle={styles.button}
                             titleStyle={{ fontSize: 18 }}
                             onPress={() => this.props.navigation.navigate('Payment', { storeId: storeId })} />
@@ -196,7 +197,7 @@ const styles = StyleSheet.create({
         resizeMode: 'contain',
     },
     button: {
-        backgroundColor: '#EB5757',
+        backgroundColor: Colors.primary,
         borderRadius: 5,
         shadowColor: "#000",
         shadowOffset: {
