@@ -5,6 +5,10 @@ import * as Contacts from 'expo-contacts'
 import * as Animatable from 'react-native-animatable'
 import * as Permissions from 'expo-permissions'
 import Colors from '../constants/Colors'
+import { useDispatch, useSelector } from 'react-redux'
+import { getContactList } from '../services/app/getters'
+import { setContactList } from '../services/app/actions'
+import { SafeAreaView } from 'react-navigation'
 
 const DATA = [
   {
@@ -29,7 +33,8 @@ const DATA = [
 
 const ContactList = () => {
   const [isLoading, setLoading] = useState(false)
-  const [contacts, setContacts] = useState([])
+  const dispatch = useDispatch()
+  const contacts = useSelector(getContactList)
   const getShortName = useCallback((fullName = '') => {
     return fullName.split(' ').reduce((acc, current) => (acc + current?.[0] ?? ''), '')
   }, [])
@@ -66,7 +71,7 @@ const ContactList = () => {
             resolve(DATA)
           }, 3000)
         })
-        setContacts(list)
+        dispatch(setContactList({contacts: list}))
       }
     }
     catch(e) {
@@ -82,60 +87,63 @@ const ContactList = () => {
   }, [syncContacts])
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       {isLoading && (
         <Animatable.View animation='fadeIn' duration={300} style={styles.loading}>
           <ActivityIndicator size='large' color={Colors.primary} style={{zIndex: 10}} />
         </Animatable.View>
       )}
-      <View style={styles.header}>
-        <Text style={styles.textHeader}>All contacts</Text>
-        <Button 
-          buttonStyle={styles.syncButton} 
-          icon={{
-            name: "sync",
-            size: 24,
-            color: "white"
-          }}
-          title='Sync'
-          onPress={syncContacts}
+      <View style={styles.card}>
+        <View style={styles.header}>
+          <Text style={styles.textHeader}>All contacts</Text>
+          <Button 
+            buttonStyle={styles.syncButton} 
+            icon={{
+              name: "sync",
+              size: 24,
+              color: "white"
+            }}
+            title='Sync'
+            onPress={syncContacts}
+          />
+        </View>
+        <FlatList
+          style={{flex: 1}}
+          data={contacts}
+          renderItem={({item, index}) => (
+            <Animatable.View animation='fadeInUp' duration={300} delay={150 * index}>
+              <ListItem 
+                bottomDivider
+                containerStyle={{paddingHorizontal: 0}}
+                leftAvatar={
+                  <Avatar
+                    rounded
+                    source={{
+                      uri: item.avatar
+                    }}
+                    title={getShortName(item.fullName)}
+                  />
+                }
+                title={item.fullName}
+                subtitle={item.phone}
+                titleStyle={styles.titleFullName}
+                subtitleStyle={styles.phoneStyle}
+                onPress={() => Alert.alert(`Press on user ${item.fullName}`)}
+              />
+            </Animatable.View>
+          )}
+          keyExtractor={item => `${item.id}`}
         />
       </View>
-      <FlatList
-        style={{flex: 1}}
-        data={contacts}
-        renderItem={({item, index}) => (
-          <Animatable.View animation='fadeInUp' duration={300} delay={150 * index}>
-            <ListItem 
-              bottomDivider
-              containerStyle={{paddingHorizontal: 0}}
-              leftAvatar={
-                <Avatar
-                  rounded
-                  source={{
-                    uri: item.avatar
-                  }}
-                  title={getShortName(item.fullName)}
-                />
-              }
-              title={item.fullName}
-              subtitle={item.phone}
-              titleStyle={styles.titleFullName}
-              subtitleStyle={styles.phoneStyle}
-              onPress={() => Alert.alert(`Press on user ${item.fullName}`)}
-            />
-          </Animatable.View>
-        )}
-        keyExtractor={item => `${item.id}`}
-      />
-    </View>
+    </SafeAreaView>
   )
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 10,
+    paddingHorizontal: 15,
+    backgroundColor: Colors.bgColor
   },
   loading: {
     flex: 1,
@@ -156,13 +164,27 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   textHeader: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: '600'
   },
   syncButton: {
     borderRadius: 25,
     paddingRight: 15,
     paddingVertical: 7,
+  },
+  card: {
+    marginTop: 40,
+    backgroundColor: '#fff',
+    borderRadius: 15,
+    shadowColor: 'rgba(0,0,0,0.4)',
+    shadowOffset: {
+      width: 2,
+      height: 7,
+    },
+    flex: 1,
+    overflow: 'hidden',
+    paddingHorizontal: 15,
+    paddingVertical: 5,
   },
   titleFullName: {
     fontSize: 20,
