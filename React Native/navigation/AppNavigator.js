@@ -66,7 +66,7 @@ const ConnectStack = createStackNavigator(
   {
     defaultNavigationOptions: {
       headerStyle: {
-        backgroundColor: '#325340',
+        backgroundColor: Colors.primary,
       },
       headerTintColor: '#fff',
       headerTitleStyle: {
@@ -129,7 +129,7 @@ const App = createStackNavigator(
     /* The header config from HomeScreen is now here */
     defaultNavigationOptions: {
       headerStyle: {
-        backgroundColor: '#325340',
+        backgroundColor: Colors.primary,
       },
       headerTintColor: Colors.tintColor,
       headerTitleStyle: {
