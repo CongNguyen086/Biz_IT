@@ -60,7 +60,13 @@ const ContactList = () => {
         }
 
         // call api to update contact list on server
-        setContacts(DATA)
+        
+        const list = await new Promise((resolve, reject) => {
+          setTimeout(() => {
+            resolve(DATA)
+          }, 3000)
+        })
+        setContacts(list)
       }
     }
     catch(e) {
@@ -98,25 +104,27 @@ const ContactList = () => {
       <FlatList
         style={{flex: 1}}
         data={contacts}
-        renderItem={({item}) => (
-          <ListItem 
-            bottomDivider
-            containerStyle={{paddingHorizontal: 0}}
-            leftAvatar={
-              <Avatar
-                rounded
-                source={{
-                  uri: item.avatar
-                }}
-                title={getShortName(item.fullName)}
-              />
-            }
-            title={item.fullName}
-            subtitle={item.phone}
-            titleStyle={styles.titleFullName}
-            subtitleStyle={styles.phoneStyle}
-            onPress={() => Alert.alert(`Press on user ${item.fullName}`)}
-          />
+        renderItem={({item, index}) => (
+          <Animatable.View animation='fadeInUp' duration={300} delay={150 * index}>
+            <ListItem 
+              bottomDivider
+              containerStyle={{paddingHorizontal: 0}}
+              leftAvatar={
+                <Avatar
+                  rounded
+                  source={{
+                    uri: item.avatar
+                  }}
+                  title={getShortName(item.fullName)}
+                />
+              }
+              title={item.fullName}
+              subtitle={item.phone}
+              titleStyle={styles.titleFullName}
+              subtitleStyle={styles.phoneStyle}
+              onPress={() => Alert.alert(`Press on user ${item.fullName}`)}
+            />
+          </Animatable.View>
         )}
         keyExtractor={item => `${item.id}`}
       />
