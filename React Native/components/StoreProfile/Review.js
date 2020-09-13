@@ -13,8 +13,8 @@ class Review extends Component {
         super(props)
         this.state = {
             loading: false,
-            // reviews: ReviewData,
-            reviews: [],
+            reviews: ReviewData,
+            // reviews: [],
         }
     }
     componentDidMount() {
