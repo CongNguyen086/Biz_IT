@@ -74,7 +74,7 @@ class LoginScreen extends Component {
       if (type === 'success') {
         // Get the user's name using Facebook's Graph API
         const response = await fetch(`https://graph.facebook.com/me?access_token=${token}`);
-        Alert.alert('Đăng nhập thành công!', `Xin chào ${(await response.json()).name}!`);
+        Alert.alert('Login successfully!', `Hello ${(await response.json()).name}!`);
         // this.props.navigation.navigate('Loading');
       } else {
         // type === 'cancel'
@@ -131,7 +131,7 @@ class LoginScreen extends Component {
                   value={phone}
                   inputStyle={{ marginLeft: wp(3), color: '#fff' }}
                   keyboardAppearance="light"
-                  placeholder="Số điện thoại"
+                  placeholder="Phone number"
                   autoFocus={false}
                   autoCapitalize="none"
                   autoCorrect={false}
@@ -165,7 +165,7 @@ class LoginScreen extends Component {
                   inputStyle={{ marginLeft: wp(4), color: '#fff' }}
                   secureTextEntry={true}
                   keyboardAppearance="light"
-                  placeholder="Mật khẩu"
+                  placeholder="Password"
                   autoCapitalize="none"
                   autoCorrect={false}
                   keyboardType="number-pad"
@@ -177,7 +177,7 @@ class LoginScreen extends Component {
               </View>
               <View style={styles.plusView}>
                 <Button
-                  title="Quên mật khẩu?"
+                  title="Forgot password?"
                   type="clear"
                   activeOpacity={0.5}
                   titleStyle={styles.plusTitle}
@@ -186,7 +186,7 @@ class LoginScreen extends Component {
                 />
               </View>
               <Button
-                title="Đăng nhập"
+                title="Login"
                 activeOpacity={1}
                 underlayColor="transparent"
                 onPress={this._checkLogin}
@@ -207,11 +207,11 @@ class LoginScreen extends Component {
               <View style={styles.footerView}>
                 <View style={styles.plusOrView}>
                   <View style={styles.orBar} />
-                  <Text style={styles.plusTitle}>Hoặc</Text>
+                  <Text style={styles.plusTitle}>Or</Text>
                   <View style={styles.orBar} />
                 </View>
                 <Button 
-                  title="Đăng ký"
+                  title="Register"
                   activeOpacity={1}
                   disabled={!phone_valid && password.length < 8}
                   buttonStyle={{

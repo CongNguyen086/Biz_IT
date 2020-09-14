@@ -163,7 +163,7 @@ class DealDetails extends Component {
     }
 
     static navigationOptions = {
-        headerTitle: <HeaderTitle title='Stores' />,
+        headerTitle: <HeaderTitle title='Cafe/Dessert' />,
     };
 
     render() {

@@ -13,7 +13,7 @@ const FBLoginButton = ({loginWithFacebook, containerStyle = {}}) => {
             >
             </Icon>
             <Text style={{ color: 'white', fontSize: 18, fontWeight: '500' }}>
-                Đăng nhập với Facebook
+                Login with Facebook
             </Text>
         </TouchableOpacity>
     );
