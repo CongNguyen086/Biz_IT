@@ -1,4 +1,4 @@
-CREATE DATABASE  IF NOT EXISTS `bit_system` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
+CREATE DATABASE  IF NOT EXISTS `bit_system`;
 USE `bit_system`;
 -- MySQL dump 10.13  Distrib 8.0.18, for Win64 (x86_64)
 --
@@ -29,7 +29,7 @@ CREATE TABLE `categories` (
   `categoryName` varchar(45) NOT NULL,
   `categoryImage` varchar(200) NOT NULL,
   PRIMARY KEY (`categoryId`)
-) ENGINE=InnoDB AUTO_INCREMENT=2777 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2777 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -56,7 +56,7 @@ CREATE TABLE `check_code` (
   PRIMARY KEY (`checkId`),
   KEY `fk_checkcode_userid_idx` (`userId`),
   CONSTRAINT `fk_checkcode_userid` FOREIGN KEY (`userId`) REFERENCES `users` (`userId`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -84,7 +84,7 @@ CREATE TABLE `deal` (
   PRIMARY KEY (`dealId`),
   KEY `fk_deal_1_idx` (`categoryId`),
   CONSTRAINT `fk_deal_1` FOREIGN KEY (`categoryId`) REFERENCES `categories` (`categoryId`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -115,7 +115,7 @@ CREATE TABLE `merchants` (
   PRIMARY KEY (`serviceId`),
   KEY `fk_merchants_categories_idx` (`categoryId`),
   CONSTRAINT `fk_merchants_categories` FOREIGN KEY (`categoryId`) REFERENCES `categories` (`categoryId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -194,7 +194,7 @@ CREATE TABLE `popular_merchants` (
   PRIMARY KEY (`rank`),
   KEY `fk_popular_merchants1_idx` (`serviceId`) /*!80000 INVISIBLE */,
   CONSTRAINT `fk_popular_merchants1` FOREIGN KEY (`serviceId`) REFERENCES `merchants` (`serviceId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -229,7 +229,7 @@ CREATE TABLE `promotions` (
   KEY `fk_promotions_deal1_idx` (`dealId`),
   CONSTRAINT `fk_promotions_deal1` FOREIGN KEY (`dealId`) REFERENCES `deal` (`dealId`),
   CONSTRAINT `fk_promotions_merchants1` FOREIGN KEY (`serviceId`) REFERENCES `merchants` (`serviceId`)
-) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -258,7 +258,7 @@ CREATE TABLE `recommendation` (
   KEY `fk_recommendation_users1_idx` (`userId`),
   CONSTRAINT `fk_recommendation_merchants1` FOREIGN KEY (`serviceId`) REFERENCES `merchants` (`serviceId`),
   CONSTRAINT `fk_recommendation_users1` FOREIGN KEY (`userId`) REFERENCES `users` (`userId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -289,7 +289,7 @@ CREATE TABLE `review` (
   KEY `fk_review_storeid_idx` (`storeId`),
   CONSTRAINT `fk_review_storeid` FOREIGN KEY (`storeId`) REFERENCES `stores` (`storeId`),
   CONSTRAINT `fk_review_userid` FOREIGN KEY (`userId`) REFERENCES `users` (`userId`)
-) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -316,7 +316,7 @@ CREATE TABLE `review_image` (
   PRIMARY KEY (`reviewImageId`),
   KEY `fk_reviewimage_reviewid_idx` (`reviewId`),
   CONSTRAINT `fk_reviewimage_reviewid` FOREIGN KEY (`reviewId`) REFERENCES `review` (`reviewId`)
-) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -347,7 +347,7 @@ CREATE TABLE `stores` (
   PRIMARY KEY (`storeId`),
   KEY `fk_stores_merchants1_idx` (`serviceId`),
   CONSTRAINT `fk_stores_merchants1` FOREIGN KEY (`serviceId`) REFERENCES `merchants` (`serviceId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -379,7 +379,7 @@ CREATE TABLE `time_recommendation` (
   KEY `fk_timeRecommendation_2_idx` (`serviceId`),
   CONSTRAINT `fk_timeRecommendation_1` FOREIGN KEY (`userId`) REFERENCES `users` (`userId`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `fk_timeRecommendation_2` FOREIGN KEY (`serviceId`) REFERENCES `merchants` (`serviceId`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE=InnoDB AUTO_INCREMENT=193 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=193 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -409,7 +409,7 @@ CREATE TABLE `transactions` (
   KEY `fk_transactions_stores1_idx` (`storeId`),
   CONSTRAINT `fk_transactions_stores1` FOREIGN KEY (`storeId`) REFERENCES `stores` (`storeId`),
   CONSTRAINT `fk_transactions_users1` FOREIGN KEY (`userId`) REFERENCES `users` (`userId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -444,7 +444,7 @@ CREATE TABLE `users` (
   `userReward` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`userId`),
   UNIQUE KEY `userCode_UNIQUE` (`userCode`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -470,7 +470,7 @@ UNLOCK TABLES;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
 /*!50003 SET character_set_client  = utf8mb4 */ ;
 /*!50003 SET character_set_results = utf8mb4 */ ;
-/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
@@ -507,7 +507,7 @@ DELIMITER ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
 /*!50003 SET character_set_client  = utf8mb4 */ ;
 /*!50003 SET character_set_results = utf8mb4 */ ;
-/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
@@ -544,7 +544,7 @@ DELIMITER ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
 /*!50003 SET character_set_client  = utf8mb4 */ ;
 /*!50003 SET character_set_results = utf8mb4 */ ;
-/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
@@ -579,7 +579,7 @@ DELIMITER ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
 /*!50003 SET character_set_client  = utf8mb4 */ ;
 /*!50003 SET character_set_results = utf8mb4 */ ;
-/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
@@ -629,7 +629,7 @@ DELIMITER ;
 /*!50001 SET @saved_col_connection     = @@collation_connection */;
 /*!50001 SET character_set_client      = utf8mb4 */;
 /*!50001 SET character_set_results     = utf8mb4 */;
-/*!50001 SET collation_connection      = utf8mb4_0900_ai_ci */;
+/*!50001 SET collation_connection      = utf8mb4_general_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
 /*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
 /*!50001 VIEW `merchants_popular` AS select `mer`.`serviceId` AS `serviceId`,`mer`.`merchantName` AS `merchantName`,`mer`.`categoryId` AS `categoryId`,`mer`.`icon` AS `icon`,`mer`.`reviewImage` AS `reviewImage`,`popular`.`rank` AS `rank` from (`popular_merchants` `popular` join `merchants` `mer` on(((`popular`.`serviceId` = `mer`.`serviceId`) and (`mer`.`isPromoted` = 1)))) */;
@@ -647,7 +647,7 @@ DELIMITER ;
 /*!50001 SET @saved_col_connection     = @@collation_connection */;
 /*!50001 SET character_set_client      = utf8mb4 */;
 /*!50001 SET character_set_results     = utf8mb4 */;
-/*!50001 SET collation_connection      = utf8mb4_0900_ai_ci */;
+/*!50001 SET collation_connection      = utf8mb4_general_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
 /*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
 /*!50001 VIEW `merchants_recommendation` AS select `rec`.`userId` AS `userId`,`mer`.`serviceId` AS `serviceId`,`mer`.`merchantName` AS `merchantName`,`mer`.`categoryId` AS `categoryId`,`mer`.`icon` AS `icon`,`mer`.`reviewImage` AS `reviewImage`,`rec`.`point` AS `point` from (`recommendation` `rec` join `merchants` `mer` on((`rec`.`serviceId` = `mer`.`serviceId`))) */;
@@ -665,7 +665,7 @@ DELIMITER ;
 /*!50001 SET @saved_col_connection     = @@collation_connection */;
 /*!50001 SET character_set_client      = utf8mb4 */;
 /*!50001 SET character_set_results     = utf8mb4 */;
-/*!50001 SET collation_connection      = utf8mb4_0900_ai_ci */;
+/*!50001 SET collation_connection      = utf8mb4_general_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
 /*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
 /*!50001 VIEW `merchants_timerecommendation` AS select `rec`.`userId` AS `userId`,`rec`.`startTime` AS `startTime`,`rec`.`endTime` AS `endTime`,`mer`.`serviceId` AS `serviceId`,`mer`.`merchantName` AS `merchantName`,`mer`.`categoryId` AS `categoryId`,`rec`.`point` AS `point` from (`time_recommendation` `rec` join `merchants` `mer` on((`rec`.`serviceId` = `mer`.`serviceId`))) */;
