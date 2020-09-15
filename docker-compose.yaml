@@ -5,7 +5,8 @@ services:
     ports:
       - 9090:3306
     environment:
-      - MYSQL_USER=root
+      - MYSQL_USER=sa
+      - MYSQL_PASSWORD=123
       - MYSQL_ROOT_PASSWORD=root
     volumes:
       - ./backup:/app
