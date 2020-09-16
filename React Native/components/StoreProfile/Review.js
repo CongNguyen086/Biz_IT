@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View, FlatList, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, View, FlatList, ActivityIndicator, Alert } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import {Input, Icon} from 'react-native-elements'
@@ -14,6 +14,7 @@ class Review extends Component {
         super(props)
         this.state = {
             loading: false,
+            reviewText: '',
             reviews: ReviewData,
             // reviews: [],
         }
@@ -33,8 +34,19 @@ class Review extends Component {
         })
     }
 
+    onReviewMessageChanged = (text) => {
+        this.setState({
+            reviewText: text,
+        })
+    }
+
+    onReviewSubmit = () => {
+        Alert.alert('submit review')
+    }
+
     render() {
-        const {loading, reviews} = this.state
+        const {loading, reviews, reviewText} = this.state
+        const {onReviewMessageChanged, onReviewSubmit} = this
         return (
             <View style={styles.container}>
                 <View style={styles.header}>
@@ -68,6 +80,8 @@ class Review extends Component {
                 <View style={styles.chatContainer}>
                     <View style={{flex: 1}}>
                         <Input
+                            value={reviewText}
+                            onChangeText={onReviewMessageChanged}
                             inputContainerStyle={{
                                 borderColor: '#ccc',
                                 borderWidth: 1,
@@ -79,7 +93,15 @@ class Review extends Component {
                             placeholder='Tell us about this store'
                         />
                     </View>
-                    <Icon name='send' type='material' size={20} color={Colors.primary} reverse/>
+                    <Icon 
+                        name='send' 
+                        type='material' 
+                        size={20} 
+                        color={Colors.primary} 
+                        reverse
+                        onPress={onReviewSubmit}
+                    />
+                    <Icon name='add-a-photo' type='material' size={20} color={Colors.momoColor} reverse/>
                 </View>
             </View>
         );
