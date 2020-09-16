@@ -1,4 +1,3 @@
-// const Builder = require('./DB')
 import { builder } from './DB'
 
 const getAllCategory = async () => {
