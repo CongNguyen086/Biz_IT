@@ -12,5 +12,4 @@ const builder = require('knex')({
     connection: connection,
 })
 
-exports.connection = connection
-exports.builder = builder
+export { connection, builder };
