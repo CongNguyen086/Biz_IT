@@ -4,7 +4,7 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "start": "nodemon --exec babel-node route.js",
+    "start": "nodemon --exec babel-node main.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/CongNguyen086/BIT_Backend#readme",
   "dependencies": {
+    "@babel/plugin-syntax-class-properties": "^7.10.4",
     "bluebird": "^3.7.2",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
@@ -27,9 +28,12 @@
     "geolib": "^3.3.1",
     "is-utf8": "^0.2.1",
     "knex": "^0.20.15",
+    "knex-stringcase": "^1.4.2",
     "lodash": "^4.17.20",
     "multer": "^1.4.2",
     "mysql": "^2.18.1",
+    "socket.io": "^2.3.0",
+    "socket.io-redis": "^5.4.0",
     "strip-bom": "^4.0.0"
   },
   "devDependencies": {
