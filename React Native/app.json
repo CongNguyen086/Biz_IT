@@ -3,7 +3,6 @@
     "name": "Bit_Momo",
     "slug": "Bit_Momo",
     "privacy": "public",
-    "sdkVersion": "35.0.0",
     "platforms": [
       "ios",
       "android",
@@ -12,7 +11,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icons/icon.png",
-    "facebookScheme": "fb795764707522976",
+    "facebookScheme": "fb621612031578384",
     "splash": {
       "image": "./assets/icons/splash.png",
       "resizeMode": "contain",
@@ -26,7 +25,6 @@
     ],
     "ios": {
       "supportsTablet": true
-    },
-    "facebookScheme": "fb621612031578384"
+    }
   }
 }

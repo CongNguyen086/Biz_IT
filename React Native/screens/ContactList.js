@@ -224,9 +224,13 @@ const ContactList = () => {
                   leftAvatar={
                     <Avatar
                       rounded
-                      source={{
-                        uri: item.avatar
-                      }}
+                      source={
+                        item.avatar 
+                          ? {
+                            uri: item.avatar
+                          } 
+                          : null
+                      }
                       title={getShortName(item.fullName)}
                     />
                   }
