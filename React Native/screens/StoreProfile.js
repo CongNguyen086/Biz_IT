@@ -160,7 +160,7 @@ const styles = StyleSheet.create({
         marginTop: 0,
         borderTopLeftRadius: 0,
         borderTopRightRadius: 0,
-        paddingBottom: 50,
+        paddingBottom: 65,
     }
 });
 
