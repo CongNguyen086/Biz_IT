@@ -35,6 +35,7 @@ import { setContactList } from '../services/app/actions'
 import { SafeAreaView } from 'react-navigation'
 import SlidingUpPanel from '../components/SlidingUpPanel'
 import DatePicker from 'react-native-datepicker';
+import AppRepo from '../services/app/repo'
 
 const DATA = [
   {
@@ -103,16 +104,12 @@ const ContactList = () => {
 
         if (data.length > 0) {
           const listContacts = data.map(c => transformContacts(c))
+          // call api to update contact list on server
+          const listPhoneNumber = await AppRepo.getContactList();
+  
+          const list = (listPhoneNumber || []).map(phoneNumber => listContacts.find(item => item.phoneNumbers.includes(phoneNumber)));
+          dispatch(setContactList({contacts: list}))
         }
-
-        // call api to update contact list on server
-        
-        const list = await new Promise((resolve, reject) => {
-          setTimeout(() => {
-            resolve(DATA)
-          }, 500)
-        })
-        dispatch(setContactList({contacts: list}))
       }
     }
     catch(e) {
