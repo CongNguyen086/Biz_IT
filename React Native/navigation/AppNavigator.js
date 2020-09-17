@@ -16,6 +16,7 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 
 import Colors from '../constants/Colors';
 import ContactListScreen from '../screens/ContactList';
+import AppointmentScreen from '../screens/Appointment';
 
 const tabBarOptions = {
   activeTintColor: Colors.primary,
@@ -120,10 +121,11 @@ const App = createStackNavigator(
     Payment: PaymentScreen,
     AfterPayment: AfterPaymentScreen,
     Connect: ConnectScreen,
-    ContactList: ContactListScreen
+    ContactList: ContactListScreen,
+    Appointment: AppointmentScreen
   },
   {
-    initialRouteName: 'ContactList',
+    initialRouteName: 'Appointment',
     // initialRouteName: 'HomePage',
     /* The header config from HomeScreen is now here */
     defaultNavigationOptions: {
@@ -132,10 +134,10 @@ const App = createStackNavigator(
       },
       headerTintColor: Colors.tintColor,
       headerTitleStyle: {
-        fontWeight: 'bold',
+        fontWeight: '500',
       },
-      headerRight: <Icon name='info-circle' type='font-awesome' color='white' />,
-      headerRightContainerStyle: { marginRight: 15 },
+      // headerRight: <Icon name='info-circle' type='font-awesome' color='white' />,
+      // headerRightContainerStyle: { marginRight: 15 },
     },
   }
 );
