@@ -1,10 +1,8 @@
 import React, { Component } from 'react';
-import { StyleSheet, Dimensions, View, Text, TouchableHighlight } from 'react-native';
+import { StyleSheet, Dimensions, View, Text, TouchableOpacity } from 'react-native';
 import { Divider, Icon } from 'react-native-elements';
 import SlidingUpPanel from 'rn-sliding-up-panel';
-import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { MaterialIcons } from '@expo/vector-icons';
-import { withNavigation } from 'react-navigation';
 // Constants
 import Colors from '../../constants/Colors'
 // Components
@@ -14,7 +12,7 @@ const screenHeight = Dimensions.get('window').height
 
 class MapStoreList extends Component {
     componentDidMount = () => {
-        this._panel.show(300)
+        // this._panel.show(300)
     }
 
     render() {
@@ -23,9 +21,7 @@ class MapStoreList extends Component {
             <SlidingUpPanel ref={c => this._panel = c}
                 draggableRange={{ top: screenHeight - 50, bottom: 65 }}
                 friction={0.05}
-            // animatedValue={this._draggedValue}
-            // snappingPoints={[360]}
-            // height={height + 180}
+                height={180}
             >
                 {/* {dragHandler => ( */}
                 <View style={styles.container}>
@@ -33,13 +29,11 @@ class MapStoreList extends Component {
                         <MaterialIcons name='drag-handle' size={25} color='#C4C4C4' />
                     </View>
                     <View style={styles.headerTitle}>
-                        <Text style={styles.label}>Điểm hẹn dành cho nhóm</Text>
-                        <TouchableHighlight onPress={() => onPress()} >
-                            <View style={styles.filterView}>
-                                <Icon name='filter' type='font-awesome' color={Colors.extraText} />
-                                <Text style={styles.filter}>Bộ lọc</Text>
-                            </View>
-                        </TouchableHighlight>
+                        <Text style={styles.label}>Meeting places for your group</Text>
+                        <TouchableOpacity style={styles.filterView} onPress={() => onPress()}>
+                            <Icon name='filter' type='font-awesome' color={Colors.extraText} />
+                            <Text style={styles.filter}>Filter</Text>
+                        </TouchableOpacity>
                     </View>
 
                     <Divider style={styles.separator} />
@@ -77,23 +71,22 @@ const styles = StyleSheet.create({
     headerTitle: {
         flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: 20,
     },
     label: {
         fontWeight: 'bold',
-        fontSize: hp(2.2),
-        marginLeft: 20
+        fontSize: 20,
     },
     filterView: {
         flexDirection: 'row',
         justifyContent: 'flex-end',
         alignItems: 'center',
-        marginLeft: wp(20),
-        // paddingRight: wp(3),
     },
     filter: {
-        fontSize: hp(2),
+        fontSize: 18,
         color: Colors.extraText,
-        marginHorizontal: wp(2),
+        marginLeft: 5,
     },
     separator: {
         height: 2,

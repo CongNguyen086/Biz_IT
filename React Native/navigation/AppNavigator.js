@@ -1,5 +1,4 @@
 import React from 'react';
-import { Image } from 'react-native';
 import { createAppContainer, createStackNavigator, createSwitchNavigator, createBottomTabNavigator } from 'react-navigation';
 import { Icon } from 'react-native-elements'
 
@@ -124,8 +123,8 @@ const App = createStackNavigator(
     ContactList: ContactListScreen
   },
   {
+    initialRouteName: 'ContactList',
     // initialRouteName: 'HomePage',
-    initialRouteName: 'HomePage',
     /* The header config from HomeScreen is now here */
     defaultNavigationOptions: {
       headerStyle: {

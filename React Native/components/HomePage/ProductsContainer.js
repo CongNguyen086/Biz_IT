@@ -48,6 +48,7 @@ const styles = StyleSheet.create({
     },
     label: {
         textAlign: 'left',
+        fontSize: 16,
         fontWeight: '600',
     },
     productsLoading: {

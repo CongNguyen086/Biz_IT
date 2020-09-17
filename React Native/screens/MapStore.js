@@ -95,7 +95,7 @@ class MapStore extends Component {
         let location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.BestForNavigation });
         let newList = this.state.locationList
         newList.push({
-            description: 'Vị trí của bạn',
+            description: 'Current location',
             coords: {
                 lat: location.coords.latitude,
                 lng: location.coords.longitude
@@ -247,10 +247,10 @@ class MapStore extends Component {
                     return null
                 }
                 let color = Colors.blueMarker
-                let title = 'Vị trí của tôi'
+                let title = 'My Location'
                 if (index > 0) {
                     color = Colors.defaultMarkerColor   
-                    title = `Vị trí bạn số ${index}`
+                    title = `Location of friend ${index}`
                 }
                 
                 return (
@@ -297,7 +297,7 @@ class MapStore extends Component {
                             inputText={loc.description}
                             onPress={(fetchDetails, place_id) => this.getCoordsFromName(fetchDetails, place_id, index)}
                             hide={!!loc.description}
-                            info={{ title: `Bạn số ${index}`, markColor: Colors.defaultMarkerColor }}
+                            info={{ title: `Friend ${index}`, markColor: Colors.defaultMarkerColor }}
                             hideAdd={!loc.description || index !== locationList.length - 1}
                             onPressAdd={this.addNewInput}
                             onRemove={loc.description && index < locationList.length - 1 ? () => onRemoveLocation(index) : null}
@@ -374,7 +374,6 @@ class MapStore extends Component {
                     {insets=> (
                         <View style={{
                             flex: 1,
-                            paddingTop: insets.top, 
                             paddingBottom: insets.bottom, 
                             paddingLeft: insets.left, 
                             paddingRight: insets.right
@@ -408,7 +407,8 @@ class MapStore extends Component {
                                     {this.renderMarker()}
                                 </MapView>
                                 <Callout style={[
-                                    styles.mapCallout, 
+                                    styles.mapCallout,
+                                    {paddingTop: insets.top},
                                     callOutWrapperStyle, 
                                     callOutWrapperStyle.height && Platform.OS === 'android' && 
                                         {height: callOutWrapperStyle.height - 50}
@@ -418,8 +418,8 @@ class MapStore extends Component {
                                         (
                                             <TouchableOpacity style={styles.collapsedPlace} onPress={this.toggleCallout}>
                                                 <View style={styles.placeTitle}>
-                                                    <Text style={{fontSize: 16, fontWeight: '700'}}>Điểm hẹn &nbsp;</Text>
-                                                    <Text style={{fontSize: 16, fontWeight: '500'}}>{`(${friendsNumber ?? 0} bạn bè)`}</Text>
+                                                    <Text style={{fontSize: 16, fontWeight: '700'}}>Meeting places &nbsp;</Text>
+                                                    <Text style={{fontSize: 16, fontWeight: '500'}}>{`(${friendsNumber ?? 0} friends)`}</Text>
                                                 </View>
                                                 <View style={styles.arrowDown}>
                                                     <Animatable.View animation='fadeIn' iterationCount='infinite' direction='alternate' duration={1000}>
@@ -437,7 +437,7 @@ class MapStore extends Component {
                                                         inputText={locationList[0].description}
                                                         onPress={this.getCoordsFromName}
                                                         hide={true}
-                                                        info={{ title: 'Vị trí của tôi', markColor: Colors.blueMarker }}
+                                                        info={{ title: 'My location', markColor: Colors.blueMarker }}
                                                         hideAdd={true}
                                                     />
                                                     {this.renderOtherMapInput()}
@@ -445,7 +445,7 @@ class MapStore extends Component {
                                                 <Divider style={styles.separator} />
                                                 <View style={styles.buttonContainer}>
                                                     <Button type='solid'
-                                                        title='Tìm điểm hẹn'
+                                                        title='Find meeting places'
                                                         buttonStyle={[styles.button, styles.submitButton]}
                                                         containerStyle={{flex: 1}}
                                                         titleStyle={{ fontSize: 18 }}
@@ -564,12 +564,13 @@ const styles = StyleSheet.create({
         height: 40,
     },
     submitButton: {
-        backgroundColor: Colors.button,
+        backgroundColor: Colors.primary,
         flex: 1,
     },
     collapsedButton: {
         marginLeft: 15,
-        width: 40
+        width: 40,
+        backgroundColor: Colors.stumbleupon
     }
 })
 
