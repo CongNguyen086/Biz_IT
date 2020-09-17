@@ -10,19 +10,20 @@ import {
   View, 
   StyleSheet, 
   FlatList, 
-  Alert, 
   ActivityIndicator, 
   KeyboardAvoidingView, 
   Platform, 
   LayoutAnimation, 
   UIManager,
-  Dimensions
+  Dimensions, 
+  TouchableOpacity,
 } from 'react-native'
 import {
   Avatar, 
   ListItem, 
   Button, 
   SearchBar, 
+  Input,
 } from 'react-native-elements'
 import * as Contacts from 'expo-contacts'
 import * as Animatable from 'react-native-animatable'
@@ -33,6 +34,7 @@ import { getContactList } from '../services/app/getters'
 import { setContactList } from '../services/app/actions'
 import { SafeAreaView } from 'react-navigation'
 import SlidingUpPanel from '../components/SlidingUpPanel'
+import DatePicker from 'react-native-datepicker';
 
 const DATA = [
   {
@@ -68,6 +70,8 @@ const ContactList = () => {
   const [isLoading, setLoading] = useState(false)
   const [isOpenSliding, setOpenSliding] = useState(false)
   const [searchText, setSearchText] = useState('')
+  const [meetingDate, setMeetingDate] = useState(new Date())
+  const [meetingEventName, setEventName] = useState('')
   const slidingRef = useRef(null)
   const dispatch = useDispatch()
   const contacts = useSelector(getContactList)
@@ -106,7 +110,7 @@ const ContactList = () => {
         const list = await new Promise((resolve, reject) => {
           setTimeout(() => {
             resolve(DATA)
-          }, 3000)
+          }, 500)
         })
         dispatch(setContactList({contacts: list}))
       }
@@ -127,6 +131,10 @@ const ContactList = () => {
     setSearchText('')
   }, [])
 
+  const onMeetingDateChanged = useCallback((selectedDate) => {
+    setMeetingDate(selectedDate)
+  }, [])
+
   const contactList = useMemo(() => {
     if (!searchText) {
       return contacts
@@ -141,6 +149,10 @@ const ContactList = () => {
       )
     )
   }, [contacts, searchText])
+
+  const selectedUsers = useMemo(() => {
+    return contacts.filter(c => checkedUsers.includes(c.id))
+  }, [contacts, checkedUsers])
 
   const onCheckedUser = useCallback((userId) => {
     if (!!contactList.find(user => user.id === userId)) {
@@ -242,7 +254,8 @@ const ContactList = () => {
                   subtitle={item.phone}
                   titleStyle={styles.titleFullName}
                   subtitleStyle={styles.phoneStyle}
-                  onPress={() => Alert.alert(`Press on user ${item.fullName}`)}
+                  onPress={() => onCheckedUser(item.id)}
+                  Component={TouchableOpacity}
                 />
               </Animatable.View>
             )}
@@ -267,6 +280,69 @@ const ContactList = () => {
                     titleStyle={{fontWeight: '600'}}
                   />
                 )}
+              </View>
+              <View style={[{flex: 1}, !isOpenSliding && {display: 'none'}]}>
+                <View style={styles.slidingSection}>
+                  {selectedUsers.map(user => (
+                    <ListItem 
+                      key={user.id}
+                      bottomDivider
+                      containerStyle={{paddingHorizontal: 0}}
+                      leftAvatar={
+                        <Avatar
+                          rounded
+                          source={user.avatar ? {uri: user.avatar} : null}
+                          title={getShortName(user.fullName)}
+                        />
+                      }
+                      title={(
+                        <View style={styles.slidingContactContent}>
+                          <Text style={styles.titleFullName}>{user.fullName}</Text>
+                          <Text style={styles.phoneStyle}>{user.phone}</Text>
+                        </View>
+                      )}
+                      Component={View}
+                    />
+                  ))}
+                </View>
+                <View style={styles.slidingSection}>
+                  <View style={styles.moreInfoSection}>
+                    <Text style={{width: '35%'}}>Your event name</Text>
+                    <Input  containerStyle={{flex: 1, paddingHorizontal: 0}} inputContainerStyle={styles.meetingPlace} />
+                  </View>
+                  <View style={styles.moreInfoSection}>
+                    <Text style={{width: '35%'}}>Choose meeting date</Text>
+                    <DatePicker 
+                      date={meetingDate}
+                      mode='date'
+                      format='DD-MM-YYYY'
+                      minDate={new Date()}
+                      cancelBtnText='Cancel'
+                      confirmBtnText='Confirm'
+                      showIcon={false}
+                      onDateChange={onMeetingDateChanged}
+                      style={{
+                        flex: 1,
+                      }}
+                      customStyles={{
+                        dateTouchBody: {
+                          padding: 0,
+                          width: '100%',
+                        },
+                        dateInput: {
+                          borderRadius: 20,
+                          borderColor: '#ccc',
+                          height: 40
+                        }
+                      }}
+                    />
+                  </View>
+                </View>
+                <Button 
+                  title='Invite' 
+                  buttonStyle={[styles.inviteButton, {paddingVertical: 10, width: '100%'}, styles.slidingSection]}
+                  titleStyle={{fontWeight: '600'}} 
+                />
               </View>
             </View>
           </SlidingUpPanel>
@@ -366,6 +442,27 @@ const styles = StyleSheet.create({
   inviteButton: {
     borderRadius: 5,
     backgroundColor: Colors.primary,
+  },
+  slidingContactContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  slidingSection: {
+    marginTop: 25,
+  },
+  moreInfoSection: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    marginTop: 15,
+  },
+  meetingPlace: {
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 25,
+    paddingHorizontal: 20,
+    height: 40,
   }
 })
 

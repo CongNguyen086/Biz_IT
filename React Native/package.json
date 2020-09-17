@@ -36,6 +36,7 @@
     "react-native-chart-kit": "^4.0.0",
     "react-native-charts-wrapper": "^0.5.7",
     "react-native-custom-qr-codes-expo": "^2.2.0",
+    "react-native-datepicker": "^1.7.2",
     "react-native-elements": "^1.2.4",
     "react-native-geocoding": "^0.4.0",
     "react-native-gesture-handler": "~1.5.0",
