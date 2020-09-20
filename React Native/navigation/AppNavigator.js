@@ -14,7 +14,7 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 
 import Colors from '../constants/Colors';
 import ContactListScreen from '../screens/ContactList';
-import AppointmentScreen from '../screens/Appointment';
+import AppointmentScreen from '../screens/AppointmentScreen';
 import HeaderTitle from '../components/HeaderTitle';
 
 const tabBarOptions = {
@@ -32,9 +32,6 @@ const HomeStack = createStackNavigator(
   {
     Home: {
       screen: HomePage,
-      // navigationOptions: {
-      //   title: "Home"
-      // }
     }
   }
 );
@@ -125,8 +122,6 @@ const App = createStackNavigator(
   },
   {
     initialRouteName: 'HomePage',
-    // initialRouteName: 'HomePage',
-    /* The header config from HomeScreen is now here */
     defaultNavigationOptions: {
       headerStyle: {
         backgroundColor: Colors.primary,
@@ -135,8 +130,6 @@ const App = createStackNavigator(
       headerTitleStyle: {
         fontWeight: '500',
       },
-      // headerRight: <Icon name='info-circle' type='font-awesome' color='white' />,
-      // headerRightContainerStyle: { marginRight: 15 },
     },
   }
 );

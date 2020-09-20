@@ -1,12 +1,14 @@
 import React from 'react'
 import { StyleSheet, Text, View, SafeAreaView, Dimensions } from 'react-native'
 import {TabView, SceneMap, TabBar, TabBarItem} from 'react-native-tab-view';
+import AppointmentList from '../components/Appointment/AppointmentList';
 import PendingAppointment from '../components/Appointment/PendingAppointment';
 import HeaderTitle from '../components/HeaderTitle';
 import Colors from '../constants/Colors';
 
 const AppointmentListScreen = () => (
   <View style={styles.card}>
+    <AppointmentList />
   </View>
 );
 
@@ -87,7 +89,7 @@ class Appointment extends React.Component {
             onIndexChange={setIndex}
             initialLayout={initialLayout}
             sceneContainerStyle={{
-              paddingTop: 30,
+              paddingTop: 20,
             }}
             renderTabBar={renderTabBar}
           />
@@ -105,13 +107,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 10,
-    paddingTop: 30,
+    paddingTop: 20,
   },
-  navigationBar: {
-    backgroundColor: 'red',
-    minHeight: 50,
-    marginBottom: 25,
-  },  
   card: {
     flex: 1,
     backgroundColor: '#fff',
