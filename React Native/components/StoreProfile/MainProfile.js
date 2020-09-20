@@ -65,9 +65,11 @@ class MainProfile extends Component {
             latitude, 
             longitude
         } = this.props.store;
+        const {pendingAppointments} = this.props;
         const {reviewImage} = this.state;
 
         const source = reviewImage ? {uri: reviewImage} : require('../../assets/images/TCH_photo.png')
+        const isDisableButton = !!pendingAppointments.find(s => s.storeId === storeId);
 
         return (
             <View style={styles.container}>
@@ -129,6 +131,7 @@ class MainProfile extends Component {
                             title='Add to appointment list'
                             buttonStyle={styles.button}
                             titleStyle={{ fontSize: 18 }}
+                            disabled={isDisableButton}
                             onPress={this.addToPendingAppointment} />
                     </View>
                 </View>

@@ -12,6 +12,7 @@ class StoreList extends Component {
     
     renderList = ({ item }) => (
         <ListItem
+            bottomDivider
             containerStyle={styles.listItem}
             contentContainerStyle={{ flex:0.02 }}
             leftElement={<Avatar data={item} />}
@@ -19,49 +20,28 @@ class StoreList extends Component {
             pad={3}
             onPress={() => {
                 this.props.navigation.navigate('StoreProfile', {
-                    info: item,
-                    categoryName: item.categoryName
+                    store: {...item, categoryName: null},
                 })
                 
             }}
         />
     );
     
-    renderKeyExtractor = (item, index) => index.toString();
-    
-    renderSeparator = () => {
-        return (
-            <View style={styles.separator} />
-        );
-    };
     render() {
         const { data } = this.props;
         return (
-            <Card containerStyle={styles.container}>
-                <FlatList
-                    data={data}
-                    renderItem={this.renderList}
-                    keyExtractor={this.renderKeyExtractor}
-                    ItemSeparatorComponent={this.renderSeparator}
-                />
-            </Card>
+            <FlatList
+                data={data}
+                renderItem={this.renderList}
+                keyExtractor={(item) => `${item.storeId}`}
+            />
         );
     }
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        margin: -1,
-        borderWidth: 0,
-    },
     listItem: {
         flex: 1,
-        height: 120,
-    },
-    separator: {
-        height: 1,
-        backgroundColor: "#E8E9E9",
     },
 });
 
