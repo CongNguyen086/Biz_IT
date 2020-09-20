@@ -64,7 +64,7 @@ CREATE TABLE `appointment_status` (
 
 LOCK TABLES `appointment_status` WRITE;
 /*!40000 ALTER TABLE `appointment_status` DISABLE KEYS */;
-INSERT INTO `appointment_status` VALUES (1,'waiting'),(2,'completed'),(3,'declined');
+INSERT INTO `appointment_status` VALUES (1,'waiting'),(2,'completed'),(3,'canceled');
 /*!40000 ALTER TABLE `appointment_status` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -108,7 +108,7 @@ CREATE TABLE `appointments` (
   `eventName` varchar(100) NOT NULL,
   `meetingDate` datetime DEFAULT NULL,
   `hostId` varchar(20) DEFAULT NULL,
-  `statusId` smallint(6) DEFAULT NULL,
+  `statusId` smallint(6) DEFAULT '1',
   PRIMARY KEY (`id`),
   KEY `appointments_users_userId_fk` (`hostId`),
   KEY `appointments_appointment_status_id_fk` (`statusId`),
@@ -217,7 +217,7 @@ CREATE TABLE `member_status` (
   `id` smallint(6) NOT NULL AUTO_INCREMENT,
   `label` varchar(20) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -226,6 +226,7 @@ CREATE TABLE `member_status` (
 
 LOCK TABLES `member_status` WRITE;
 /*!40000 ALTER TABLE `member_status` DISABLE KEYS */;
+INSERT INTO `member_status` VALUES (1,'waiting'),(2,'accepted'),(3,'declined');
 /*!40000 ALTER TABLE `member_status` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -480,4 +481,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-09-20 22:25:34
+-- Dump completed on 2020-09-20 22:35:03
