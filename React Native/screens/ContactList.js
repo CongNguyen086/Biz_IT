@@ -36,6 +36,7 @@ import { SafeAreaView } from 'react-navigation'
 import SlidingUpPanel from '../components/SlidingUpPanel'
 import DatePicker from 'react-native-datepicker';
 import AppRepo from '../services/app/repo'
+import HeaderTitle from '../components/HeaderTitle'
 
 if (
   Platform.OS === "android" &&
@@ -45,6 +46,10 @@ if (
 }
 
 const screenHeight = Dimensions.get('window').height
+
+function normalizeText(text = '') {
+  return text.toLowerCase()
+}
 
 const ContactList = () => {
   const [isLoading, setLoading] = useState(false)
@@ -130,9 +135,9 @@ const ContactList = () => {
     return (contacts || []).filter(c => 
       (
         c?.phone?.includes(searchText) || 
-        c?.firstName?.includes(searchText) || 
-        c?.lastName?.includes(searchText) || 
-        c?.fullName?.includes(searchText)
+        normalizeText(c?.firstName)?.includes(normalizeText(searchText)) || 
+        normalizeText(c?.lastName)?.includes(normalizeText(searchText)) || 
+        normalizeText(c?.fullName)?.includes(normalizeText(searchText))
       )
     )
   }, [contacts, searchText])
@@ -337,6 +342,10 @@ const ContactList = () => {
       </SafeAreaView>
     </KeyboardAvoidingView>
   )
+}
+
+ContactList.navigationOptions = {
+  headerTitle: <HeaderTitle title='Contacts' />
 }
 
 const styles = StyleSheet.create({
