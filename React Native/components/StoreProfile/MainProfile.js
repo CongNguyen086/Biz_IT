@@ -1,12 +1,23 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View, Image, TouchableOpacity, Platform, Linking } from 'react-native';
+import { StyleSheet, Text, View, Image, TouchableOpacity, Platform, Linking, Alert } from 'react-native';
 import { Rating, Icon, Button } from 'react-native-elements'
 import { withNavigation } from 'react-navigation';
+import { connect } from 'react-redux';
 // Contants
 import Colors from '../../constants/Colors';
 
 import Configs from '../../constants/config'
+import { addNewAppointment } from '../../services/app/actions';
+import { MAX_PENDING_APPOINTMENTS } from '../../services/app/constants';
+import { getPendingAppointments } from '../../services/app/getters';
+
 class MainProfile extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            reviewImage: null,
+        }
+    }
 
     openMap(address, latitude, longitude) {
         const url = Platform.select({
@@ -16,8 +27,8 @@ class MainProfile extends Component {
         Linking.openURL(url);
     }
 
-    async componentDidMount() {
-        await this.getMerchantImage(this.props.serviceId)
+    componentDidMount() {
+        this.getMerchantImage(this.props.serviceId)
     }
 
     getMerchantImage = async (serviceId) => {
@@ -25,37 +36,65 @@ class MainProfile extends Component {
             const response = await fetch(Configs.ROOT + `/getmerchantimage?serviceId=${serviceId}`);
             const jsonData = await response.json();
             this.setState({ reviewImage: jsonData[0].reviewImage })
-            console.log(this.state.reviewImage);
         } catch (error) {
             console.log(error)
         }
     }
 
+    addToPendingAppointment = () => {
+        const {dispatch, store, pendingAppointments} = this.props;
+        if (pendingAppointments.length < MAX_PENDING_APPOINTMENTS) {
+            if (!pendingAppointments.find(s => s.storeId === store.storeId)) {
+                dispatch(addNewAppointment({store}))
+                Alert.alert('Add store successfully!');
+            } else {
+                Alert.alert('This store has been added to pending appointments list');
+            }
+        } else {
+            Alert.alert('Maximum 3 stores in pending appointments');
+        }
+    }
+
     render() {
-        const { name, star, address, distance, storeId, latitude, longitude } = this.props;
+        const { 
+            storeName, 
+            storeRating, 
+            storeAddress, 
+            distance, 
+            storeId, 
+            latitude, 
+            longitude
+        } = this.props.store;
+        const {reviewImage} = this.state;
+
+        const source = reviewImage ? {uri: reviewImage} : require('../../assets/images/TCH_photo.png')
+
         return (
             <View style={styles.container}>
                 <View style={styles.photoView}>
-                    <Image source={require('../../assets/images/TCH_photo.png')} style={styles.photo} />
+                <Image 
+                    source={source}
+                    style={styles.photo} 
+                />
                 </View>
 
                 <View style={styles.content}>
                     <View style={styles.topView}>
                         <View style={styles.mainInfo}>
-                            <Text style={styles.name}>{name}</Text>
+                            <Text style={styles.name}>{storeName}</Text>
                             <View style={styles.rateGroup}>
                                 <Rating
                                     // showRating
                                     type="star"
                                     fractions={1}
-                                    startingValue={star}
+                                    startingValue={storeRating}
                                     readonly
                                     imageSize={15}
                                     onFinishRating={this.ratingCompleted}
                                     style={styles.rate}
                                     ratingColor='#40E247'
                                 />
-                                <Text style={styles.value}>{star}</Text>
+                                <Text style={styles.value}>{storeRating}</Text>
                             </View>
                         </View>
                         <View style={styles.timeView}>
@@ -71,15 +110,15 @@ class MainProfile extends Component {
                                 <Text style={styles.extraValue, { color: Colors.extraText, marginLeft: 3 }}
                                     ellipsizeMode='tail'
                                     numberOfLines={2}>
-                                    {address}
+                                    {storeAddress}
                                 </Text>
                             </View>
                             <View style={styles.distance}>
                                 <Icon name='crosshairs' type='font-awesome' size={22} color={Colors.extraText} />
-                                <Text style={styles.extraValue, { color: Colors.extraText, marginLeft: 5 }}>{distance}</Text>
+                                <Text style={styles.extraValue, { color: Colors.extraText, marginLeft: 5 }}>{`${distance + ' m from your current location'}`}</Text>
                             </View>
                         </View>
-                        <TouchableOpacity style={styles.distanceIcon} onPress={() => this.openMap(address, latitude, longitude)}>
+                        <TouchableOpacity style={styles.distanceIcon} onPress={() => this.openMap(storeAddress, latitude, longitude)}>
                             <Image source={(require('../../assets/icons/map.png'))}
                                 style={styles.icon} />
                         </TouchableOpacity>
@@ -90,7 +129,7 @@ class MainProfile extends Component {
                             title='Add to appointment list'
                             buttonStyle={styles.button}
                             titleStyle={{ fontSize: 18 }}
-                            onPress={() => this.props.navigation.navigate('Payment', { storeId: storeId })} />
+                            onPress={this.addToPendingAppointment} />
                     </View>
                 </View>
             </View>
@@ -210,4 +249,8 @@ const styles = StyleSheet.create({
     },
 });
 
-export default withNavigation(MainProfile);
+const mapStateToProps = state => ({
+    pendingAppointments: getPendingAppointments(state)
+})
+
+export default connect(mapStateToProps, null)(withNavigation(MainProfile));

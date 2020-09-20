@@ -1,7 +1,8 @@
-import {SET_CONTACTS} from './constants'
+import {MAX_PENDING_APPOINTMENTS, SET_CONTACTS, UPDATE_PENDING_APPOINTMENT} from './constants'
 
 const initialState = {
-  contacts: []
+  contacts: [],
+  pendingAppointmentStores: [],
 }
 
 export default function(state = initialState, action) {
@@ -12,6 +13,23 @@ export default function(state = initialState, action) {
       return {
         ...state,
         contacts
+      }
+    case UPDATE_PENDING_APPOINTMENT:
+      const {store, isRemove = false} = action.payload;
+      let list = [...(state.pendingAppointmentStores || [])]
+      if (isRemove) {
+        if (list.includes(store.storeId)) {
+          list = list.filter(s => s.storeId !== store.storeId);
+        }
+      } else {
+        if (list.length < MAX_PENDING_APPOINTMENTS) {
+          list = [...list, store]
+        }
+      }
+
+      return {
+        ...state,
+        pendingAppointmentStores: list,
       }
     default:
       return state

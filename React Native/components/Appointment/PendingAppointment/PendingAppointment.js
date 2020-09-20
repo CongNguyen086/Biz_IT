@@ -3,53 +3,13 @@ import { StyleSheet, FlatList,  Text, View, Image, TouchableOpacity } from 'reac
 import { FontAwesome } from '@expo/vector-icons'
 import { ListItem, Button } from 'react-native-elements'
 import Colors from '../../../constants/Colors'
-
-const stores = [
-  {
-    "description": "Hoàn tiền 20% trên tổng hóa đơn",
-    "distance": 1504,
-    "icon": "https://i.imgur.com/RyIHv67.jpg",
-    "latitude": "10.743074",
-    "longitude": " 106.684632",
-    "merchantAddress": "28/8 Bùi Viện, phường Phạm Ngũ Lão, Quận 1, Hồ Chí Minh, Việt Nam",
-    "merchantName": "Circle K HCM",
-    "serviceId": "7241075282237721387",
-    "storeAddress": "277 Âu Dương Lân, Phường 2, Quận 8, Thành Phố Hồ Chí Minh, VIỆT NAM",
-    "storeId": "6548966503291920184",
-    "storeName": "Circle K 277 Âu Dương Lân",
-    "storeRating": 3,
-  },
-  {
-    "description": "Hoàn tiền 20% trên tổng hóa đơn",
-    "distance": 1531,
-    "icon": "https://i.imgur.com/RyIHv67.jpg",
-    "latitude": "10.754840",
-    "longitude": " 106.694561",
-    "merchantAddress": "28/8 Bùi Viện, phường Phạm Ngũ Lão, Quận 1, Hồ Chí Minh, Việt Nam",
-    "merchantName": "Circle K HCM",
-    "serviceId": "7241075282237721387",
-    "storeAddress": "62 Nguyễn Khoái, Phường 2, Quận 4, Thành Phố Hồ Chí Minh, VIỆT NAM",
-    "storeId": "9195809835814820357",
-    "storeName": "Circle K 62 Nguyễn Khoái",
-    "storeRating": 3,
-  },
-  {
-    "description": "Hoàn tiền 20% trên tổng hóa đơn",
-    "distance": 1563,
-    "icon": "https://i.imgur.com/RyIHv67.jpg",
-    "latitude": "10.769974",
-    "longitude": " 106.681909",
-    "merchantAddress": "28/8 Bùi Viện, phường Phạm Ngũ Lão, Quận 1, Hồ Chí Minh, Việt Nam",
-    "merchantName": "Circle K HCM",
-    "serviceId": "7241075282237721387",
-    "storeAddress": "45 Cao Thắng, Phường 3, Quận 3, Thành Phố Hồ Chí Minh, VIỆT NAM",
-    "storeId": "816879216657496047",
-    "storeName": "Circle K 45 Cao Thắng",
-    "storeRating": 3,
-  },
-]
+import { useSelector } from 'react-redux'
+import { getPendingAppointments } from '../../../services/app/getters'
+import NoContent from '../../NoContent'
 
 export default function PendingAppointment() {
+  const pendingAppointments = useSelector(getPendingAppointments);
+
   const renderItem = useCallback((item) => {
     const currentHour = new Date().getHours()
     const isOpen = currentHour >= 8 && currentHour < 22
@@ -85,24 +45,31 @@ export default function PendingAppointment() {
       />
     )
   }, [])
-return (
+  return (
     <View style={{flex: 1, justifyContent: 'flex-start'}}>
-      <FlatList
-        data={stores}
-        renderItem={({item}) => renderItem(item)}
-        style={{flexGrow: 0}}
-        keyExtractor={item => item.storeId}
-      />
-      <Button
-        title='Invite'
-        type='solid'
-        buttonStyle={{
-          marginTop: 30,
-        }}
-        titleStyle={{
-          fontWeight: '700',
-        }}
-      />
+      {(!pendingAppointments || pendingAppointments.length === 0) && (
+        <NoContent />
+      )}
+      {pendingAppointments && pendingAppointments.length > 0 && (
+        <React.Fragment>
+          <FlatList
+            data={pendingAppointments}
+            renderItem={({item}) => renderItem(item)}
+            style={{flexGrow: 0}}
+            keyExtractor={item => item.storeId}
+          />
+          <Button
+            title='Invite'
+            type='solid'
+            buttonStyle={{
+              marginTop: 30,
+            }}
+            titleStyle={{
+              fontWeight: '700',
+            }}
+          />
+        </React.Fragment>
+      )}
     </View>
   )
 }
