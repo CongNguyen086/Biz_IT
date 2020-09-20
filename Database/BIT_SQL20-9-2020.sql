@@ -16,6 +16,35 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Table structure for table `appointment_members`
+--
+
+DROP TABLE IF EXISTS `appointment_members`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `appointment_members` (
+  `appointmentStoreId` int(11) NOT NULL,
+  `memberId` varchar(20) NOT NULL,
+  `status` smallint(6) DEFAULT NULL,
+  UNIQUE KEY `appointment_members_appointmentStoreId_uindex` (`appointmentStoreId`),
+  UNIQUE KEY `appointment_members_memberId_uindex` (`memberId`),
+  KEY `appointment_members_member_status_id_fk` (`status`),
+  CONSTRAINT `appointment_members_appointment_stores_id_fk` FOREIGN KEY (`appointmentStoreId`) REFERENCES `appointment_stores` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `appointment_members_member_status_id_fk` FOREIGN KEY (`status`) REFERENCES `member_status` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `appointment_members_users_userId_fk` FOREIGN KEY (`memberId`) REFERENCES `users` (`userId`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `appointment_members`
+--
+
+LOCK TABLES `appointment_members` WRITE;
+/*!40000 ALTER TABLE `appointment_members` DISABLE KEYS */;
+/*!40000 ALTER TABLE `appointment_members` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `appointment_status`
 --
 
@@ -26,7 +55,7 @@ CREATE TABLE `appointment_status` (
   `id` smallint(6) NOT NULL AUTO_INCREMENT,
   `label` varchar(20) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -35,6 +64,7 @@ CREATE TABLE `appointment_status` (
 
 LOCK TABLES `appointment_status` WRITE;
 /*!40000 ALTER TABLE `appointment_status` DISABLE KEYS */;
+INSERT INTO `appointment_status` VALUES (1,'waiting'),(2,'completed'),(3,'declined');
 /*!40000 ALTER TABLE `appointment_status` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -174,6 +204,29 @@ LOCK TABLES `deal` WRITE;
 /*!40000 ALTER TABLE `deal` DISABLE KEYS */;
 INSERT INTO `deal` VALUES (1,1,'Deal ưu đãi từ các quán trà sữa hàng đầu','https://i.imgur.com/ob7PWzQ.jpg'),(2,2,'Deal ưu đãi từ các quán cà phê hàng đầu','https://i.imgur.com/AsSnFoi.jpg'),(3,3,'Ưu đãi của các siêu thị','https://i.imgur.com/T7oaMnz.jpg'),(4,4,'Ưu đãi từ các nhà hàng','https://i.imgur.com/kvidGmj.jpg'),(5,5,'Ưu đãi của các trung tâm mua sắm','https://i.imgur.com/pKRkbt7.jpg'),(6,6,'Ưu đãi hấp dẫn từ LOTTE Mart','https://i.imgur.com/iHlKL0m.jpg'),(7,7,'Ưu đãi của các quán ăn','https://i.imgur.com/AnPzPP7.jpg'),(8,8,'Ưu đãi từ các dịch vụ Offline','https://i.imgur.com/oaEpq6D.jpg'),(9,9,'Ưu đãi từ các siêu thị tiện lợi','https://i.imgur.com/tYwQP0W.jpg'),(10,10,'Ưu đãi từ các cửa hàng pizza','https://i.imgur.com/EPzhYmx.jpg'),(11,11,'Ưu đãi từ các cửa hàng bán gà','https://i.imgur.com/nCqQ7ui.jpg'),(13,13,'Ưu đãi từ các cửa hàng Việt Nam','https://i.imgur.com/y5GAtVF.jpg'),(14,14,'Ưu đãi từ các cửa hàng BBQ','https://i.imgur.com/IBQzoWp.jpg'),(18,18,'Ưu đãi từ các cửa hàng thức ăn nhanh','https://i.imgur.com/a3UCzHT.jpg');
 /*!40000 ALTER TABLE `deal` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `member_status`
+--
+
+DROP TABLE IF EXISTS `member_status`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `member_status` (
+  `id` smallint(6) NOT NULL AUTO_INCREMENT,
+  `label` varchar(20) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `member_status`
+--
+
+LOCK TABLES `member_status` WRITE;
+/*!40000 ALTER TABLE `member_status` DISABLE KEYS */;
+/*!40000 ALTER TABLE `member_status` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -427,4 +480,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-09-20 20:21:51
+-- Dump completed on 2020-09-20 22:25:34
