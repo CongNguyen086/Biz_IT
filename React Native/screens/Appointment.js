@@ -37,8 +37,6 @@ class Appointment extends React.Component {
   }
 
   renderTabBarItem = props => {
-    console.log("Appointment -> state", JSON.stringify(props.navigationState))
-    console.log("Appointment -> route", JSON.stringify(props.route))
     const currentRoute = props.route.key;
     const activeRoute = props.navigationState.routes[props.navigationState.index].key;
     const isActive = currentRoute === activeRoute;
@@ -119,13 +117,13 @@ const styles = StyleSheet.create({
   },
   tabBarContainer: {
     backgroundColor: '#C4C4C4',
-    borderRadius: 30,
+    borderRadius: 20,
   },
   activeTab: {
-    borderRadius: 30,
+    borderRadius: 20,
     backgroundColor: 'transparent',
-    flex: 1,
     margin: 2,
+    minHeight: 40,
   }
 })
 

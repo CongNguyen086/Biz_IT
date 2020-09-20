@@ -89,8 +89,9 @@ return (
     <View style={{flex: 1, justifyContent: 'flex-start'}}>
       <FlatList
         data={stores}
-        renderItem={({item, index}) => renderItem(item)}
+        renderItem={({item}) => renderItem(item)}
         style={{flexGrow: 0}}
+        keyExtractor={item => item.storeId}
       />
       <Button
         title='Invite'
