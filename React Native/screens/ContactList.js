@@ -64,6 +64,7 @@ const ContactList = () => {
     return {
       firstName: contacts.firstName,
       lastName: contacts.lastName,
+      fullName: `${contacts.lastName} ${contacts.firstName}`,
       phoneNumbers: contacts.phoneNumbers.map(p => p.digits)
     }
   })
@@ -83,17 +84,26 @@ const ContactList = () => {
 
         if (data.length > 0) {
           const listContacts = data.map(c => transformContacts(c))
-          console.log("syncContacts -> listContacts", listContacts)
           // call api to update contact list on server
           const listPhoneNumber = await AppRepo.getContactList();
   
-          const list = (listPhoneNumber || []).map(phoneNumber => listContacts.find(item => item.phoneNumbers.includes(phoneNumber)));
+          const list = []
+          for (const phoneNumber of listPhoneNumber) {
+            for (const c of listContacts) {
+              if (c.phoneNumbers.includes(phoneNumber)) {
+                list.push({
+                  ...c,
+                  phoneNumber: phoneNumber
+                })
+              }
+            }
+          }
           dispatch(setContactList({contacts: list}))
         }
       }
     }
     catch(e) {
-    console.log("ContactList -> e", e.message)
+      console.log("ContactList -> e", e.message)
     }
     finally {
       setLoading(false)
@@ -128,21 +138,21 @@ const ContactList = () => {
   }, [contacts, searchText])
 
   const selectedUsers = useMemo(() => {
-    return contacts.filter(c => checkedUsers.includes(c.id))
+    return contacts.filter(c => checkedUsers.includes(c.phoneNumber))
   }, [contacts, checkedUsers])
 
-  const onCheckedUser = useCallback((userId) => {
-    if (!!contactList.find(user => user.id === userId)) {
+  const onCheckedUser = useCallback((phoneNumber) => {
+    if (!!contactList.find(user => user.phoneNumber === phoneNumber)) {
       if (checkedUsers.length === 0) {
         LayoutAnimation.configureNext(LayoutAnimation.Presets.spring)
       }
-      if (!checkedUsers.includes(userId)) {
-        setCheckedUsers([...checkedUsers, userId])
+      if (!checkedUsers.includes(phoneNumber)) {
+        setCheckedUsers([...checkedUsers, phoneNumber])
       } else {
         if (checkedUsers.length === 1) {
           LayoutAnimation.configureNext(LayoutAnimation.Presets.spring)
         }
-        setCheckedUsers(checkedUsers.filter(uId => uId !== userId))
+        setCheckedUsers(checkedUsers.filter(p => p !== phoneNumber))
       }
     }
   }, [contactList, checkedUsers])
@@ -224,19 +234,19 @@ const ContactList = () => {
                     />
                   }
                   checkBox={{
-                    checked: !!checkedUsers.find(uId => uId === item.id),
-                    onIconPress: () => onCheckedUser(item.id)
+                    checked: !!checkedUsers.find(p => p === item.phoneNumber),
+                    onIconPress: () => onCheckedUser(item.phoneNumber)
                   }}
                   title={item.fullName}
                   subtitle={item.phone}
                   titleStyle={styles.titleFullName}
                   subtitleStyle={styles.phoneStyle}
-                  onPress={() => onCheckedUser(item.id)}
+                  onPress={() => onCheckedUser(item.phoneNumber)}
                   Component={TouchableOpacity}
                 />
               </Animatable.View>
             )}
-            keyExtractor={item => `${item.id}`}
+            keyExtractor={item => `${item.phoneNumber}`}
           />
         </View>
 
