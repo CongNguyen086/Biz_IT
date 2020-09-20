@@ -37,27 +37,6 @@ import SlidingUpPanel from '../components/SlidingUpPanel'
 import DatePicker from 'react-native-datepicker';
 import AppRepo from '../services/app/repo'
 
-const DATA = [
-  {
-    id: 1,
-    phone: '032633980868',
-    fullName: 'Hieu Do',
-    avatar: 'https://images.pexels.com/photos/1004014/pexels-photo-1004014.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500'
-  },
-  {
-    id: 2,
-    phone: '0123478235',
-    fullName: 'Cong Nguyen',
-    avatar: null,
-  },
-  {
-    id: 3,
-    phone: '025826923692',
-    fullName: 'Donal Trump',
-    avatar: 'https://images.pexels.com/photos/1149362/pexels-photo-1149362.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500'
-  },
-]
-
 if (
   Platform.OS === "android" &&
   UIManager.setLayoutAnimationEnabledExperimental
@@ -104,6 +83,7 @@ const ContactList = () => {
 
         if (data.length > 0) {
           const listContacts = data.map(c => transformContacts(c))
+          console.log("syncContacts -> listContacts", listContacts)
           // call api to update contact list on server
           const listPhoneNumber = await AppRepo.getContactList();
   
@@ -113,7 +93,7 @@ const ContactList = () => {
       }
     }
     catch(e) {
-
+    console.log("ContactList -> e", e.message)
     }
     finally {
       setLoading(false)

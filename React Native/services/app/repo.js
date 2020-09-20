@@ -11,6 +11,7 @@ class AppRepo {
       return phoneList;
     }
     catch(e) {
+      console.log("AppRepo -> e?.response", e?.response.data)
       throw new Error(e?.response?.data?.message);
     }
   }

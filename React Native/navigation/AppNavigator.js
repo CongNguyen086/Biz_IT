@@ -15,6 +15,7 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import Colors from '../constants/Colors';
 import ContactListScreen from '../screens/ContactList';
 import AppointmentScreen from '../screens/Appointment';
+import HeaderTitle from '../components/HeaderTitle';
 
 const tabBarOptions = {
   activeTintColor: Colors.primary,
@@ -29,7 +30,12 @@ const tabBarOptions = {
 
 const HomeStack = createStackNavigator(
   {
-    Home: HomePage,
+    Home: {
+      screen: HomePage,
+      // navigationOptions: {
+      //   title: "Home"
+      // }
+    }
   }
 );
 
@@ -59,12 +65,20 @@ MapStack.navigationOptions = {
 
 const AppointmentStack = createStackNavigator(
   {
-    Appointment: AppointmentScreen,
+    Appointment: {
+      screen: AppointmentScreen,
+      navigationOptions: {
+        // title: "Appointment",
+        headerTitle: <HeaderTitle title='Appointment' />,
+        headerStyle: {
+          backgroundColor: Colors.primary
+        }
+      }
+    },
   },
 );
 
 AppointmentStack.navigationOptions = {
-  header: null,
   tabBarLabel: 'Appointment',
   tabBarIcon: ({ focused }) => (
     <Ionicons name='ios-calendar' size={30} color={focused ? Colors.primary : Colors.tabIconDefault} />

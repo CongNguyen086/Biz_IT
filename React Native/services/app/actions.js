@@ -10,7 +10,6 @@ export function setContactList({ contacts }) {
 }
 
 function updatePendingAppointment({store, isRemove}) {
-  console.log("updatePendingAppointment -> store", store)
   return {
     type: UPDATE_PENDING_APPOINTMENT,
     payload: {

@@ -7,8 +7,9 @@ import { useDispatch, useSelector } from 'react-redux'
 import { getPendingAppointments } from '../../../services/app/getters'
 import NoContent from '../../NoContent'
 import {removeAppointment} from '../../../services/app/actions';
+import { withNavigation } from 'react-navigation'
 
-export default function PendingAppointment() {
+function PendingAppointment({navigation}) {
   const pendingAppointments = useSelector(getPendingAppointments);
   const dispatch = useDispatch();
   const onRemoveAppointment = useCallback((store) => {
@@ -50,6 +51,11 @@ export default function PendingAppointment() {
       />
     )
   }, [])
+
+  const onInvite = useCallback(() => {
+    navigation.navigate('ContactList');
+  })
+
   return (
     <View style={{flex: 1, justifyContent: 'flex-start'}}>
       {(!pendingAppointments || pendingAppointments.length === 0) && (
@@ -72,6 +78,7 @@ export default function PendingAppointment() {
             titleStyle={{
               fontWeight: '700',
             }}
+            onPress={onInvite}
           />
         </React.Fragment>
       )}
@@ -114,3 +121,5 @@ const styles = StyleSheet.create({
     color: Colors.extraText,
   },
 })
+
+export default withNavigation(PendingAppointment);

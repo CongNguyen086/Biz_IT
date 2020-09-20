@@ -2,6 +2,7 @@ import React from 'react'
 import { StyleSheet, Text, View, SafeAreaView, Dimensions } from 'react-native'
 import {TabView, SceneMap, TabBar, TabBarItem} from 'react-native-tab-view';
 import PendingAppointment from '../components/Appointment/PendingAppointment';
+import HeaderTitle from '../components/HeaderTitle';
 import Colors from '../constants/Colors';
 
 const AppointmentListScreen = () => (
@@ -97,7 +98,7 @@ class Appointment extends React.Component {
 }
 
 Appointment.navigationOptions = {
-  header: null,
+  headerTitle: <HeaderTitle title='Appointment' />,
 }
 
 const styles = StyleSheet.create({
