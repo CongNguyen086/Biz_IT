@@ -1,4 +1,5 @@
 import express from 'express';
+const mysql = require('mysql');
 import bodyParser from 'body-parser';
 import multer from 'multer';
 import cors from 'cors';
@@ -8,6 +9,7 @@ import GeoCalculate from './models/GeoCalculate';
 import Store from './models/Store';
 import Category from './models/Category';
 import MysqlClient from './config/db';
+import config from './knexfile';
 
 import rootRouter from "./routes";
 
@@ -25,11 +27,19 @@ app.use(express.static(__dirname + '/uploads'));
 const mysqlInstance = MysqlClient.getInstance();
 mysqlInstance.connectDb();
 
+const connection = mysql.createConnection(config[process.env.NODE_ENV || 'development'].connection);
+connection.connect((error) => {
+    if (!error) {
+        // console.log('Connect database succeeded')
+    } else
+        console.log('Connect database failed', error)
+});
+
 app.use(rootRouter);
 
 // UserId: 8159657106479438377
 app.get('/getpopulardeal', (req, res) => {
-    client.query('CALL GetPopularDeal()', (error, rows, fields) => {
+    connection.query('CALL GetPopularDeal()', (error, rows, fields) => {
         if (!error) {
             res.send(rows)
         } else console.log(error);
@@ -42,7 +52,7 @@ app.get('/', (req, res) => {
 
 app.get('/getrecommendeddeal', (req, res) => {
     const userId = req.query.userId
-    client.query('CALL GetRecommendedDeal(?)', [userId], (error, rows, fields) => {
+    connection.query('CALL GetRecommendedDeal(?)', [userId], (error, rows, fields) => {
         if (!error) {
             res.send(rows)
         } else console.log(error);
@@ -52,7 +62,7 @@ app.get('/getrecommendeddeal', (req, res) => {
 //2 6683159578094575932 
 app.get('/getstorepromotion', (req, res) => {
     const dealId = req.query.dealId
-    client.query('CALL GetStorePromotion(?)', [dealId], (error, rows, fields) => {
+    connection.query('CALL GetStorePromotion(?)', [dealId], (error, rows, fields) => {
         if (!error) {
             var string = JSON.stringify(rows);
             var jsonRows = JSON.parse(string);
@@ -68,7 +78,7 @@ app.get('/gettimerecommendationdeal', (req, res) => {
     let today = new Date();
     // let current_time = today.getHours() + ':' + today.getMinutes() + ':' + today.getSeconds();
     // let current_time = '12:00:00';
-    client.query('CALL GetTimeRecommendationDeal(?, ?)', [userId, current_time], (error, rows, fields) => {
+    connection.query('CALL GetTimeRecommendationDeal(?, ?)', [userId, current_time], (error, rows, fields) => {
         if (!error) {
             res.send(rows)
             // console.log(current_time)
@@ -80,7 +90,7 @@ app.get('/login', (req, res) => {
     const phone = req.query.phone
     const password = req.query.password
 
-    client.query('SELECT * FROM users Where (userPhone = ? AND userPassword = ?)', [phone, password], (error, rows, fields) => {
+    connection.query('SELECT * FROM users Where (userPhone = ? AND userPassword = ?)', [phone, password], (error, rows, fields) => {
         if (!error) {
             res.send(rows)
         } else console.log(error);
@@ -90,7 +100,7 @@ app.get('/login', (req, res) => {
 app.get('/getuserinfobyid', (req, res) => {
     const userId = req.query.userId
 
-    client.query('SELECT * FROM users WHERE userId = ?', [userId], (error, rows, fields) => {
+    connection.query('SELECT * FROM users WHERE userId = ?', [userId], (error, rows, fields) => {
         if (!error) {
             res.send(rows)
         } else console.log(error)
@@ -101,7 +111,7 @@ app.put('/putusercash', (req, res) => {
     const cash = req.query.cash
     const userId = req.query.userId
 
-    client.query('UPDATE users SET userCash = ? WHERE userId = ?', [cash, userId], (error, rows, fields) => {
+    connection.query('UPDATE users SET userCash = ? WHERE userId = ?', [cash, userId], (error, rows, fields) => {
         if (!error) {
             res.send(rows)
         } else console.log(error);
@@ -115,7 +125,7 @@ app.post('/sendreview', (req, res) => {
     const storeId = req.query.storeId
 
     const queryString = 'INSERT INTO review (reviewRating, reviewComment, userId, storeId) VALUES (?, ?, ? ,?)'
-    client.query(queryString, [rating, comment, userId, storeId], (error, rows, fields) => {
+    connection.query(queryString, [rating, comment, userId, storeId], (error, rows, fields) => {
         if (!error) {
             res.send(rows)
             console.log(rows)
@@ -150,7 +160,7 @@ app.post('/upload', upload.single('upload'), (req, res) => {
     const reviewId = req.query.reviewId
 
     const queryString = 'INSERT INTO review_image (reviewPhoto, reviewId) VALUES (?, ?)'
-    client.query(queryString, [reviewPhoto, reviewId], (error, rows, fields) => {
+    connection.query(queryString, [reviewPhoto, reviewId], (error, rows, fields) => {
         if (!error) {
             res.send(rows)
         } else console.log(error);
@@ -163,7 +173,7 @@ app.post('/upload', upload.single('upload'), (req, res) => {
 app.get('/getreview', (req, res) => {
     const storeId = req.query.storeId
 
-    client.query('SELECT reviewId, reviewRating, reviewComment, fullName FROM review INNER JOIN users ON review.userId = users.userId WHERE storeId = ?', [storeId], (error, rows, fields) => {
+    connection.query('SELECT reviewId, reviewRating, reviewComment, fullName FROM review INNER JOIN users ON review.userId = users.userId WHERE storeId = ?', [storeId], (error, rows, fields) => {
         if (!error) {
             res.send(rows)
         } else console.log(error)
@@ -173,7 +183,7 @@ app.get('/getreview', (req, res) => {
 app.get('/getstorerating', (req, res) => {
     const storeId = req.query.storeId
 
-    client.query('SELECT AVG(review.reviewRating) AS rating FROM stores INNER JOIN review ON stores.storeId = review.storeId WHERE stores.storeId = ?;', [storeId], (error, rows, fields) => {
+    connection.query('SELECT AVG(review.reviewRating) AS rating FROM stores INNER JOIN review ON stores.storeId = review.storeId WHERE stores.storeId = ?;', [storeId], (error, rows, fields) => {
         if (!error) {
             res.send(rows)
         } else console.log(error)
@@ -184,7 +194,7 @@ app.put('/updatestorerating', (req, res) => {
     const storeId = req.query.storeId
     const storeRating = req.query.storeRating
 
-    client.query('UPDATE stores SET storeRating = ?  WHERE storeId = ?;', [storeRating, storeId], (error, rows, fields) => {
+    connection.query('UPDATE stores SET storeRating = ?  WHERE storeId = ?;', [storeRating, storeId], (error, rows, fields) => {
         if (!error) {
             res.send(rows)
         } else console.log(error)
@@ -194,7 +204,7 @@ app.put('/updatestorerating', (req, res) => {
 app.get('/getimage', (req, res) => {
     const reviewId = req.query.reviewId
 
-    client.query('SELECT review.reviewId, reviewImageId, reviewPhoto FROM review INNER JOIN review_image ON review.reviewId = review_image.reviewId WHERE review.reviewId = ?', [reviewId], (error, rows, fields) => {
+    connection.query('SELECT review.reviewId, reviewImageId, reviewPhoto FROM review INNER JOIN review_image ON review.reviewId = review_image.reviewId WHERE review.reviewId = ?', [reviewId], (error, rows, fields) => {
         if (!error) {
             res.send(rows)
         } else console.log(error)
@@ -204,7 +214,7 @@ app.get('/getimage', (req, res) => {
 app.get('/getcategory', (req, res) => {
     const categoryId = req.query.categoryId
 
-    client.query('SELECT categoryName FROM categories WHERE categoryId = ?', [categoryId], (error, rows, fields) => {
+    connection.query('SELECT categoryName FROM categories WHERE categoryId = ?', [categoryId], (error, rows, fields) => {
         if (!error) {
             res.send(rows)
         } else console.log(error)
@@ -245,7 +255,7 @@ app.get('/getAllCategories', async (req, res) => {
 app.get('/getstoreaddress', (req, res) => {
     const storeId = req.query.storeId
 
-    client.query('SELECT storeAddress FROM stores WHERE storeId = ?', [storeId], (error, rows, fields) => {
+    connection.query('SELECT storeAddress FROM stores WHERE storeId = ?', [storeId], (error, rows, fields) => {
         if (!error) {
             res.send(rows)
         } else console.log(error)
@@ -258,7 +268,7 @@ app.put('/putusercode', (req, res) => {
     const userTimestamps = new Date().getTime()
     const userCode = req.query.userCode
 
-    client.query('UPDATE users SET userTimestamps = ?, userCode = ?, userStoreId = ?  WHERE userId = ?;', [userTimestamps, userCode, storeId, userId], (error, rows, fields) => {
+    connection.query('UPDATE users SET userTimestamps = ?, userCode = ?, userStoreId = ?  WHERE userId = ?;', [userTimestamps, userCode, storeId, userId], (error, rows, fields) => {
         if (!error) {
             res.send(rows)
         } else console.log(error)
@@ -268,7 +278,7 @@ app.put('/putusercode', (req, res) => {
 app.get('/getuserinfobycode', (req, res) => {
     const userCode = req.query.userCode
 
-    client.query('SELECT * FROM users WHERE userCode = ?', [userCode], (error, rows, fields) => {
+    connection.query('SELECT * FROM users WHERE userCode = ?', [userCode], (error, rows, fields) => {
         if (!error) {
             res.send(rows)
         } else console.log(error)
@@ -281,7 +291,7 @@ app.put('/putuserscore', (req, res) => {
     const userTimestamps = new Date().getTime()
     const userCode = req.query.userCode
 
-    client.query('UPDATE users SET userTimestamps = ?, userCode = ?, userStoreId = ?  WHERE userId = ?;', [userTimestamps, userCode, storeId, userId], (error, rows, fields) => {
+    connection.query('UPDATE users SET userTimestamps = ?, userCode = ?, userStoreId = ?  WHERE userId = ?;', [userTimestamps, userCode, storeId, userId], (error, rows, fields) => {
         if (!error) {
             res.send(rows)
         } else console.log(error)
@@ -293,7 +303,7 @@ app.put('/applyscore', (req, res) => {
     const userScore = req.query.userScore
     const userScoreTotal = req.query.userScoreTotal
 
-    client.query('UPDATE users SET userScore = ?, userScoreTotal = ?  WHERE userId = ?;', [userScore, userScoreTotal, userId], (error, rows, fields) => {
+    connection.query('UPDATE users SET userScore = ?, userScoreTotal = ?  WHERE userId = ?;', [userScore, userScoreTotal, userId], (error, rows, fields) => {
         if (!error) {
             res.send({ status: 'done' })
         } else console.log(error)
@@ -304,7 +314,7 @@ app.post('/postcheckcode', (req, res) => {
     const userId = req.query.userId
     const userCode = req.query.userCode
 
-    client.query('INSERT INTO check_code (userId, applyCode) VALUES (?, ?);', [userId, userCode], (error, rows, fields) => {
+    connection.query('INSERT INTO check_code (userId, applyCode) VALUES (?, ?);', [userId, userCode], (error, rows, fields) => {
         if (!error) {
             res.send(rows)
         } else console.log(error)
@@ -314,7 +324,7 @@ app.post('/postcheckcode', (req, res) => {
 app.get('/getcheckcode', (req, res) => {
     const userId = req.query.userId
 
-    client.query('SELECT * FROM check_code WHERE userId = ?;', [userId], (error, rows, fields) => {
+    connection.query('SELECT * FROM check_code WHERE userId = ?;', [userId], (error, rows, fields) => {
         if (!error) {
             res.send(rows)
         } else console.log(error)
@@ -325,7 +335,7 @@ app.put('/postusertoken', (req, res) => {
     const userId = req.query.userId
     const userToken = req.query.userToken
 
-    client.query('UPDATE users SET userToken = ? WHERE userId = ?;', [userToken, userId], (error, rows, fields) => {
+    connection.query('UPDATE users SET userToken = ? WHERE userId = ?;', [userToken, userId], (error, rows, fields) => {
         if (!error) {
             res.send(rows)
         } else console.log(error)
@@ -334,7 +344,7 @@ app.put('/postusertoken', (req, res) => {
 
 app.post('/pushnotification', (req, res) => {
     const userId = req.query.userId
-    client.query('SELECT userToken, fullName FROM users WHERE userId = ?;', [userId], (error, rows, fields) => {
+    connection.query('SELECT userToken, fullName FROM users WHERE userId = ?;', [userId], (error, rows, fields) => {
         if (!error) {
             let messages = [];
             let somePushTokens = [rows[0].userToken]
@@ -407,7 +417,7 @@ app.put('/redeemreward', (req, res) => {
     const userScore = req.query.userScore
     const userReward = req.query.userReward
 
-    client.query('UPDATE users SET userScore = ?, userReward = ?  WHERE userId = ?;', [userScore, userReward, userId], (error, rows, fields) => {
+    connection.query('UPDATE users SET userScore = ?, userReward = ?  WHERE userId = ?;', [userScore, userReward, userId], (error, rows, fields) => {
         if (!error) {
             res.send(rows)
         } else console.log(error)
@@ -417,7 +427,7 @@ app.put('/redeemreward', (req, res) => {
 app.get('/getmerchantimage', (req, res) => {
     const serviceId = req.query.serviceId
 
-    client.query('SELECT * FROM merchants WHERE serviceId = ?;', [serviceId], (error, rows, fields) => {
+    connection.query('SELECT * FROM merchants WHERE serviceId = ?;', [serviceId], (error, rows, fields) => {
         if (!error) {
             res.send(rows)
         } else console.log(error)
