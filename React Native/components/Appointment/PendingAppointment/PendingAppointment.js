@@ -3,12 +3,17 @@ import { StyleSheet, FlatList,  Text, View, Image, TouchableOpacity } from 'reac
 import { FontAwesome } from '@expo/vector-icons'
 import { ListItem, Button } from 'react-native-elements'
 import Colors from '../../../constants/Colors'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { getPendingAppointments } from '../../../services/app/getters'
 import NoContent from '../../NoContent'
+import {removeAppointment} from '../../../services/app/actions';
 
 export default function PendingAppointment() {
   const pendingAppointments = useSelector(getPendingAppointments);
+  const dispatch = useDispatch();
+  const onRemoveAppointment = useCallback((store) => {
+    dispatch(removeAppointment({store}))
+  }, [dispatch])
 
   const renderItem = useCallback((item) => {
     const currentHour = new Date().getHours()
@@ -37,7 +42,7 @@ export default function PendingAppointment() {
           </View>
         }
         rightElement={
-          <TouchableOpacity style={styles.removeItemButton}>
+          <TouchableOpacity style={styles.removeItemButton} onPress={() => onRemoveAppointment(item)}>
             <FontAwesome name='times-circle' size={28} color='red' />
           </TouchableOpacity>
         }

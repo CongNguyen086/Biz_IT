@@ -18,7 +18,7 @@ export default function(state = initialState, action) {
       const {store, isRemove = false} = action.payload;
       let list = [...(state.pendingAppointmentStores || [])]
       if (isRemove) {
-        if (list.includes(store.storeId)) {
+        if (!!list.find(s => s.storeId === store.storeId)) {
           list = list.filter(s => s.storeId !== store.storeId);
         }
       } else {

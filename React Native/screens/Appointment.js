@@ -1,13 +1,12 @@
 import React from 'react'
 import { StyleSheet, Text, View, SafeAreaView, Dimensions } from 'react-native'
-import { connect, useSelector } from 'react-redux';
 import {TabView, SceneMap, TabBar, TabBarItem} from 'react-native-tab-view';
 import PendingAppointment from '../components/Appointment/PendingAppointment';
 import Colors from '../constants/Colors';
-import { getPendingAppointments } from '../services/app/getters';
 
 const AppointmentListScreen = () => (
-  <View style={[styles.scene, { backgroundColor: '#ff4081' }]} />
+  <View style={styles.card}>
+  </View>
 );
 
 const PendingAppointmentScreen = () => {
@@ -129,11 +128,5 @@ const styles = StyleSheet.create({
     minHeight: 40,
   }
 })
-
-const mapStateToProps = state => {
-  return {
-    pendingAppointments: getPendingAppointments(state)
-  }
-}
 
 export default Appointment;

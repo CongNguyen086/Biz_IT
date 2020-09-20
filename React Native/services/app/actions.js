@@ -9,12 +9,21 @@ export function setContactList({ contacts }) {
   }
 }
 
-export function addNewAppointment({store}) {
+function updatePendingAppointment({store, isRemove}) {
+  console.log("updatePendingAppointment -> store", store)
   return {
     type: UPDATE_PENDING_APPOINTMENT,
     payload: {
-      isRemove: false,
+      isRemove,
       store,
     }
   }
+}
+
+export function addNewAppointment({store}) {
+  return updatePendingAppointment({store, isRemove: false})
+}
+
+export function removeAppointment({store}) {
+  return updatePendingAppointment({store, isRemove: true})
 }
