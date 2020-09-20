@@ -23,11 +23,11 @@ DROP TABLE IF EXISTS `appointment_members`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `appointment_members` (
-  `appointmentStoreId` int(11) NOT NULL,
+  `appointmentStoreId` int(11) DEFAULT NULL,
   `memberId` varchar(20) NOT NULL,
   `status` smallint(6) DEFAULT NULL,
-  UNIQUE KEY `appointment_members_appointmentStoreId_uindex` (`appointmentStoreId`),
   UNIQUE KEY `appointment_members_memberId_uindex` (`memberId`),
+  UNIQUE KEY `appointment_members_appointmentStoreId_uindex` (`appointmentStoreId`),
   KEY `appointment_members_member_status_id_fk` (`status`),
   CONSTRAINT `appointment_members_appointment_stores_id_fk` FOREIGN KEY (`appointmentStoreId`) REFERENCES `appointment_stores` (`id`) ON DELETE CASCADE,
   CONSTRAINT `appointment_members_member_status_id_fk` FOREIGN KEY (`status`) REFERENCES `member_status` (`id`) ON DELETE CASCADE,
@@ -41,6 +41,7 @@ CREATE TABLE `appointment_members` (
 
 LOCK TABLES `appointment_members` WRITE;
 /*!40000 ALTER TABLE `appointment_members` DISABLE KEYS */;
+INSERT INTO `appointment_members` VALUES (NULL,'1000000000000000001',NULL),(NULL,'3646728529149882702',NULL);
 /*!40000 ALTER TABLE `appointment_members` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -55,7 +56,7 @@ CREATE TABLE `appointment_status` (
   `id` smallint(6) NOT NULL AUTO_INCREMENT,
   `label` varchar(20) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -84,7 +85,7 @@ CREATE TABLE `appointment_stores` (
   KEY `appointment_stores_appointments_id_fk` (`appointmentId`),
   CONSTRAINT `appointment_stores_appointments_id_fk` FOREIGN KEY (`appointmentId`) REFERENCES `appointments` (`id`) ON DELETE CASCADE,
   CONSTRAINT `appointment_stores_stores_storeId_fk` FOREIGN KEY (`storeId`) REFERENCES `stores` (`storeId`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -93,6 +94,7 @@ CREATE TABLE `appointment_stores` (
 
 LOCK TABLES `appointment_stores` WRITE;
 /*!40000 ALTER TABLE `appointment_stores` DISABLE KEYS */;
+INSERT INTO `appointment_stores` VALUES (15,'100037266800211938',19),(16,'1000377857974285127',19);
 /*!40000 ALTER TABLE `appointment_stores` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -106,7 +108,7 @@ DROP TABLE IF EXISTS `appointments`;
 CREATE TABLE `appointments` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `eventName` varchar(100) NOT NULL,
-  `meetingDate` datetime DEFAULT NULL,
+  `meetingDate` date DEFAULT NULL,
   `hostId` varchar(20) DEFAULT NULL,
   `statusId` smallint(6) DEFAULT '1',
   PRIMARY KEY (`id`),
@@ -114,7 +116,7 @@ CREATE TABLE `appointments` (
   KEY `appointments_appointment_status_id_fk` (`statusId`),
   CONSTRAINT `appointments_appointment_status_id_fk` FOREIGN KEY (`statusId`) REFERENCES `appointment_status` (`id`) ON DELETE CASCADE,
   CONSTRAINT `appointments_users_userId_fk` FOREIGN KEY (`hostId`) REFERENCES `users` (`userId`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=2777 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -123,6 +125,7 @@ CREATE TABLE `appointments` (
 
 LOCK TABLES `appointments` WRITE;
 /*!40000 ALTER TABLE `appointments` DISABLE KEYS */;
+INSERT INTO `appointments` VALUES (19,'Meeting','2020-09-20','3646728529149882702',1);
 /*!40000 ALTER TABLE `appointments` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -138,7 +141,7 @@ CREATE TABLE `categories` (
   `categoryName` varchar(45) NOT NULL,
   `categoryImage` varchar(200) NOT NULL,
   PRIMARY KEY (`categoryId`)
-) ENGINE=InnoDB AUTO_INCREMENT=2777 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -217,7 +220,7 @@ CREATE TABLE `member_status` (
   `id` smallint(6) NOT NULL AUTO_INCREMENT,
   `label` varchar(20) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -481,4 +484,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-09-20 22:35:03
+-- Dump completed on 2020-09-21  1:35:55
