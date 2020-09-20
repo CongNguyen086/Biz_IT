@@ -91,7 +91,7 @@ class DealDetails extends Component {
     async getPosition() {
         let { status } = await Permissions.askAsync(Permissions.LOCATION);
         if (status !== 'granted') {
-            throw new Error('Bạn phải cấp quyền để lấy vị trí hiện tại!')
+            throw new Error('You must grant permission to get current location!')
         }
 
         return await Location.getCurrentPositionAsync({});
