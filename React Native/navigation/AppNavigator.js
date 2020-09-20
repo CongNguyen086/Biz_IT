@@ -1,6 +1,5 @@
 import React from 'react';
 import { createAppContainer, createStackNavigator, createSwitchNavigator, createBottomTabNavigator } from 'react-navigation';
-import { Icon } from 'react-native-elements'
 
 import Login from '../screens/Login';
 import HomePage from '../screens/HomePage';
@@ -10,7 +9,6 @@ import DealDetails from '../screens/DealDetails';
 import StoreProfile from '../screens/StoreProfile';
 import PaymentScreen from '../screens/PaymentScreen';
 import AfterPaymentScreen from '../screens/AfterPaymentScreen';
-import ConnectScreen from '../screens/ConnectScreen';
 
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 
@@ -59,25 +57,14 @@ MapStack.navigationOptions = {
   tabBarOptions
 };
 
-const ConnectStack = createStackNavigator(
+const AppointmentStack = createStackNavigator(
   {
-    Connect: ConnectScreen,
+    Appointment: AppointmentScreen,
   },
-  {
-    defaultNavigationOptions: {
-      headerStyle: {
-        backgroundColor: Colors.primary,
-      },
-      headerTintColor: '#fff',
-      headerTitleStyle: {
-        fontWeight: 'bold',
-        textAlign: 'center',
-      },
-    },
-  }
 );
 
-ConnectStack.navigationOptions = {
+AppointmentStack.navigationOptions = {
+  header: null,
   tabBarLabel: 'Appointment',
   tabBarIcon: ({ focused }) => (
     <Ionicons name='ios-calendar' size={30} color={focused ? Colors.primary : Colors.tabIconDefault} />
@@ -103,7 +90,7 @@ WalletStack.navigationOptions = {
 const TabNavigator = createBottomTabNavigator({
   HomeStack,
   MapStack,
-  ConnectStack,
+  AppointmentStack,
   WalletStack,
 },
 {
@@ -120,12 +107,10 @@ const App = createStackNavigator(
     StoreProfile: StoreProfile,
     Payment: PaymentScreen,
     AfterPayment: AfterPaymentScreen,
-    Connect: ConnectScreen,
     ContactList: ContactListScreen,
-    Appointment: AppointmentScreen
   },
   {
-    initialRouteName: 'Appointment',
+    initialRouteName: 'HomePage',
     // initialRouteName: 'HomePage',
     /* The header config from HomeScreen is now here */
     defaultNavigationOptions: {
