@@ -1,13 +1,42 @@
 import { FontAwesome } from '@expo/vector-icons';
-import React from 'react'
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import React, { useCallback } from 'react'
+import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import DatePicker from 'react-native-datepicker';
 import Colors from '../../../constants/Colors';
+import Appointment from '../../../services/app/Appointment';
+import AppointmentListItem from '../AppointmentListItem';
+
+const appointmentList = [
+  {
+    eventName: 'party',
+    type: "received",
+    status: 'selected',
+    date: new Date(),
+    hostId: '',
+    hostName: "Nguyen Mon",
+    votedNumber: 2,
+    acceptedNumber: 2,
+    numberOfUsers: 3,
+  },
+  {
+    eventName: 'party 2',
+    type: "sent",
+    status: 'waiting',
+    date: new Date(Date.now() + 24*2*60*60*1000),
+    hostId: '',
+    hostName: "Hieu Do",
+    votedNumber: 3,
+    acceptedNumber: 2,
+    numberOfUsers: 3,
+  },
+]
 
 export default function AppointmentList() {
-
+  const renderAppointmentItem = useCallback((item) => {
+    return <AppointmentListItem appointment={Appointment.object(item)} />
+  }, [])
   return (
-    <View>
+    <View style={{flex: 1,}}>
       <View>
         <Text 
           style={{
@@ -74,9 +103,11 @@ export default function AppointmentList() {
             <FontAwesome name='times' size={16} color='#4E5A69' />
         </TouchableOpacity>
       </View>
-      <View>
-        {/* list */}
-      </View>
+      <FlatList
+        data={appointmentList}
+        renderItem={({item}) => renderAppointmentItem(item)}
+        style={{flex: 1}}
+      />
     </View>
   )
 }
