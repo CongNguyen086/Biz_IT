@@ -2,6 +2,8 @@ import { FontAwesome } from '@expo/vector-icons';
 import React, { useCallback, useMemo, useState } from 'react'
 import { FlatList, LayoutAnimation, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import DatePicker from 'react-native-datepicker';
+import { Menu, MenuTrigger, MenuOptions, MenuOption } from 'react-native-popup-menu';
+import _ from 'lodash';
 import Colors from '../../../constants/Colors';
 import Appointment from '../../../services/app/Appointment';
 import AppointmentListItem from '../AppointmentListItem';
@@ -50,9 +52,19 @@ function checkTodayOrTomorrow(date) {
 export default function AppointmentList() {
   const [filterShown, setShowFilter] = useState(false);
   const [filterMeetingDate, setFilterMeetingDate] = useState(new Date());
+  const [filterByStatus, setFilterStatus] = useState(Appointment.Status.COMPLETED);
+  const [filterByType, setFilterType] = useState(Appointment.Type.SENT);
 
   const isToday = useMemo(() => checkTodayOrTomorrow(filterMeetingDate) === 'Today');
   const isTomorrow = useMemo(() => checkTodayOrTomorrow(filterMeetingDate) === 'Tomorrow');
+
+  const filterStatusMappingByType = useMemo(() => {
+    if (filterByType === Appointment.Type.SENT) {
+      return [Appointment.Status.COMPLETED,Appointment.Status.CANCELED, Appointment.Status.WAITING]
+    }
+
+    return [Appointment.Status.SELECTED,Appointment.Status.DECLINED, Appointment.Status.WAITING]
+  }, [filterByType])
 
   const renderAppointmentItem = useCallback((item) => {
     return <AppointmentListItem appointment={Appointment.object(item)} />
@@ -65,6 +77,20 @@ export default function AppointmentList() {
 
   const onFilterDateChanged = useCallback((date) => {
     setFilterMeetingDate(new Date(date))
+  }, [])
+
+  const onFilterByTypeChanged = useCallback((data) => {
+    setFilterType(data)
+    if (data === Appointment.Type.SENT) {
+      setFilterStatus(Appointment.Status.COMPLETED);
+    }
+    if (data === Appointment.Type.RECEIVED) {
+      setFilterStatus(Appointment.Status.SELECTED);
+    }
+  }, [])
+
+  const onFilterByStatusChanged = useCallback((data) => {
+    setFilterStatus(data)
   }, [])
 
   return (
@@ -133,17 +159,55 @@ export default function AppointmentList() {
           {/* type & status */}
           <View style={styles.filterItem}>
             <Text style={[styles.textGrey, {marginRight: 10}]}>Type</Text>
-            <TouchableOpacity style={[styles.appointmentButton, styles.buttonClear, {marginLeft: 0,}]}>
-              <Text style={[styles.appointmentButtonText, styles.buttonClearText]}>Sent</Text>
-              <FontAwesome name='sort-desc' size={14} color='#000' style={{marginLeft: 5, paddingBottom: 5,}} />
-            </TouchableOpacity>
+            <Menu onSelect={onFilterByTypeChanged}>
+              <MenuTrigger>
+                <View style={[styles.appointmentButton, styles.buttonClear, {marginLeft: 0,}]}>
+                  <Text style={[styles.appointmentButtonText, styles.buttonClearText]}>{_.upperFirst(_.lowerCase(filterByType))}</Text>
+                  <FontAwesome name='sort-desc' size={14} color='#000' style={{marginLeft: 5, paddingBottom: 5,}} />
+                </View>
+              </MenuTrigger>
+              <MenuOptions customStyles={{optionsWrapper: styles.optionsWrapper}}>
+                <MenuOption value={Appointment.Type.SENT} customStyles={{optionWrapper: styles.optionStyle}}>
+                  <Text>Sent</Text>
+                </MenuOption>
+                <MenuOption value={Appointment.Type.RECEIVED} customStyles={{optionWrapper: {
+                  ...styles.optionStyle,
+                  ...{borderBottomWidth: 0}}
+                }}>
+                  <Text>Received</Text>
+                </MenuOption>
+              </MenuOptions>
+            </Menu>
           </View>
           <View style={[styles.filterItem, {marginLeft: 35,}]}>
             <Text style={[styles.textGrey, {marginRight: 10}]}>Status</Text>
-            <TouchableOpacity style={[styles.appointmentButton, styles.buttonClear, {marginLeft: 0,}]}>
-              <Text style={[styles.appointmentButtonText, styles.buttonClearText]}>Done</Text>
-              <FontAwesome name='sort-desc' size={14} color='#000' style={{marginLeft: 5, paddingBottom: 5,}} />
-            </TouchableOpacity>
+            <Menu onSelect={onFilterByStatusChanged}>
+              <MenuTrigger>
+                <View style={[styles.appointmentButton, styles.buttonClear, {marginLeft: 0,}]}>
+                  <Text style={[styles.appointmentButtonText, styles.buttonClearText]}>{_.upperFirst(_.lowerCase(filterByStatus))}</Text>
+                  <FontAwesome name='sort-desc' size={14} color='#000' style={{marginLeft: 5, paddingBottom: 5,}} />
+                </View>
+              </MenuTrigger>
+              <MenuOptions customStyles={{optionsWrapper: styles.optionsWrapper}}>
+                {filterStatusMappingByType.map((status, idx) => (
+                  <MenuOption 
+                    key={status}
+                    value={status} 
+                    customStyles={{
+                      optionWrapper: 
+                        idx !== filterStatusMappingByType.length
+                        ? styles.optionStyle 
+                        : {
+                          ...styles.optionStyle,
+                          ...{borderBottomWidth: 0}
+                        }
+                    }}
+                  >
+                    <Text>{_.upperFirst(_.lowerCase(status))}</Text>
+                  </MenuOption>
+                ))}
+              </MenuOptions>
+            </Menu>
           </View>
         </View>
       )}
@@ -238,5 +302,16 @@ const styles = StyleSheet.create({
     color: '#4E5A69',
     fontSize: 16,
     marginRight: 10,
-  }
+  },
+  optionsWrapper: {
+    marginRight: 10,
+},
+optionStyle: {
+    paddingHorizontal: 10,
+    paddingVertical: 12,
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+    borderBottomColor: '#ddd',
+    borderBottomWidth: 1,
+}
 })
