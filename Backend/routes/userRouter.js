@@ -2,6 +2,6 @@ import { Router } from "express";
 import { getContactList } from "../controllers/userController";
 
 const router = Router();
-router.get('/contact', getContactList);
+router.post('/contact', getContactList);
 
 export default router;
