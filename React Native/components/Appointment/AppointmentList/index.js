@@ -1,5 +1,5 @@
 import { FontAwesome } from '@expo/vector-icons';
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { FlatList, LayoutAnimation, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import DatePicker from 'react-native-datepicker';
 import { Menu, MenuTrigger, MenuOptions, MenuOption } from 'react-native-popup-menu';
@@ -32,6 +32,12 @@ const appointmentList = [
     numberOfUsers: 3,
   },
 ]
+
+const FILTER_OPTIONS = {
+  DATE: 'DATE',
+  STATUS: 'STATUS',
+  TYPE: 'TYPE',
+}
 
 function checkTodayOrTomorrow(date) {
   const meetingDate = new Date(date);
@@ -92,6 +98,57 @@ export default function AppointmentList() {
   const onFilterByStatusChanged = useCallback((data) => {
     setFilterStatus(data)
   }, [])
+
+  const dateText = useMemo(() => {
+    const meetingDate = new Date(filterMeetingDate);
+    const current = new Date();
+    const begin = new Date(current);
+    begin.setHours(0,0,0,0);
+    const end = new Date(current);
+    end.setHours(23,59,59,999);
+    if (meetingDate >= begin && meetingDate <= end) {
+      return 'Today';
+    }
+    if (meetingDate >= new Date(begin.getTime() + 86400 * 1000) && meetingDate <= new Date(end.getTime() + 86400 * 1000)) {
+      return 'Tomorrow';
+    }
+
+    let [date, month, year, hours, minutes] = [
+      meetingDate.getDate() + 1,
+      meetingDate.getMonth() + 1,
+      meetingDate.getFullYear(),
+    ]
+
+    date = date < 10 ? `0${date}` : date;
+    month = month < 10 ? `0${month}` : month;
+
+    return `${date}/${month}/${year}`
+  }, [filterMeetingDate])
+
+  const onRemoveFilter = useCallback((option) => {
+    switch(option) {
+      case FILTER_OPTIONS.DATE:
+        setFilterMeetingDate(null)
+        break;
+      case FILTER_OPTIONS.STATUS:
+        setFilterStatus(null)
+        break;
+      case FILTER_OPTIONS.TYPE:
+        setFilterType(null)
+        break;
+    }
+  }, [])
+
+  useEffect(() => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.spring)
+    if (!filterShown) {
+      setFilterStatus(null)
+      setFilterType(null)
+    } else {
+      setFilterStatus(Appointment.Status.COMPLETED)
+      setFilterType(Appointment.Type.SENT)
+    }
+  }, [filterShown])
 
   return (
     <View style={{flex: 1,}}>
@@ -212,11 +269,35 @@ export default function AppointmentList() {
         </View>
       )}
       <View style={styles.filterList}>
-        {/* filter */}
-        <TouchableOpacity style={styles.filterTag}>
-            <Text style={styles.filterTagText}>siflte</Text>
+        {filterMeetingDate && (
+          <TouchableOpacity 
+            style={styles.filterTag} 
+            onPress={() => onRemoveFilter(FILTER_OPTIONS.DATE)}
+          >
+            <Text style={styles.filterTagText}>{dateText}</Text>
             <FontAwesome name='times' size={16} color='#4E5A69' />
-        </TouchableOpacity>
+          </TouchableOpacity>
+        )}
+
+        {filterByType && (
+          <TouchableOpacity 
+            style={styles.filterTag} 
+            onPress={() => onRemoveFilter(FILTER_OPTIONS.TYPE)}
+          >
+            <Text style={styles.filterTagText}>{_.upperFirst(_.lowerCase(filterByType))}</Text>
+            <FontAwesome name='times' size={16} color='#4E5A69' />
+          </TouchableOpacity>
+        )}
+
+        {filterByStatus && (
+          <TouchableOpacity 
+            style={styles.filterTag} 
+            onPress={() => onRemoveFilter(FILTER_OPTIONS.STATUS)}
+          >
+            <Text style={styles.filterTagText}>{_.upperFirst(_.lowerCase(filterByStatus))}</Text>
+            <FontAwesome name='times' size={16} color='#4E5A69' />
+          </TouchableOpacity>
+        )}
       </View>
       <FlatList
         data={appointmentList}
@@ -297,6 +378,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderColor: '#ccc',
     borderWidth: 1,
+    marginRight: 10,
   },
   filterTagText: {
     color: '#4E5A69',
