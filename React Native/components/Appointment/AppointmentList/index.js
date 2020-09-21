@@ -1,6 +1,6 @@
 import { FontAwesome } from '@expo/vector-icons';
-import React, { useCallback } from 'react'
-import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import React, { useCallback, useMemo, useState } from 'react'
+import { FlatList, LayoutAnimation, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import DatePicker from 'react-native-datepicker';
 import Colors from '../../../constants/Colors';
 import Appointment from '../../../services/app/Appointment';
@@ -31,10 +31,42 @@ const appointmentList = [
   },
 ]
 
+function checkTodayOrTomorrow(date) {
+  const meetingDate = new Date(date);
+  const current = new Date();
+  const begin = new Date(current);
+  begin.setHours(0,0,0,0);
+  const end = new Date(current);
+  end.setHours(23,59,59,999);
+  if (meetingDate >= begin && meetingDate <= end) {
+    return 'Today';
+  }
+  if (meetingDate >= new Date(begin.getTime() + 86400 * 1000) && meetingDate <= new Date(end.getTime() + 86400 * 1000)) {
+    return 'Tomorrow';
+  }
+  return 'Other'
+}
+
 export default function AppointmentList() {
+  const [filterShown, setShowFilter] = useState(false);
+  const [filterMeetingDate, setFilterMeetingDate] = useState(new Date());
+
+  const isToday = useMemo(() => checkTodayOrTomorrow(filterMeetingDate) === 'Today');
+  const isTomorrow = useMemo(() => checkTodayOrTomorrow(filterMeetingDate) === 'Tomorrow');
+
   const renderAppointmentItem = useCallback((item) => {
     return <AppointmentListItem appointment={Appointment.object(item)} />
   }, [])
+
+  const toggleFilter = useCallback(() => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setShowFilter(!filterShown)
+  }, [filterShown])
+
+  const onFilterDateChanged = useCallback((date) => {
+    setFilterMeetingDate(new Date(date))
+  }, [])
+
   return (
     <View style={{flex: 1,}}>
       <View>
@@ -66,36 +98,55 @@ export default function AppointmentList() {
             style={{
               width: 100,
             }}
+            date={filterMeetingDate}
+            onDateChange={onFilterDateChanged}
           />
-          <TouchableOpacity style={styles.appointmentButton}>
+          <TouchableOpacity style={[styles.appointmentButton, isToday && styles.filterButtonActive]}>
             <Text style={styles.appointmentButtonText}>Today</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.appointmentButton}>
+          <TouchableOpacity style={[styles.appointmentButton, isTomorrow && styles.filterButtonActive]}>
             <Text style={styles.appointmentButtonText}>Tomorrow</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.appointmentButton, styles.filterButton, styles.filterButtonActive]}>
-            <FontAwesome name='filter' size={14} color='#fff' style={{marginRight: 5}} />
-            <Text style={[styles.appointmentButtonText, styles.appointmentButtonTextActive]}>Filter</Text>
+          <TouchableOpacity 
+            style={[
+              styles.appointmentButton, 
+              styles.filterButton, 
+              filterShown && styles.filterButtonActive
+            ]}
+            onPress={toggleFilter}
+          >
+            <FontAwesome 
+              name='filter' 
+              size={14} 
+              style={[
+                {marginRight: 5}, 
+                styles.appointmentButtonText, 
+                !filterShown && {color: Colors.secondary, fontWeight: '400'}
+              ]} 
+            />
+            <Text style={[styles.appointmentButtonText, styles.appointmentButtonTextActive, !filterShown && {color: Colors.secondary}]}>Filter</Text>
           </TouchableOpacity>
         </View>
       </View>
-      <View style={[styles.dateContainer, styles.filterSection]}>
-        {/* type & status */}
-        <View style={styles.filterItem}>
-          <Text style={[styles.textGrey, {marginRight: 10}]}>Type</Text>
-          <TouchableOpacity style={[styles.appointmentButton, styles.buttonClear, {marginLeft: 0,}]}>
-            <Text style={[styles.appointmentButtonText, styles.buttonClearText]}>Sent</Text>
-            <FontAwesome name='sort-desc' size={14} color='#000' style={{marginLeft: 5, paddingBottom: 5,}} />
-          </TouchableOpacity>
+      {filterShown && (
+        <View style={[styles.dateContainer, styles.filterSection]}>
+          {/* type & status */}
+          <View style={styles.filterItem}>
+            <Text style={[styles.textGrey, {marginRight: 10}]}>Type</Text>
+            <TouchableOpacity style={[styles.appointmentButton, styles.buttonClear, {marginLeft: 0,}]}>
+              <Text style={[styles.appointmentButtonText, styles.buttonClearText]}>Sent</Text>
+              <FontAwesome name='sort-desc' size={14} color='#000' style={{marginLeft: 5, paddingBottom: 5,}} />
+            </TouchableOpacity>
+          </View>
+          <View style={[styles.filterItem, {marginLeft: 35,}]}>
+            <Text style={[styles.textGrey, {marginRight: 10}]}>Status</Text>
+            <TouchableOpacity style={[styles.appointmentButton, styles.buttonClear, {marginLeft: 0,}]}>
+              <Text style={[styles.appointmentButtonText, styles.buttonClearText]}>Done</Text>
+              <FontAwesome name='sort-desc' size={14} color='#000' style={{marginLeft: 5, paddingBottom: 5,}} />
+            </TouchableOpacity>
+          </View>
         </View>
-        <View style={[styles.filterItem, {marginLeft: 35,}]}>
-          <Text style={[styles.textGrey, {marginRight: 10}]}>Status</Text>
-          <TouchableOpacity style={[styles.appointmentButton, styles.buttonClear, {marginLeft: 0,}]}>
-            <Text style={[styles.appointmentButtonText, styles.buttonClearText]}>Done</Text>
-            <FontAwesome name='sort-desc' size={14} color='#000' style={{marginLeft: 5, paddingBottom: 5,}} />
-          </TouchableOpacity>
-        </View>
-      </View>
+      )}
       <View style={styles.filterList}>
         {/* filter */}
         <TouchableOpacity style={styles.filterTag}>
