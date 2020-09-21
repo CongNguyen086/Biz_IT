@@ -1,17 +1,19 @@
 import express from 'express';
-const mysql = require('mysql');
+import mysql from 'mysql';
+import { createServer } from 'http';
 import bodyParser from 'body-parser';
 import multer from 'multer';
 import cors from 'cors';
 import { Expo } from 'expo-server-sdk';
 
+import rootRouter from "./routes";
 import GeoCalculate from './models/GeoCalculate';
 import Store from './models/Store';
 import Category from './models/Category';
-import MysqlClient from './config/db';
-import config from './knexfile';
 
-import rootRouter from "./routes";
+import MysqlClient from './config/db';
+import { SocketServer } from './modules/socket';
+import config from './knexfile';
 
 let expo = new Expo();
 
@@ -36,6 +38,9 @@ connection.connect((error) => {
 });
 
 app.use(rootRouter);
+const httpServer = createServer(app);
+const socketServer = new SocketServer(httpServer);
+socketServer.init();
 
 // UserId: 8159657106479438377
 app.get('/getpopulardeal', (req, res) => {
@@ -50,14 +55,14 @@ app.get('/', (req, res) => {
     res.json({ "connected": 'connected' }).status(200)
 })
 
-app.get('/getrecommendeddeal', (req, res) => {
-    const userId = req.query.userId
-    connection.query('CALL GetRecommendedDeal(?)', [userId], (error, rows, fields) => {
-        if (!error) {
-            res.send(rows)
-        } else console.log(error);
-    })
-})
+// app.get('/getrecommendeddeal', (req, res) => {
+//     const userId = req.query.userId
+//     connection.query('CALL GetRecommendedDeal(?)', [userId], (error, rows, fields) => {
+//         if (!error) {
+//             res.send(rows)
+//         } else console.log(error);
+//     })
+// })
 
 //2 6683159578094575932 
 app.get('/getstorepromotion', (req, res) => {
@@ -72,19 +77,19 @@ app.get('/getstorepromotion', (req, res) => {
     })
 })
 
-app.get('/gettimerecommendationdeal', (req, res) => {
-    const userId = req.query.userId
-    const current_time = req.query.currentTime
-    let today = new Date();
-    // let current_time = today.getHours() + ':' + today.getMinutes() + ':' + today.getSeconds();
-    // let current_time = '12:00:00';
-    connection.query('CALL GetTimeRecommendationDeal(?, ?)', [userId, current_time], (error, rows, fields) => {
-        if (!error) {
-            res.send(rows)
-            // console.log(current_time)
-        } else console.log(error);
-    })
-})
+// app.get('/gettimerecommendationdeal', (req, res) => {
+//     const userId = req.query.userId
+//     const current_time = req.query.currentTime
+//     let today = new Date();
+//     // let current_time = today.getHours() + ':' + today.getMinutes() + ':' + today.getSeconds();
+//     // let current_time = '12:00:00';
+//     connection.query('CALL GetTimeRecommendationDeal(?, ?)', [userId, current_time], (error, rows, fields) => {
+//         if (!error) {
+//             res.send(rows)
+//             // console.log(current_time)
+//         } else console.log(error);
+//     })
+// })
 
 app.get('/login', (req, res) => {
     const phone = req.query.phone
@@ -107,16 +112,16 @@ app.get('/getuserinfobyid', (req, res) => {
     })
 })
 
-app.put('/putusercash', (req, res) => {
-    const cash = req.query.cash
-    const userId = req.query.userId
+// app.put('/putusercash', (req, res) => {
+//     const cash = req.query.cash
+//     const userId = req.query.userId
 
-    connection.query('UPDATE users SET userCash = ? WHERE userId = ?', [cash, userId], (error, rows, fields) => {
-        if (!error) {
-            res.send(rows)
-        } else console.log(error);
-    })
-})
+//     connection.query('UPDATE users SET userCash = ? WHERE userId = ?', [cash, userId], (error, rows, fields) => {
+//         if (!error) {
+//             res.send(rows)
+//         } else console.log(error);
+//     })
+// })
 
 app.post('/sendreview', (req, res) => {
     const rating = req.query.rating
@@ -251,7 +256,7 @@ app.get('/getAllCategories', async (req, res) => {
         res.send(list)
     }
 })
-//29-11-2019
+
 app.get('/getstoreaddress', (req, res) => {
     const storeId = req.query.storeId
 
@@ -262,53 +267,53 @@ app.get('/getstoreaddress', (req, res) => {
     })
 })
 
-app.put('/putusercode', (req, res) => {
-    const userId = req.query.userId
-    const storeId = req.query.storeId
-    const userTimestamps = new Date().getTime()
-    const userCode = req.query.userCode
+// app.put('/putusercode', (req, res) => {
+//     const userId = req.query.userId
+//     const storeId = req.query.storeId
+//     const userTimestamps = new Date().getTime()
+//     const userCode = req.query.userCode
 
-    connection.query('UPDATE users SET userTimestamps = ?, userCode = ?, userStoreId = ?  WHERE userId = ?;', [userTimestamps, userCode, storeId, userId], (error, rows, fields) => {
-        if (!error) {
-            res.send(rows)
-        } else console.log(error)
-    })
-})
+//     connection.query('UPDATE users SET userTimestamps = ?, userCode = ?, userStoreId = ?  WHERE userId = ?;', [userTimestamps, userCode, storeId, userId], (error, rows, fields) => {
+//         if (!error) {
+//             res.send(rows)
+//         } else console.log(error)
+//     })
+// })
 
-app.get('/getuserinfobycode', (req, res) => {
-    const userCode = req.query.userCode
+// app.get('/getuserinfobycode', (req, res) => {
+//     const userCode = req.query.userCode
 
-    connection.query('SELECT * FROM users WHERE userCode = ?', [userCode], (error, rows, fields) => {
-        if (!error) {
-            res.send(rows)
-        } else console.log(error)
-    })
-})
+//     connection.query('SELECT * FROM users WHERE userCode = ?', [userCode], (error, rows, fields) => {
+//         if (!error) {
+//             res.send(rows)
+//         } else console.log(error)
+//     })
+// })
 
-app.put('/putuserscore', (req, res) => {
-    const userId = req.query.userId
-    const storeId = req.query.storeId
-    const userTimestamps = new Date().getTime()
-    const userCode = req.query.userCode
+// app.put('/putuserscore', (req, res) => {
+//     const userId = req.query.userId
+//     const storeId = req.query.storeId
+//     const userTimestamps = new Date().getTime()
+//     const userCode = req.query.userCode
 
-    connection.query('UPDATE users SET userTimestamps = ?, userCode = ?, userStoreId = ?  WHERE userId = ?;', [userTimestamps, userCode, storeId, userId], (error, rows, fields) => {
-        if (!error) {
-            res.send(rows)
-        } else console.log(error)
-    })
-})
+//     connection.query('UPDATE users SET userTimestamps = ?, userCode = ?, userStoreId = ?  WHERE userId = ?;', [userTimestamps, userCode, storeId, userId], (error, rows, fields) => {
+//         if (!error) {
+//             res.send(rows)
+//         } else console.log(error)
+//     })
+// })
 
-app.put('/applyscore', (req, res) => {
-    const userId = req.query.userId
-    const userScore = req.query.userScore
-    const userScoreTotal = req.query.userScoreTotal
+// app.put('/applyscore', (req, res) => {
+//     const userId = req.query.userId
+//     const userScore = req.query.userScore
+//     const userScoreTotal = req.query.userScoreTotal
 
-    connection.query('UPDATE users SET userScore = ?, userScoreTotal = ?  WHERE userId = ?;', [userScore, userScoreTotal, userId], (error, rows, fields) => {
-        if (!error) {
-            res.send({ status: 'done' })
-        } else console.log(error)
-    })
-})
+//     connection.query('UPDATE users SET userScore = ?, userScoreTotal = ?  WHERE userId = ?;', [userScore, userScoreTotal, userId], (error, rows, fields) => {
+//         if (!error) {
+//             res.send({ status: 'done' })
+//         } else console.log(error)
+//     })
+// })
 
 app.post('/postcheckcode', (req, res) => {
     const userId = req.query.userId
@@ -412,17 +417,17 @@ app.post('/pushnotification', (req, res) => {
     })
 })
 
-app.put('/redeemreward', (req, res) => {
-    const userId = req.query.userId
-    const userScore = req.query.userScore
-    const userReward = req.query.userReward
+// app.put('/redeemreward', (req, res) => {
+//     const userId = req.query.userId
+//     const userScore = req.query.userScore
+//     const userReward = req.query.userReward
 
-    connection.query('UPDATE users SET userScore = ?, userReward = ?  WHERE userId = ?;', [userScore, userReward, userId], (error, rows, fields) => {
-        if (!error) {
-            res.send(rows)
-        } else console.log(error)
-    })
-})
+//     connection.query('UPDATE users SET userScore = ?, userReward = ?  WHERE userId = ?;', [userScore, userReward, userId], (error, rows, fields) => {
+//         if (!error) {
+//             res.send(rows)
+//         } else console.log(error)
+//     })
+// })
 
 app.get('/getmerchantimage', (req, res) => {
     const serviceId = req.query.serviceId
@@ -436,6 +441,6 @@ app.get('/getmerchantimage', (req, res) => {
 
 const port = process.env.PORT || 3000
 
-app.listen(port, () => {
+httpServer.listen(port, () => {
     console.log('Server is starting on port ' + port)
 })
