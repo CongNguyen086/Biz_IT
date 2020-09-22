@@ -1,14 +1,17 @@
 import Api from '../api'
 
 class AppRepo {
-  static async getContactList() {
+  static async getContactList(listPhones) {
     try {
-      const { data: { phoneList } } = await Api({
-        method: 'get',
+      const { data: { contactList } } = await Api({
+        method: 'post',
         url: '/user/contact',
+        body: {
+          phoneList: listPhones
+        }
       })
 
-      return phoneList;
+      return contactList;
     }
     catch(e) {
       console.log("AppRepo -> e?.response", e?.response.data)

@@ -37,6 +37,7 @@ import SlidingUpPanel from '../components/SlidingUpPanel'
 import DatePicker from 'react-native-datepicker';
 import AppRepo from '../services/app/repo'
 import HeaderTitle from '../components/HeaderTitle'
+import NoContent from '../components/NoContent'
 
 if (
   Platform.OS === "android" &&
@@ -90,15 +91,29 @@ const ContactList = () => {
         if (data.length > 0) {
           const listContacts = data.map(c => transformContacts(c))
           // call api to update contact list on server
-          const listPhoneNumber = await AppRepo.getContactList();
+          const listPhones = listContacts.reduce((list, c) => {
+            return [...list, ...c.phoneNumbers]
+          },[])
+          const listPhoneNumber = await AppRepo.getContactList(listPhones);
   
           const list = []
-          for (const phoneNumber of listPhoneNumber) {
-            for (const c of listContacts) {
-              if (c.phoneNumbers.includes(phoneNumber)) {
+          // for (const phoneNumber of listPhoneNumber) {
+          //   for (const c of listContacts) {
+          //     if (c.phoneNumbers.includes(phoneNumber)) {
+          //       list.push({
+          //         ...c,
+          //         phoneNumber: phoneNumber
+          //       })
+          //     }
+          //   }
+          // }
+          for (const c of listContacts) {
+            for (const p of listPhoneNumber) {
+              if (c.phoneNumbers.includes(p.userPhone)) {
                 list.push({
+                  userId: p.userId,
                   ...c,
-                  phoneNumber: phoneNumber
+                  phoneNumber: p.userPhone,
                 })
               }
             }
@@ -175,6 +190,12 @@ const ContactList = () => {
     }
   })
 
+  const onSmallInvitePress = useCallback(() => {
+    slidingRef.current.show();
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
+    setOpenSliding(true)
+  }, [])
+
   useEffect(() => {
     syncContacts()
   }, [syncContacts])
@@ -217,6 +238,9 @@ const ContactList = () => {
               onPress={syncContacts}
             />
           </View>
+          {contactList.length === 0 && (
+            <NoContent />
+          )}
           <FlatList
             style={{flex: 1}}
             data={contactList}
@@ -270,6 +294,7 @@ const ContactList = () => {
                     title='Invite' 
                     buttonStyle={[styles.inviteButton, {paddingVertical: 3, paddingHorizontal: 15}]}
                     titleStyle={{fontWeight: '600'}}
+                    onPress={onSmallInvitePress}
                   />
                 )}
               </View>
