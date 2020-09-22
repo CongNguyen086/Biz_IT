@@ -229,7 +229,7 @@ CREATE TABLE `member_status` (
 
 LOCK TABLES `member_status` WRITE;
 /*!40000 ALTER TABLE `member_status` DISABLE KEYS */;
-INSERT INTO `member_status` VALUES (1,'waiting'),(2,'accepted'),(3,'declined');
+INSERT INTO `member_status` VALUES (1,'waiting'),(2,'selected'),(3,'declined');
 /*!40000 ALTER TABLE `member_status` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -483,5 +483,82 @@ UNLOCK TABLES;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+--
+-- Dumping events for database 'bit_system'
+--
+
+--
+-- Dumping routines for database 'bit_system'
+--
+/*!50003 DROP PROCEDURE IF EXISTS `GetPopularDeal` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `GetPopularDeal`()
+BEGIN
+	SELECT
+    deal.*,
+    recommendedCategory.`rank`,
+    recommendedCategory.serviceId AS topServiceId
+FROM
+    (SELECT
+        firstjoin.*
+    FROM
+        (SELECT * FROM merchants_popular) AS firstjoin
+    LEFT OUTER JOIN
+		(SELECT * FROM merchants_popular) AS clonejoin
+    ON
+		(firstjoin.categoryId = clonejoin.categoryId AND firstjoin.`rank` > clonejoin.`rank`)
+    WHERE
+        clonejoin.categoryId IS NULL) AS recommendedCategory,
+    bit_system.deal AS deal
+WHERE
+    recommendedCategory.categoryId = deal.categoryId
+ORDER BY recommendedCategory.`rank`;
+END ;;
+DELIMITER ;
+
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `GetStorePromotion` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `GetStorePromotion`(IN dealId INT(11))
+BEGIN
+	SELECT
+    *
+FROM
+    stores
+        JOIN
+    (SELECT
+        merchantName, icon, dealsPromotion.*
+    FROM
+        merchants
+    JOIN (SELECT
+        serviceId, `description`
+    FROM
+        promotions
+    WHERE
+        promotions.dealId = dealId) AS dealsPromotion ON merchants.serviceId = dealsPromotion.serviceId) as merchantsPromotion
+        ON
+			stores.serviceId = merchantsPromotion.serviceId;
+END ;;
+DELIMITER ;
 
 -- Dump completed on 2020-09-21  1:35:55
