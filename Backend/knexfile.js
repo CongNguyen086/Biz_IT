@@ -1,6 +1,6 @@
 export default {
     development: {
-        client: "mysql",
+        client: "mysql2",
         connection: {
             host: 'mysql-server',
             user: "root",
