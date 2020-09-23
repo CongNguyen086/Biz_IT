@@ -28,11 +28,14 @@ CREATE TABLE `appointment_members` (
   `appointmentStoreId` int(11) DEFAULT NULL,
   `memberId` varchar(20) NOT NULL,
   `status` smallint(6) DEFAULT NULL,
-  UNIQUE KEY `appointment_members_memberId_uindex` (`memberId`),
-  UNIQUE KEY `appointment_members_appointmentStoreId_uindex` (`appointmentStoreId`),
-  KEY `appointment_members_member_status_id_fk` (`status`),
+  `appointmentId` int(11) NOT NULL,
+  UNIQUE KEY `appointment_uindex` (`appointmentStoreId`,`appointmentId`,`memberId`),
+  KEY `appointment_members_appointment_status_id_fk` (`status`),
+  KEY `appointment_members_appointments_id_fk` (`appointmentId`),
+  KEY `appointment_members_users_userId_fk` (`memberId`),
+  CONSTRAINT `appointment_members_appointment_status_id_fk` FOREIGN KEY (`status`) REFERENCES `appointment_status` (`id`) ON DELETE CASCADE,
   CONSTRAINT `appointment_members_appointment_stores_id_fk` FOREIGN KEY (`appointmentStoreId`) REFERENCES `appointment_stores` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `appointment_members_member_status_id_fk` FOREIGN KEY (`status`) REFERENCES `member_status` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `appointment_members_appointments_id_fk` FOREIGN KEY (`appointmentId`) REFERENCES `appointments` (`id`) ON DELETE CASCADE,
   CONSTRAINT `appointment_members_users_userId_fk` FOREIGN KEY (`memberId`) REFERENCES `users` (`userId`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -43,7 +46,7 @@ CREATE TABLE `appointment_members` (
 
 LOCK TABLES `appointment_members` WRITE;
 /*!40000 ALTER TABLE `appointment_members` DISABLE KEYS */;
-INSERT INTO `appointment_members` VALUES (NULL,'1000000000000000001',NULL),(NULL,'3646728529149882702',NULL);
+INSERT INTO `appointment_members` VALUES (NULL,'3646728529149882702',NULL,33),(NULL,'1000000000000000001',NULL,33),(NULL,'8159657106479438377',NULL,33),(NULL,'3646728529149882702',NULL,34),(NULL,'1000000000000000001',NULL,34);
 /*!40000 ALTER TABLE `appointment_members` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -87,7 +90,7 @@ CREATE TABLE `appointment_stores` (
   KEY `appointment_stores_appointments_id_fk` (`appointmentId`),
   CONSTRAINT `appointment_stores_appointments_id_fk` FOREIGN KEY (`appointmentId`) REFERENCES `appointments` (`id`) ON DELETE CASCADE,
   CONSTRAINT `appointment_stores_stores_storeId_fk` FOREIGN KEY (`storeId`) REFERENCES `stores` (`storeId`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=49 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -96,7 +99,7 @@ CREATE TABLE `appointment_stores` (
 
 LOCK TABLES `appointment_stores` WRITE;
 /*!40000 ALTER TABLE `appointment_stores` DISABLE KEYS */;
-INSERT INTO `appointment_stores` VALUES (15,'100037266800211938',19),(16,'1000377857974285127',19);
+INSERT INTO `appointment_stores` VALUES (44,'100037266800211938',33),(45,'1000377857974285127',33),(46,'1004360921343752054',33),(47,'100037266800211938',34),(48,'1000377857974285127',34);
 /*!40000 ALTER TABLE `appointment_stores` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -118,7 +121,7 @@ CREATE TABLE `appointments` (
   KEY `appointments_appointment_status_id_fk` (`statusId`),
   CONSTRAINT `appointments_appointment_status_id_fk` FOREIGN KEY (`statusId`) REFERENCES `appointment_status` (`id`) ON DELETE CASCADE,
   CONSTRAINT `appointments_users_userId_fk` FOREIGN KEY (`hostId`) REFERENCES `users` (`userId`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -127,7 +130,7 @@ CREATE TABLE `appointments` (
 
 LOCK TABLES `appointments` WRITE;
 /*!40000 ALTER TABLE `appointments` DISABLE KEYS */;
-INSERT INTO `appointments` VALUES (19,'Meeting','2020-09-20','3646728529149882702',1);
+INSERT INTO `appointments` VALUES (33,'Meeting','2020-09-20','1000000000000000002',1),(34,'Eating with friends','2020-09-20','3646728529149882702',1);
 /*!40000 ALTER TABLE `appointments` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -486,81 +489,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
---
--- Dumping events for database 'bit_system'
---
-
---
--- Dumping routines for database 'bit_system'
---
-/*!50003 DROP PROCEDURE IF EXISTS `GetPopularDeal` */;
-/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
-/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
-/*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8mb4 */ ;
-/*!50003 SET character_set_results = utf8mb4 */ ;
-/*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
-/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-CREATE DEFINER=`root`@`localhost` PROCEDURE `GetPopularDeal`()
-BEGIN
-	SELECT
-    deal.*,
-    recommendedCategory.`rank`,
-    recommendedCategory.serviceId AS topServiceId
-FROM
-    (SELECT
-        firstjoin.*
-    FROM
-        (SELECT * FROM merchants_popular) AS firstjoin
-    LEFT OUTER JOIN
-		(SELECT * FROM merchants_popular) AS clonejoin
-    ON
-		(firstjoin.categoryId = clonejoin.categoryId AND firstjoin.`rank` > clonejoin.`rank`)
-    WHERE
-        clonejoin.categoryId IS NULL) AS recommendedCategory,
-    bit_system.deal AS deal
-WHERE
-    recommendedCategory.categoryId = deal.categoryId
-ORDER BY recommendedCategory.`rank`;
-END ;;
-DELIMITER ;
-
-/*!50003 SET sql_mode              = @saved_sql_mode */ ;
-/*!50003 SET character_set_client  = @saved_cs_client */ ;
-/*!50003 SET character_set_results = @saved_cs_results */ ;
-/*!50003 SET collation_connection  = @saved_col_connection */ ;
-/*!50003 DROP PROCEDURE IF EXISTS `GetStorePromotion` */;
-/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
-/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
-/*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8mb4 */ ;
-/*!50003 SET character_set_results = utf8mb4 */ ;
-/*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
-/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-CREATE DEFINER=`root`@`localhost` PROCEDURE `GetStorePromotion`(IN dealId INT(11))
-BEGIN
-	SELECT
-    *
-FROM
-    stores
-        JOIN
-    (SELECT
-        merchantName, icon, dealsPromotion.*
-    FROM
-        merchants
-    JOIN (SELECT
-        serviceId, `description`
-    FROM
-        promotions
-    WHERE
-        promotions.dealId = dealId) AS dealsPromotion ON merchants.serviceId = dealsPromotion.serviceId) as merchantsPromotion
-        ON
-			stores.serviceId = merchantsPromotion.serviceId;
-END ;;
-DELIMITER ;
-
--- Dump completed on 2020-09-21  1:35:55
+-- Dump completed on 2020-09-23  8:58:45
