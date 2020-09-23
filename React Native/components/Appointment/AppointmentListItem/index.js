@@ -37,8 +37,8 @@ export default function AppointmentListItem(
       hostId,
       hostName,
       votedNumber,
-      acceptedNumber,
-      numberOfUsers,
+      selectedNumber,
+      invitedNumber,
     } = {},
     onPress = () => {}
   }
@@ -112,7 +112,7 @@ export default function AppointmentListItem(
             type === Appointment.Type.RECEIVED && {fontStyle: 'italic'}
           ]}
         >
-          {type === Appointment.Type.RECEIVED ? hostName : `${acceptedNumber}/${numberOfUsers} accepted`}
+          {type === Appointment.Type.RECEIVED ? hostName : `${selectedNumber}/${invitedNumber} accepted`}
         </Text>
       </View>
 
@@ -123,10 +123,10 @@ export default function AppointmentListItem(
         <Text 
           style={[
             styles.rightText,
-            votedNumber === numberOfUsers && {color: Colors.completed}
+            votedNumber === invitedNumber && {color: Colors.completed}
           ]}
         >
-          {`${votedNumber}/${numberOfUsers} voted`}
+          {`${votedNumber}/${invitedNumber} voted`}
         </Text>
       </View>
     </TouchableOpacity>

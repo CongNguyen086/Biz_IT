@@ -17,8 +17,8 @@ const appointmentList = [
     hostId: '',
     hostName: "Nguyen Mon",
     votedNumber: 2,
-    acceptedNumber: 2,
-    numberOfUsers: 3,
+    selectedNumber: 2,
+    invitedNumber: 3,
   },
   {
     eventName: 'party 2',
@@ -28,8 +28,8 @@ const appointmentList = [
     hostId: '',
     hostName: "Hieu Do",
     votedNumber: 3,
-    acceptedNumber: 2,
-    numberOfUsers: 3,
+    selectedNumber: 2,
+    invitedNumber: 3,
   },
 ]
 

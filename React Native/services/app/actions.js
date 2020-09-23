@@ -1,4 +1,4 @@
-import { SET_CONTACTS, UPDATE_PENDING_APPOINTMENT } from "./constants";
+import { SET_CONTACTS, UPDATE_PENDING_APPOINTMENT, REMOVE_ALL_PENDING_APPOINTMENT } from "./constants";
 
 export function setContactList({ contacts }) {
   return {
@@ -25,4 +25,10 @@ export function addNewAppointment({store}) {
 
 export function removeAppointment({store}) {
   return updatePendingAppointment({store, isRemove: true})
+}
+
+export function removeAllPendingAppointment() {
+  return {
+    type: REMOVE_ALL_PENDING_APPOINTMENT
+  }
 }

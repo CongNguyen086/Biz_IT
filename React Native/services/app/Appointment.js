@@ -23,8 +23,8 @@ class Appointment {
       hostId,
       hostName,
       votedNumber,
-      acceptedNumber,
-      numberOfUsers,
+      selectedNumber,
+      invitedNumber,
     } = payload;
 
     if (!Object.values(Appointment.Type).includes(type)) {
@@ -52,8 +52,8 @@ class Appointment {
       throw new Error('[Appointment] VotedNumber is not valid');
     }
 
-    if (acceptedNumber < 0) {
-      throw new Error('[Appointment] AcceptedNumber is not valid');
+    if (selectedNumber < 0) {
+      throw new Error('[Appointment] SelectedNumber is not valid');
     }
 
     return {
@@ -64,8 +64,8 @@ class Appointment {
       hostId,
       hostName,
       votedNumber,
-      acceptedNumber,
-      numberOfUsers,
+      selectedNumber,
+      invitedNumber,
     }
   }
 }

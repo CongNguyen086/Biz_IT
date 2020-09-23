@@ -1,4 +1,4 @@
-import {MAX_PENDING_APPOINTMENTS, SET_CONTACTS, UPDATE_PENDING_APPOINTMENT} from './constants'
+import {MAX_PENDING_APPOINTMENTS, REMOVE_ALL_PENDING_APPOINTMENT, SET_CONTACTS, UPDATE_PENDING_APPOINTMENT} from './constants'
 
 const initialState = {
   contacts: [],
@@ -30,6 +30,11 @@ export default function(state = initialState, action) {
       return {
         ...state,
         pendingAppointmentStores: list,
+      }
+    case REMOVE_ALL_PENDING_APPOINTMENT:
+      return {
+        ...state,
+        pendingAppointmentStores: []
       }
     default:
       return state

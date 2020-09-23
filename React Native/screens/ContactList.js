@@ -17,6 +17,8 @@ import {
   UIManager,
   Dimensions, 
   TouchableOpacity,
+  ScrollView, 
+  Keyboard
 } from 'react-native'
 import {
   Avatar, 
@@ -30,7 +32,7 @@ import * as Animatable from 'react-native-animatable'
 import * as Permissions from 'expo-permissions'
 import Colors from '../constants/Colors'
 import { useDispatch, useSelector } from 'react-redux'
-import { getContactList } from '../services/app/getters'
+import { getContactList, getPendingAppointments } from '../services/app/getters'
 import { setContactList } from '../services/app/actions'
 import { SafeAreaView } from 'react-navigation'
 import SlidingUpPanel from '../components/SlidingUpPanel'
@@ -38,6 +40,8 @@ import DatePicker from 'react-native-datepicker';
 import AppRepo from '../services/app/repo'
 import HeaderTitle from '../components/HeaderTitle'
 import NoContent from '../components/NoContent'
+import { getCurrentUser } from '../services/auth/getters'
+import { CREATE_NEW_APPOINTMENT } from '../services/app/constants'
 
 if (
   Platform.OS === "android" &&
@@ -52,9 +56,10 @@ function normalizeText(text = '') {
   return text.toLowerCase()
 }
 
-const ContactList = () => {
+const ContactList = ({navigation}) => {
   const [isLoading, setLoading] = useState(false)
   const [isOpenSliding, setOpenSliding] = useState(false)
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
   const [searchText, setSearchText] = useState('')
   const [meetingDate, setMeetingDate] = useState(new Date())
   const [meetingEventName, setEventName] = useState('')
@@ -62,6 +67,8 @@ const ContactList = () => {
   const dispatch = useDispatch()
   const contacts = useSelector(getContactList)
   const [checkedUsers, setCheckedUsers] = useState([])
+  const currentUser = useSelector(getCurrentUser);
+  const pendingAppointments = useSelector(getPendingAppointments);
   const getShortName = useCallback((fullName = '') => {
     return fullName.split(' ').reduce((acc, current) => (acc + current?.[0] ?? ''), '')
   }, [])
@@ -196,6 +203,48 @@ const ContactList = () => {
     setOpenSliding(true)
   }, [])
 
+  const onCreateNewAppointment = () => {
+    if (currentUser?.userId) {
+      dispatch({
+        type: CREATE_NEW_APPOINTMENT,
+        payload: {
+          userId: currentUser.userId,
+          storeIds: pendingAppointments.map(store => store.storeId),
+          memberIds: selectedUsers.map(u => u.userId),
+          eventName: meetingEventName,
+          meetingDate,
+        },
+        meta: {
+          onSuccess: () => {
+            navigation.pop();
+          }
+        }
+      })
+    }
+  }
+
+  useEffect(() => {
+    Keyboard.addListener("keyboardWillShow", _keyboardWillShow);
+    Keyboard.addListener("keyboardWillHide", _keyboardWillHide);
+
+    // cleanup function
+    return () => {
+      Keyboard.removeListener("keyboardWillShow", _keyboardWillShow);
+      Keyboard.removeListener("keyboardWillHide", _keyboardWillHide);
+    };
+  }, []);
+
+  const _keyboardWillShow = (e) => {
+    setKeyboardHeight(e.endCoordinates.height)
+  };
+
+  const _keyboardWillHide = () => {
+    setKeyboardHeight(0);
+    if (isOpenSliding) {
+      slidingRef.current.show();
+    }
+  };
+
   useEffect(() => {
     syncContacts()
   }, [syncContacts])
@@ -284,9 +333,9 @@ const ContactList = () => {
             ref={slidingRef} 
             onDragEnd={onSlidingDragEnd}
             onBottomReached={onSlidingBottomReached}
-            draggableRange={{ top: screenHeight - 100, bottom: 100 }}
+            draggableRange={{ top: screenHeight - (keyboardHeight ? keyboardHeight + 10 : 100), bottom: 100 }}
           >
-            <View style={styles.slidingContainer}>
+            <ScrollView style={styles.slidingContainer}>
               <View style={styles.minimal}>
                 <Text style={styles.selectedText}>{`${checkedUsers.length} selected`}</Text>
                 {!isOpenSliding && (
@@ -302,7 +351,7 @@ const ContactList = () => {
                 <View style={styles.slidingSection}>
                   {selectedUsers.map(user => (
                     <ListItem 
-                      key={user.id}
+                      key={user.userId}
                       bottomDivider
                       containerStyle={{paddingHorizontal: 0}}
                       leftAvatar={
@@ -325,7 +374,13 @@ const ContactList = () => {
                 <View style={styles.slidingSection}>
                   <View style={styles.moreInfoSection}>
                     <Text style={{width: '35%'}}>Your event name</Text>
-                    <Input  containerStyle={{flex: 1, paddingHorizontal: 0}} inputContainerStyle={styles.meetingPlace} />
+                    <Input 
+                      containerStyle={{flex: 1, paddingHorizontal: 0}} 
+                      inputContainerStyle={styles.meetingPlace} 
+                      value={meetingEventName}
+                      placeholder='Event'
+                      onChangeText={setEventName}
+                    />
                   </View>
                   <View style={styles.moreInfoSection}>
                     <Text style={{width: '35%'}}>Choose meeting date</Text>
@@ -359,9 +414,10 @@ const ContactList = () => {
                   title='Invite' 
                   buttonStyle={[styles.inviteButton, {paddingVertical: 10, width: '100%'}, styles.slidingSection]}
                   titleStyle={{fontWeight: '600'}} 
+                  onPress={onCreateNewAppointment}
                 />
               </View>
-            </View>
+            </ScrollView>
           </SlidingUpPanel>
         )}
       </SafeAreaView>
