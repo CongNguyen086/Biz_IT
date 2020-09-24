@@ -608,36 +608,4 @@ BEGIN
 END ;;
 DELIMITER ;
 
-DROP PROCEDURE IF EXISTS `GetAppointmentList`;
-DELIMITER ;;
-CREATE PROCEDURE `GetAppointmentList`(userId varchar(20))
-BEGIN
-	SELECT DISTINCT a.id,
-        a.eventName,
-        a.meetingDate,
-        a.hostId,
-        u.fullName AS hostName,
-        IF(a.hostId = userId, 'sent', 'received') as type,
-        IF(a.hostId = userId, ast.label, am.label) as status,
-	    am1.invitedNumber
-    FROM appointments a
-    JOIN (
-        SELECT am1.memberId, am1.appointmentId, am1.status, mt.label
-        FROM appointment_members am1
-        JOIN member_status mt ON mt.id = am1.status
-        GROUP BY am1.memberId, am1.appointmentId, am1.status
-    ) AS am ON a.id = am.appointmentId
-    join (
-        select
-               am.appointmentId,
-               count(distinct am.memberId) as invitedNumber
-        from appointment_members am
-        group by am.appointmentId
-    ) as am1 on a.id = am1.appointmentId
-    JOIN users u ON a.hostId = u.userId
-    JOIN appointment_status ast ON a.statusId = ast.id
-    WHERE a.hostId = userId OR am.memberId = userId;
-END ;;
-DELIMITER ;
-
 -- Dump completed on 2020-09-24  2:21:02
