@@ -12,6 +12,29 @@ class Appointment {
     DECLINED: 'declined',
     CANCELED: 'canceled',
     SELECTED: 'selected',
+    isContain: (status) => {
+      if ([
+        Appointment.Status.WAITING,
+        Appointment.Status.COMPLETED,
+        Appointment.Status.DECLINED,
+        Appointment.Status.CANCELED,
+        Appointment.Status.SELECTED,
+      ].includes(status)) {
+        return true;
+      }
+      return false;
+    },
+    isVoted: (status) => {
+      if ([
+        Appointment.Status.COMPLETED,
+        Appointment.Status.DECLINED,
+        Appointment.Status.CANCELED,
+        Appointment.Status.SELECTED,
+      ].includes(status)) {
+        return true;
+      }
+      return false;
+    }
   }
 
   static object(payload) {

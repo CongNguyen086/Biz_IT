@@ -1,7 +1,7 @@
 import { FontAwesome } from '@expo/vector-icons'
 import React, { useCallback, useMemo } from 'react'
 import { StyleSheet, Text, View, Image, TouchableOpacity, FlatList } from 'react-native'
-import { ListItem } from 'react-native-elements'
+import { Avatar, ListItem } from 'react-native-elements'
 import {useSafeArea} from 'react-native-safe-area-context'
 import { useSelector } from 'react-redux'
 import HeaderTitle from '../components/HeaderTitle'
@@ -28,6 +28,10 @@ function formatTime(date) {
   return `${months[date.getMonth()]} ${date.getDate() + 1}, ${date.getYear()}`
 }
 
+function getShortName(name = '') {
+  return name.split(' ').map(word => word?.[0] || '').join('');
+}
+
 const appointmentData = {
   members: [
     {
@@ -36,6 +40,13 @@ const appointmentData = {
       avatar: null,
       userPhone: '91256701248',
       status: Appointment.Status.SELECTED,
+    },
+    {
+      userId: '374917359716',
+      userName: 'Hieu 2222',
+      avatar: null,
+      userPhone: '91256701249',
+      status: Appointment.Status.DECLINED,
     }
   ],
   stores: [
@@ -45,23 +56,23 @@ const appointmentData = {
       storeAvatar: "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQ_bOozfBZ1FdTnKoUwZ65LVp_HgEI-r3bW9g&usqp=CAU",
       rating: 4.5,
       description: 'Discount 20% for bill whose value is from $20 above',
-      selectedUsers: ['123456']
+      selectedUsers: []
     },
     {
-      storeId: '8023858305',
+      storeId: '8023858306',
       storeName: ' wehlfe jgjewlg',
       storeAvatar: "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQ_bOozfBZ1FdTnKoUwZ65LVp_HgEI-r3bW9g&usqp=CAU",
       rating: 4.5,
       description: 'Discount 20% for bill whose value is from $20 above',
-      selectedUsers: ['123456']
+      selectedUsers: ['374917359715']
     },
     {
-      storeId: '8023858305',
+      storeId: '8023858307',
       storeName: ' wehlfe jgjewlg',
       storeAvatar: "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQ_bOozfBZ1FdTnKoUwZ65LVp_HgEI-r3bW9g&usqp=CAU",
       rating: 4.5,
       description: 'Discount 20% for bill whose value is from $20 above',
-      selectedUsers: ['123456']
+      selectedUsers: []
     },
   ],
   host: {
@@ -152,23 +163,61 @@ function AppointmentDetail() {
       return acc;
     }, 0)
     return (
-      <View style={{padding: 10, borderBottomColor: '#ccc', borderBottomWidth: 1}}>
+      <View style={{padding: 10, borderBottomColor: '#ccc', borderBottomWidth: 1, backgroundColor: '#fff'}}>
         <Text style={{fontSize: 16,}}>{`${votedNumber}/${appointmentData.members.length} voted`}</Text>
       </View>
     )
   })
 
-  const renderMembers = useCallback((item, index) => {
+  const renderMembers = useCallback((member, index) => {
+    let selectedIndex = null;
+    let isVoted = false;
+    
+    if (Appointment.Status.isVoted(member.status)) {
+      isVoted = true;
+    }
+
+    if (member.status === Appointment.Status.SELECTED) {
+      for (let i = 0; i < appointmentData.stores.length; i+=1) {
+        if (appointmentData.stores[i].selectedUsers.includes(member.userId)) {
+          selectedIndex = i;
+          break;
+        }
+      }
+    }
+
     return (
-      <View style={styles.memberItem}>
-        <View>
-
-        </View>
-        <View>
-
-        </View>
-        <Text></Text>
-      </View>
+      <ListItem 
+        style={styles.memberItem} 
+        key={member.userId}
+        containerStyle={{paddingHorizontal: 0}}
+        bottomDivider={index !== appointmentData.members.length - 1}
+        leftElement={
+          <View style={styles.statusCol}>
+            {isVoted && selectedIndex !== null && (
+              <Text style={styles.storeIndex}>{`(${selectedIndex + 1})`}</Text>
+            )}
+            {isVoted && member.status === Appointment.Status.DECLINED && (
+              <FontAwesome size={20} name='times' color='#FF0000' />
+            )}
+          </View>
+        }
+        title={
+          <View style={styles.memberNameBox}>
+            <Avatar 
+              rounded 
+              title={getShortName(member.userName)} 
+              containerStyle={{
+                marginRight: 25,
+              }}
+            />
+            <Text style={styles.memberName}>{member.userName}</Text>
+          </View>
+        }
+        rightElement={
+          <Text style={{fontSize: 16}}>{member.userPhone}</Text>
+        }
+      />
     )
   }, [])
   
@@ -195,6 +244,7 @@ function AppointmentDetail() {
           stickyHeaderIndices={[0]}
           data={appointmentData.members}
           renderItem={({item, index}) => renderMembers(item, index)}
+          showsVerticalScrollIndicator
         />
 
         <View style={styles.buttonGroup}>
@@ -202,7 +252,7 @@ function AppointmentDetail() {
             <Text style={styles.bottomButtonText}>Confirm</Text>
           </TouchableOpacity>
           <TouchableOpacity style={[styles.bottomButton, styles.buttonCancel, {marginLeft: 15}]}>
-            <Text style={styles.bottomButtonText}>Confirm</Text>
+            <Text style={styles.bottomButtonText}>Decline</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -347,8 +397,21 @@ const styles = StyleSheet.create({
   },
   memberItem: {
     flexDirection: 'row',
-    padding: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
     alignItems: 'center',
+  },
+  statusCol: {
+    minWidth: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  memberNameBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  memberName: {
+    fontSize: 18,
   }
 })
 
