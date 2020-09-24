@@ -16,6 +16,7 @@ import Colors from '../constants/Colors';
 import ContactListScreen from '../screens/ContactList';
 import AppointmentScreen from '../screens/AppointmentScreen';
 import HeaderTitle from '../components/HeaderTitle';
+import AppointmentDetail from '../screens/AppointmentDetail';
 
 const tabBarOptions = {
   activeTintColor: Colors.primary,
@@ -119,9 +120,10 @@ const App = createStackNavigator(
     Payment: PaymentScreen,
     AfterPayment: AfterPaymentScreen,
     ContactList: ContactListScreen,
+    AppointmentDetail: AppointmentDetail,
   },
   {
-    initialRouteName: 'HomePage',
+    initialRouteName: 'AppointmentDetail',
     defaultNavigationOptions: {
       headerStyle: {
         backgroundColor: Colors.primary,
@@ -141,7 +143,7 @@ const AppNavigator = createSwitchNavigator(
     App: App,
   },
   {
-    initialRouteName: 'Login',
+    initialRouteName: 'App',
   }
 );
 
