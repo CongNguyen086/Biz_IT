@@ -51,7 +51,6 @@ export default class AppointmentService {
                 stores,
                 members
             } = appointment;
-            const knex = this.client.connection;
 
             const appointmentId = await this.createAppointment({
                 eventName,
@@ -70,12 +69,48 @@ export default class AppointmentService {
         }
     }
 
-    // async getAppointmentList(appointment) {
-    //     try {
-    //         await knex
-    //         .raw("select ")
-    //     } catch (error) {
-            
-    //     }
-    // }
+    async countAppointmentSelection(appointments) {
+        try {
+            const knex = this.client.connection;
+            const query = await knex
+                .select([
+                    "appointmentId",
+                    knex.raw(`COUNT(memberId) AS votedNumber`),
+                    knex.raw(`COUNT(IF(status = 2, 1, null)) AS selectedNumber`)
+                ])
+                .from(knex.raw(`
+                    (SELECT appointmentId, memberId, status
+                    FROM appointment_members
+                    WHERE status <> 1 AND appointmentId IN (${appointments.map(_ => "?").join(",")})
+                    GROUP BY appointmentId, memberId, status) am
+                `, [...appointments]))
+                .groupBy("appointmentId");
+            return JSON.parse(JSON.stringify(query));
+        } catch (error) {
+            throw new Error(error);
+        }
+    }
+
+    async getAppointmentList(userId) {
+        try {
+            const knex = this.client.connection;
+            const query = await knex
+                .raw(`
+                    CALL GetAppointmentList(?)
+                `, [userId]);
+            // Return appointment list info
+            const appointments = JSON.parse(JSON.stringify(query[0][0]));
+            // Get appointment number of voted member & number of selected member
+            const appointmentStatistic = await this.countAppointmentSelection(
+                appointments.map(appointment => appointment.id)
+            );
+            console.log("AppointmentService -> getAppointmentList -> appointmentStatistic", appointmentStatistic)
+            return appointments.map(element => {
+                const correspondingStatistic = appointmentStatistic.filter(item => item.appointmentId === element.id);
+                return Object.assign({}, element, correspondingStatistic[0]);
+            });
+        } catch (error) {
+            throw new Error(error);
+        }
+    }
 }
