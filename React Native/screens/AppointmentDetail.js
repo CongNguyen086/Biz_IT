@@ -3,6 +3,7 @@ import React, { useCallback, useMemo, useState } from 'react'
 import { StyleSheet, Text, View, Image, TouchableOpacity, FlatList } from 'react-native'
 import { Avatar, ListItem } from 'react-native-elements'
 import {useSafeArea} from 'react-native-safe-area-context'
+import { withNavigation } from 'react-navigation'
 import { useSelector } from 'react-redux'
 import HeaderTitle from '../components/HeaderTitle'
 import Colors from '../constants/Colors'
@@ -82,7 +83,7 @@ const appointmentDataSample = {
   eventStatus: Appointment.Status.WAITING,
 }
 
-function AppointmentDetail() {
+function AppointmentDetail({ navigation }) {
   const insets = useSafeArea()
   const currentUser = useSelector(getCurrentUser);
   const [appointmentData, setAppointmentData] = useState(appointmentDataSample);
@@ -113,12 +114,20 @@ function AppointmentDetail() {
     
   }, [appointmentData])
 
-  const onDetailClick = useCallback(storeId => {
+  const setMemberStatus = useCallback((userId, status) => {
+    const newMembers = [...appointmentData.members].map(mb => mb.userId === userId ? {...mb, status,} : mb)
+    setAppointmentData({
+      ...appointmentData,
+      members: newMembers,
+    })
+  }, [appointmentData])
+
+  const onDetailClick = useCallback(() => {
 
   }, [])
 
   const renderItem = useCallback((item, index) => {
-    const currentHour = new Date().getHours() + 1
+    const currentHour = new Date().getHours()
     const isOpen = currentHour >= 8 && currentHour < 22
 
     const isISelected = item.selectedMembers.includes(currentUser?.userId);
@@ -209,7 +218,6 @@ function AppointmentDetail() {
         selectedIndexs.push(i)
       }
     }
-    console.log("renderMembers -> selectedIndexs", selectedIndexs)
 
     return (
       <ListItem 
@@ -253,7 +261,12 @@ function AppointmentDetail() {
     ].includes(appointmentData?.eventStatus), 
   [appointmentData?.eventStatus])
 
-  const currentUserWithStatus = useMemo(() => appointmentData.members.find(mb => mb.userId === currentUser.userId), [])
+  const currentUserWithStatus = useMemo(() => {
+    if (currentUser.userId === appointmentData.hostId) {
+      return currentUser;
+    }
+    return appointmentData.members.find(mb => mb.userId === currentUser.userId)
+  }, [currentUser.userId, appointmentData.members, appointmentData.hostId])
 
   const confirmButtonText = useMemo(() => {
     if (currentUser.userId === appointmentData.hostId) {
@@ -273,6 +286,30 @@ function AppointmentDetail() {
     }
 
     return 'Decline'
+  }, [])
+
+  const isConfirmDisabled = useMemo(() => {
+    if (currentUserWithStatus?.userId === appointmentData.hostId) {
+      return false;
+    }
+
+    if (currentUserWithStatus.status === Appointment.Status.WAITING && appointmentData.stores.find(st => st.selectedMembers.includes(currentUserWithStatus?.userId))) {
+      return false;
+    }
+
+    return true;
+  }, [currentUserWithStatus.status, currentUserWithStatus.userId, appointmentData.stores])
+
+  const onConfirmPress = useCallback(() => {
+    if (currentUser.userId === appointmentData.hostId) {
+      setMemberStatus(currentUser.userId, Appointment.Status.COMPLETED)
+    } else {
+      setMemberStatus(currentUser.userId, Appointment.Status.SELECTED)
+    }
+  }, [currentUser.userId, appointmentData.hostId])
+
+  const onCancelPress = useCallback(() => {
+
   }, [])
   
   return (
@@ -305,12 +342,19 @@ function AppointmentDetail() {
           {!isEventDone && (
             <React.Fragment>
               {confirmButtonText && (
-                <TouchableOpacity style={[styles.bottomButton, {marginRight: 15}]}>
+                <TouchableOpacity 
+                  style={[styles.bottomButton, {marginRight: 15}, isConfirmDisabled && styles.bottomButtonDisabled]}
+                  disabled={isConfirmDisabled}
+                  onPress={onConfirmPress}
+                >
                   <Text style={styles.bottomButtonText}>{confirmButtonText}</Text>
                 </TouchableOpacity>
               )}
               {cancelButtonText && (
-                <TouchableOpacity style={[styles.bottomButton, styles.buttonCancel, confirmButtonText && {marginLeft: 15}]}>
+                <TouchableOpacity 
+                  style={[styles.bottomButton, styles.buttonCancel, confirmButtonText && {marginLeft: 15}]}
+                  onPress={onCancelPress}
+                >
                   <Text style={styles.bottomButtonText}>{cancelButtonText}</Text>
                 </TouchableOpacity>
               )}
@@ -461,6 +505,9 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
   },
+  bottomButtonDisabled: {
+    opacity: 0.7,
+  },
   buttonCancel: {
     backgroundColor: '#EB5757'
   },
@@ -496,4 +543,4 @@ const styles = StyleSheet.create({
   }
 })
 
-export default AppointmentDetail;
+export default withNavigation(AppointmentDetail);
