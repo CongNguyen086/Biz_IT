@@ -17,6 +17,8 @@ import {
   UIManager,
   Dimensions, 
   TouchableOpacity,
+  ScrollView, 
+  Keyboard
 } from 'react-native'
 import {
   Avatar, 
@@ -30,33 +32,16 @@ import * as Animatable from 'react-native-animatable'
 import * as Permissions from 'expo-permissions'
 import Colors from '../constants/Colors'
 import { useDispatch, useSelector } from 'react-redux'
-import { getContactList } from '../services/app/getters'
+import { getContactList, getPendingAppointments } from '../services/app/getters'
 import { setContactList } from '../services/app/actions'
 import { SafeAreaView } from 'react-navigation'
 import SlidingUpPanel from '../components/SlidingUpPanel'
 import DatePicker from 'react-native-datepicker';
 import AppRepo from '../services/app/repo'
-
-const DATA = [
-  {
-    id: 1,
-    phone: '032633980868',
-    fullName: 'Hieu Do',
-    avatar: 'https://images.pexels.com/photos/1004014/pexels-photo-1004014.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500'
-  },
-  {
-    id: 2,
-    phone: '0123478235',
-    fullName: 'Cong Nguyen',
-    avatar: null,
-  },
-  {
-    id: 3,
-    phone: '025826923692',
-    fullName: 'Donal Trump',
-    avatar: 'https://images.pexels.com/photos/1149362/pexels-photo-1149362.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500'
-  },
-]
+import HeaderTitle from '../components/HeaderTitle'
+import NoContent from '../components/NoContent'
+import { getCurrentUser } from '../services/auth/getters'
+import { CREATE_NEW_APPOINTMENT } from '../services/app/constants'
 
 if (
   Platform.OS === "android" &&
@@ -67,9 +52,14 @@ if (
 
 const screenHeight = Dimensions.get('window').height
 
-const ContactList = () => {
+function normalizeText(text = '') {
+  return text.toLowerCase()
+}
+
+const ContactList = ({navigation}) => {
   const [isLoading, setLoading] = useState(false)
   const [isOpenSliding, setOpenSliding] = useState(false)
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
   const [searchText, setSearchText] = useState('')
   const [meetingDate, setMeetingDate] = useState(new Date())
   const [meetingEventName, setEventName] = useState('')
@@ -77,6 +67,8 @@ const ContactList = () => {
   const dispatch = useDispatch()
   const contacts = useSelector(getContactList)
   const [checkedUsers, setCheckedUsers] = useState([])
+  const currentUser = useSelector(getCurrentUser);
+  const pendingAppointments = useSelector(getPendingAppointments);
   const getShortName = useCallback((fullName = '') => {
     return fullName.split(' ').reduce((acc, current) => (acc + current?.[0] ?? ''), '')
   }, [])
@@ -85,6 +77,7 @@ const ContactList = () => {
     return {
       firstName: contacts.firstName,
       lastName: contacts.lastName,
+      fullName: `${contacts.lastName} ${contacts.firstName}`,
       phoneNumbers: contacts.phoneNumbers.map(p => p.digits)
     }
   })
@@ -105,15 +98,39 @@ const ContactList = () => {
         if (data.length > 0) {
           const listContacts = data.map(c => transformContacts(c))
           // call api to update contact list on server
-          const listPhoneNumber = await AppRepo.getContactList();
+          const listPhones = listContacts.reduce((list, c) => {
+            return [...list, ...c.phoneNumbers]
+          },[])
+          const listPhoneNumber = await AppRepo.getContactList(listPhones);
   
-          const list = (listPhoneNumber || []).map(phoneNumber => listContacts.find(item => item.phoneNumbers.includes(phoneNumber)));
+          const list = []
+          // for (const phoneNumber of listPhoneNumber) {
+          //   for (const c of listContacts) {
+          //     if (c.phoneNumbers.includes(phoneNumber)) {
+          //       list.push({
+          //         ...c,
+          //         phoneNumber: phoneNumber
+          //       })
+          //     }
+          //   }
+          // }
+          for (const c of listContacts) {
+            for (const p of listPhoneNumber) {
+              if (c.phoneNumbers.includes(p.userPhone)) {
+                list.push({
+                  userId: p.userId,
+                  ...c,
+                  phoneNumber: p.userPhone,
+                })
+              }
+            }
+          }
           dispatch(setContactList({contacts: list}))
         }
       }
     }
     catch(e) {
-
+      console.log("ContactList -> e", e.message)
     }
     finally {
       setLoading(false)
@@ -140,29 +157,29 @@ const ContactList = () => {
     return (contacts || []).filter(c => 
       (
         c?.phone?.includes(searchText) || 
-        c?.firstName?.includes(searchText) || 
-        c?.lastName?.includes(searchText) || 
-        c?.fullName?.includes(searchText)
+        normalizeText(c?.firstName)?.includes(normalizeText(searchText)) || 
+        normalizeText(c?.lastName)?.includes(normalizeText(searchText)) || 
+        normalizeText(c?.fullName)?.includes(normalizeText(searchText))
       )
     )
   }, [contacts, searchText])
 
   const selectedUsers = useMemo(() => {
-    return contacts.filter(c => checkedUsers.includes(c.id))
+    return contacts.filter(c => checkedUsers.includes(c.phoneNumber))
   }, [contacts, checkedUsers])
 
-  const onCheckedUser = useCallback((userId) => {
-    if (!!contactList.find(user => user.id === userId)) {
+  const onCheckedUser = useCallback((phoneNumber) => {
+    if (!!contactList.find(user => user.phoneNumber === phoneNumber)) {
       if (checkedUsers.length === 0) {
         LayoutAnimation.configureNext(LayoutAnimation.Presets.spring)
       }
-      if (!checkedUsers.includes(userId)) {
-        setCheckedUsers([...checkedUsers, userId])
+      if (!checkedUsers.includes(phoneNumber)) {
+        setCheckedUsers([...checkedUsers, phoneNumber])
       } else {
         if (checkedUsers.length === 1) {
           LayoutAnimation.configureNext(LayoutAnimation.Presets.spring)
         }
-        setCheckedUsers(checkedUsers.filter(uId => uId !== userId))
+        setCheckedUsers(checkedUsers.filter(p => p !== phoneNumber))
       }
     }
   }, [contactList, checkedUsers])
@@ -179,6 +196,54 @@ const ContactList = () => {
       setOpenSliding(true)
     }
   })
+
+  const onSmallInvitePress = useCallback(() => {
+    slidingRef.current.show();
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
+    setOpenSliding(true)
+  }, [])
+
+  const onCreateNewAppointment = () => {
+    if (currentUser?.userId) {
+      dispatch({
+        type: CREATE_NEW_APPOINTMENT,
+        payload: {
+          userId: currentUser.userId,
+          storeIds: pendingAppointments.map(store => store.storeId),
+          memberIds: selectedUsers.map(u => u.userId),
+          eventName: meetingEventName,
+          meetingDate,
+        },
+        meta: {
+          onSuccess: () => {
+            navigation.pop();
+          }
+        }
+      })
+    }
+  }
+
+  useEffect(() => {
+    Keyboard.addListener("keyboardWillShow", _keyboardWillShow);
+    Keyboard.addListener("keyboardWillHide", _keyboardWillHide);
+
+    // cleanup function
+    return () => {
+      Keyboard.removeListener("keyboardWillShow", _keyboardWillShow);
+      Keyboard.removeListener("keyboardWillHide", _keyboardWillHide);
+    };
+  }, []);
+
+  const _keyboardWillShow = (e) => {
+    setKeyboardHeight(e.endCoordinates.height)
+  };
+
+  const _keyboardWillHide = () => {
+    setKeyboardHeight(0);
+    if (isOpenSliding) {
+      slidingRef.current.show();
+    }
+  };
 
   useEffect(() => {
     syncContacts()
@@ -222,6 +287,9 @@ const ContactList = () => {
               onPress={syncContacts}
             />
           </View>
+          {contactList.length === 0 && (
+            <NoContent />
+          )}
           <FlatList
             style={{flex: 1}}
             data={contactList}
@@ -244,19 +312,19 @@ const ContactList = () => {
                     />
                   }
                   checkBox={{
-                    checked: !!checkedUsers.find(uId => uId === item.id),
-                    onIconPress: () => onCheckedUser(item.id)
+                    checked: !!checkedUsers.find(p => p === item.phoneNumber),
+                    onIconPress: () => onCheckedUser(item.phoneNumber)
                   }}
                   title={item.fullName}
                   subtitle={item.phone}
                   titleStyle={styles.titleFullName}
                   subtitleStyle={styles.phoneStyle}
-                  onPress={() => onCheckedUser(item.id)}
+                  onPress={() => onCheckedUser(item.phoneNumber)}
                   Component={TouchableOpacity}
                 />
               </Animatable.View>
             )}
-            keyExtractor={item => `${item.id}`}
+            keyExtractor={item => `${item.phoneNumber}`}
           />
         </View>
 
@@ -265,9 +333,9 @@ const ContactList = () => {
             ref={slidingRef} 
             onDragEnd={onSlidingDragEnd}
             onBottomReached={onSlidingBottomReached}
-            draggableRange={{ top: screenHeight - 100, bottom: 100 }}
+            draggableRange={{ top: screenHeight - (keyboardHeight ? keyboardHeight + 10 : 100), bottom: 100 }}
           >
-            <View style={styles.slidingContainer}>
+            <ScrollView style={styles.slidingContainer}>
               <View style={styles.minimal}>
                 <Text style={styles.selectedText}>{`${checkedUsers.length} selected`}</Text>
                 {!isOpenSliding && (
@@ -275,6 +343,7 @@ const ContactList = () => {
                     title='Invite' 
                     buttonStyle={[styles.inviteButton, {paddingVertical: 3, paddingHorizontal: 15}]}
                     titleStyle={{fontWeight: '600'}}
+                    onPress={onSmallInvitePress}
                   />
                 )}
               </View>
@@ -282,7 +351,7 @@ const ContactList = () => {
                 <View style={styles.slidingSection}>
                   {selectedUsers.map(user => (
                     <ListItem 
-                      key={user.id}
+                      key={user.userId}
                       bottomDivider
                       containerStyle={{paddingHorizontal: 0}}
                       leftAvatar={
@@ -305,7 +374,13 @@ const ContactList = () => {
                 <View style={styles.slidingSection}>
                   <View style={styles.moreInfoSection}>
                     <Text style={{width: '35%'}}>Your event name</Text>
-                    <Input  containerStyle={{flex: 1, paddingHorizontal: 0}} inputContainerStyle={styles.meetingPlace} />
+                    <Input 
+                      containerStyle={{flex: 1, paddingHorizontal: 0}} 
+                      inputContainerStyle={styles.meetingPlace} 
+                      value={meetingEventName}
+                      placeholder='Event'
+                      onChangeText={setEventName}
+                    />
                   </View>
                   <View style={styles.moreInfoSection}>
                     <Text style={{width: '35%'}}>Choose meeting date</Text>
@@ -339,14 +414,19 @@ const ContactList = () => {
                   title='Invite' 
                   buttonStyle={[styles.inviteButton, {paddingVertical: 10, width: '100%'}, styles.slidingSection]}
                   titleStyle={{fontWeight: '600'}} 
+                  onPress={onCreateNewAppointment}
                 />
               </View>
-            </View>
+            </ScrollView>
           </SlidingUpPanel>
         )}
       </SafeAreaView>
     </KeyboardAvoidingView>
   )
+}
+
+ContactList.navigationOptions = {
+  headerTitle: <HeaderTitle title='Contacts' />
 }
 
 const styles = StyleSheet.create({

@@ -1,12 +1,7 @@
 import React, { Component } from 'react';
 import {
     StyleSheet,
-    Text,
     View,
-    ImageBackground,
-    Dimensions,
-    Alert,
-    Image,
     TouchableHighlight,
     Share
 } from 'react-native';
@@ -15,6 +10,8 @@ import Review from '../components/StoreProfile/Review'
 import { Ionicons } from '@expo/vector-icons'
 import HeaderTitle from '../components/HeaderTitle';
 import Colors from '../constants/Colors';
+import { connect } from 'react-redux';
+import { getPendingAppointments } from '../services/app/getters';
 
 const ShareButton = ({ onPress }) => {
     return (
@@ -25,10 +22,6 @@ const ShareButton = ({ onPress }) => {
 }
 
 class StoreProfile extends Component {
-    constructor(props) {
-        super(props)
-        this.state = {}
-    }
     static navigationOptions = ({ navigation }) => {
         const shareAddress = async () => {
             const info = navigation.getParam('info', 'No info');
@@ -57,25 +50,17 @@ class StoreProfile extends Component {
     };
 
     render() {
-        const info = this.props.navigation.getParam('info', 'No info');
-        const distance = info.distance + ' m from your current location'
+        const store = this.props.navigation.getParam('store', {});
         return (
             <View style={styles.container}>
                 <View style={styles.storeProfile}>
                     <MainProfile
-                        name={info.storeName}
-                        star={info.storeRating}
-                        address={info.storeAddress}
-                        storeId={info.storeId}
-                        distance={distance}
-                        latitude={info.latitude}
-                        longitude={info.longitude}
-                        serviceId={info.serviceId}
+                        store={store}
                     />
                 </View>
                 <View style={styles.review}>
                     <Review
-                        storeId={info.storeId}
+                        storeId={store.storeId}
                     />
                 </View>
             </View>
@@ -120,5 +105,9 @@ const styles = StyleSheet.create({
         zIndex: 3,
     },
 });
+
+const mapStateToProps = state => ({
+    pendingAppointments: getPendingAppointments(state)
+})
 
 export default StoreProfile;

@@ -84,7 +84,7 @@ export default class HomePage extends Component {
 }
 
 HomePage.navigationOptions = {
-  header: null,
+  header: null
 };
 
 const styles = StyleSheet.create({

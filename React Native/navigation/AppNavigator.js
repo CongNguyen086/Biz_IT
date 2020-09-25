@@ -1,6 +1,5 @@
 import React from 'react';
 import { createAppContainer, createStackNavigator, createSwitchNavigator, createBottomTabNavigator } from 'react-navigation';
-import { Icon } from 'react-native-elements'
 
 import Login from '../screens/Login';
 import HomePage from '../screens/HomePage';
@@ -10,12 +9,14 @@ import DealDetails from '../screens/DealDetails';
 import StoreProfile from '../screens/StoreProfile';
 import PaymentScreen from '../screens/PaymentScreen';
 import AfterPaymentScreen from '../screens/AfterPaymentScreen';
-import ConnectScreen from '../screens/ConnectScreen';
 
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 
 import Colors from '../constants/Colors';
 import ContactListScreen from '../screens/ContactList';
+import AppointmentScreen from '../screens/AppointmentScreen';
+import HeaderTitle from '../components/HeaderTitle';
+import AppointmentDetail from '../screens/AppointmentDetail';
 
 const tabBarOptions = {
   activeTintColor: Colors.primary,
@@ -30,7 +31,9 @@ const tabBarOptions = {
 
 const HomeStack = createStackNavigator(
   {
-    Home: HomePage,
+    Home: {
+      screen: HomePage,
+    }
   }
 );
 
@@ -58,25 +61,22 @@ MapStack.navigationOptions = {
   tabBarOptions
 };
 
-const ConnectStack = createStackNavigator(
+const AppointmentStack = createStackNavigator(
   {
-    Connect: ConnectScreen,
-  },
-  {
-    defaultNavigationOptions: {
-      headerStyle: {
-        backgroundColor: Colors.primary,
-      },
-      headerTintColor: '#fff',
-      headerTitleStyle: {
-        fontWeight: 'bold',
-        textAlign: 'center',
-      },
+    Appointment: {
+      screen: AppointmentScreen,
+      navigationOptions: {
+        // title: "Appointment",
+        headerTitle: <HeaderTitle title='Appointment' />,
+        headerStyle: {
+          backgroundColor: Colors.primary
+        }
+      }
     },
-  }
+  },
 );
 
-ConnectStack.navigationOptions = {
+AppointmentStack.navigationOptions = {
   tabBarLabel: 'Appointment',
   tabBarIcon: ({ focused }) => (
     <Ionicons name='ios-calendar' size={30} color={focused ? Colors.primary : Colors.tabIconDefault} />
@@ -102,7 +102,7 @@ WalletStack.navigationOptions = {
 const TabNavigator = createBottomTabNavigator({
   HomeStack,
   MapStack,
-  ConnectStack,
+  AppointmentStack,
   WalletStack,
 },
 {
@@ -119,23 +119,19 @@ const App = createStackNavigator(
     StoreProfile: StoreProfile,
     Payment: PaymentScreen,
     AfterPayment: AfterPaymentScreen,
-    Connect: ConnectScreen,
-    ContactList: ContactListScreen
+    ContactList: ContactListScreen,
+    AppointmentDetail: AppointmentDetail,
   },
   {
-    initialRouteName: 'ContactList',
-    // initialRouteName: 'HomePage',
-    /* The header config from HomeScreen is now here */
+    initialRouteName: 'HomePage',
     defaultNavigationOptions: {
       headerStyle: {
         backgroundColor: Colors.primary,
       },
       headerTintColor: Colors.tintColor,
       headerTitleStyle: {
-        fontWeight: 'bold',
+        fontWeight: '500',
       },
-      headerRight: <Icon name='info-circle' type='font-awesome' color='white' />,
-      headerRightContainerStyle: { marginRight: 15 },
     },
   }
 );

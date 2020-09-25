@@ -35,5 +35,9 @@ export default {
   foursquare: '#0072b1',
   wordpress: '#21759b',
   stumbleupon: '#EB4823',
-  primary: '#4A90E2'
+  primary: '#4A90E2',
+  completed: '#1FC592',
+  declined: '#FF0000',
+  waiting: '#FD972F',
+  secondary: '#4E5A69',
 };
