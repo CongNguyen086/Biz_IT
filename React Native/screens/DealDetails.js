@@ -71,7 +71,7 @@ class DealDetails extends Component {
 
         }
         catch(e) {
-            Alert.alert('Lỗi', e.message || 'Có lỗi xảy ra.')
+            Alert.alert('Error:', e.message || 'Error occurs.')
         }
     }
 

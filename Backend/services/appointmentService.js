@@ -104,7 +104,6 @@ export default class AppointmentService {
             const appointmentStatistic = await this.countAppointmentSelection(
                 appointments.map(appointment => appointment.id)
             );
-            console.log("AppointmentService -> getAppointmentList -> appointmentStatistic", appointmentStatistic)
             return appointments.map(element => {
                 const correspondingStatistic = appointmentStatistic.filter(item => item.appointmentId === element.id);
                 return Object.assign({}, element, correspondingStatistic[0]);

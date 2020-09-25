@@ -1,7 +1,9 @@
-import { Appointment } from "../models"
-import AppointmentService from "../services/appointmentService"
+import AppointmentService from "../services/appointmentService";
+import StoreService from "../services/storeService";
 
 const appointmentService = new AppointmentService();
+const storeService = new StoreService();
+
 export const proposeAppointment = async (req, res) => {
     try {
         const newAppointmentId = await appointmentService.createNewAppointmentInfo(req.body);
@@ -26,6 +28,16 @@ export const countAppointmentSelection = async (req, res) => {
     try {
         const appointmentStatistic = await appointmentService.countAppointmentSelection(req.body.appointments);
         res.status(200).json(appointmentStatistic);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error });
+    }
+}
+
+export const getAppointmentStores = async(req, res) => {
+    try {
+        const stores = await storeService.getAppointmentStoresById(req.query.appointmentId);
+        res.status(200).json(stores);
     } catch (error) {
         console.log(error);
         res.status(500).json({ error });
