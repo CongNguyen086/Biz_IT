@@ -31,7 +31,7 @@ CREATE TABLE `appointment_members` (
   KEY `appointment_members_appointment_status_id_fk` (`status`),
   KEY `appointment_members_appointments_id_fk` (`appointmentId`),
   KEY `appointment_members_users_userId_fk` (`memberId`),
-  CONSTRAINT `appointment_members_appointment_status_id_fk` FOREIGN KEY (`status`) REFERENCES `appointment_status` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `appointment_members_appointment_status_id_fk` FOREIGN KEY (`status`) REFERENCES `member_status` (`id`),
   CONSTRAINT `appointment_members_appointment_stores_id_fk` FOREIGN KEY (`appointmentStoreId`) REFERENCES `appointment_stores` (`id`) ON DELETE CASCADE,
   CONSTRAINT `appointment_members_appointments_id_fk` FOREIGN KEY (`appointmentId`) REFERENCES `appointments` (`id`) ON DELETE CASCADE,
   CONSTRAINT `appointment_members_users_userId_fk` FOREIGN KEY (`memberId`) REFERENCES `users` (`userId`) ON DELETE CASCADE
@@ -117,7 +117,7 @@ CREATE TABLE `appointments` (
   PRIMARY KEY (`id`),
   KEY `appointments_users_userId_fk` (`hostId`),
   KEY `appointments_appointment_status_id_fk` (`statusId`),
-  CONSTRAINT `appointments_appointment_status_id_fk` FOREIGN KEY (`statusId`) REFERENCES `appointment_status` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `appointments_appointment_status_id_fk` FOREIGN KEY (`statusId`) REFERENCES `appointment_status` (`id`),
   CONSTRAINT `appointments_users_userId_fk` FOREIGN KEY (`hostId`) REFERENCES `users` (`userId`) ON DELETE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
