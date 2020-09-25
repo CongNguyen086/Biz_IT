@@ -1,5 +1,5 @@
 import { FontAwesome } from '@expo/vector-icons'
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { StyleSheet, Text, View, Image, TouchableOpacity, FlatList } from 'react-native'
 import { Avatar, ListItem } from 'react-native-elements'
 import {useSafeArea} from 'react-native-safe-area-context'
@@ -32,7 +32,7 @@ function getShortName(name = '') {
   return name.split(' ').map(word => word?.[0] || '').join('');
 }
 
-const appointmentData = {
+const appointmentDataSample = {
   members: [
     {
       userId: '374917359715',
@@ -42,53 +42,76 @@ const appointmentData = {
       status: Appointment.Status.SELECTED,
     },
     {
-      userId: '374917359716',
+      userId: '8159657106479438377',
       userName: 'Hieu 2222',
       avatar: null,
       userPhone: '91256701249',
-      status: Appointment.Status.DECLINED,
-    }
+      status: Appointment.Status.WAITING,
+    },
   ],
   stores: [
     {
       storeId: '8023858305',
       storeName: ' wehlfe jgjewlg',
       storeAvatar: "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQ_bOozfBZ1FdTnKoUwZ65LVp_HgEI-r3bW9g&usqp=CAU",
-      rating: 4.5,
+      storeRating: 4.5,
       description: 'Discount 20% for bill whose value is from $20 above',
-      selectedUsers: []
+      selectedMembers: ['8159657106479438377']
     },
     {
       storeId: '8023858306',
       storeName: ' wehlfe jgjewlg',
       storeAvatar: "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQ_bOozfBZ1FdTnKoUwZ65LVp_HgEI-r3bW9g&usqp=CAU",
-      rating: 4.5,
+      storeRating: 4.5,
       description: 'Discount 20% for bill whose value is from $20 above',
-      selectedUsers: ['374917359715']
+      selectedMembers: ['374917359715']
     },
     {
       storeId: '8023858307',
       storeName: ' wehlfe jgjewlg',
       storeAvatar: "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQ_bOozfBZ1FdTnKoUwZ65LVp_HgEI-r3bW9g&usqp=CAU",
-      rating: 4.5,
+      storeRating: 4.5,
       description: 'Discount 20% for bill whose value is from $20 above',
-      selectedUsers: []
+      selectedMembers: []
     },
   ],
-  host: {
-    hostId: '387915791',
-    hostName: 'Hoang Nguyen'
-  },
+  hostId: '387915791',
+  hostName: 'Hoang Nguyen',
   meetingDate: new Date(Date.now() + 86400*1000),
-  eventName: 'Old friends reuinion'
+  eventName: 'Old friends reuinion',
+  eventStatus: Appointment.Status.WAITING,
 }
 
 function AppointmentDetail() {
   const insets = useSafeArea()
-  const currentUSer = useSelector(getCurrentUser);
+  const currentUser = useSelector(getCurrentUser);
+  const [appointmentData, setAppointmentData] = useState(appointmentDataSample);
 
   const onSelectClick = useCallback((storeId) => {
-  }, [])
+    toggleSelect(currentUser.userId, storeId)
+  }, [currentUser])
+
+  const toggleSelect = useCallback((userId, storeId) => {
+    const {stores} = appointmentData;
+    let newStores = [...stores]
+
+    newStores = newStores.map(st => {
+      if (st.storeId === storeId) {
+        if (st.selectedMembers.includes(userId)) {
+          st.selectedMembers = st.selectedMembers.filter(uId => uId !== userId)
+        } else {
+          st.selectedMembers.push(userId)
+        }
+      }
+      return st;
+    })
+
+    setAppointmentData({
+      ...appointmentData,
+      stores: newStores,
+    })
+    
+  }, [appointmentData])
 
   const onDetailClick = useCallback(storeId => {
 
@@ -98,7 +121,11 @@ function AppointmentDetail() {
     const currentHour = new Date().getHours() + 1
     const isOpen = currentHour >= 8 && currentHour < 22
 
-    const isISelected = item.selectedUsers.includes(currentUSer?.userId);
+    const isISelected = item.selectedMembers.includes(currentUser?.userId);
+    const selectable = [
+      Appointment.Status.WAITING,
+    ].includes(currentUserWithStatus?.status)
+    && appointmentData.eventStatus === Appointment.Status.WAITING;
     return (
       <ListItem
         key={item.storeId}
@@ -120,7 +147,7 @@ function AppointmentDetail() {
             </Text>
             <View style={styles.subtitle}>
               <FontAwesome name='star' size={15} color='#FFC601' />
-              <Text style={styles.extraText}>{item.rating}</Text>
+              <Text style={styles.extraText}>{item.storeRating}</Text>
               <FontAwesome name='circle' size={15} color={isOpen ? '#40E247' : '#bdc3c7'} />
               <Text style={[styles.extraText, {color: Colors.extraText,}]}>8:00 - 22:00</Text>
               <Text style={styles.categoryName}>Cafe</Text>
@@ -140,15 +167,15 @@ function AppointmentDetail() {
             <Text 
               style={styles.selectedText}
             >
-              {`${item.selectedUsers.length}/${appointmentData.members.length}`} selected
+              {`${item.selectedMembers.length}/${appointmentData.members.length}`} selected
             </Text>
 
             <TouchableOpacity 
-              style={[styles.selectButton, isISelected && {backgroundColor: Colors.completed}]} 
-              onPress={isISelected ? null : () => onSelectClick(item.storeId)}
-              activeOpacity={isISelected ? 1 : 0.5}
+              style={[styles.selectButton, !selectable && {backgroundColor: '#ccc'}, isISelected && {backgroundColor: Colors.completed}]} 
+              onPress={!selectable ? null : () => onSelectClick(item.storeId)}
+              activeOpacity={!selectable ? 1 : 0.5}
             >
-              <Text style={styles.selectButtonText}>{`${isISelected ? 'Selectd': 'Select'}`}</Text>
+              <Text style={styles.selectButtonText}>{`${isISelected ? 'Selected': 'Select'}`}</Text>
             </TouchableOpacity>
           </View>
         }
@@ -170,21 +197,19 @@ function AppointmentDetail() {
   })
 
   const renderMembers = useCallback((member, index) => {
-    let selectedIndex = null;
+    let selectedIndexs = [];
     let isVoted = false;
     
     if (Appointment.Status.isVoted(member.status)) {
       isVoted = true;
     }
 
-    if (member.status === Appointment.Status.SELECTED) {
-      for (let i = 0; i < appointmentData.stores.length; i+=1) {
-        if (appointmentData.stores[i].selectedUsers.includes(member.userId)) {
-          selectedIndex = i;
-          break;
-        }
+    for (let i = 0; i < appointmentData.stores.length; i+=1) {
+      if (appointmentData.stores[i].selectedMembers.includes(member.userId)) {
+        selectedIndexs.push(i)
       }
     }
+    console.log("renderMembers -> selectedIndexs", selectedIndexs)
 
     return (
       <ListItem 
@@ -194,8 +219,8 @@ function AppointmentDetail() {
         bottomDivider={index !== appointmentData.members.length - 1}
         leftElement={
           <View style={styles.statusCol}>
-            {isVoted && selectedIndex !== null && (
-              <Text style={styles.storeIndex}>{`(${selectedIndex + 1})`}</Text>
+            {selectedIndexs.length > 0 && (
+              <Text style={styles.storeIndex}>{selectedIndexs.map((val, index) => ((index === 0 ? '' : ',') + `${val + 1}`))}</Text>
             )}
             {isVoted && member.status === Appointment.Status.DECLINED && (
               <FontAwesome size={20} name='times' color='#FF0000' />
@@ -220,13 +245,42 @@ function AppointmentDetail() {
       />
     )
   }, [])
+
+  const isEventDone = useMemo(() => 
+    [
+      Appointment.Status.CANCELED, 
+      Appointment.Status.COMPLETED
+    ].includes(appointmentData?.eventStatus), 
+  [appointmentData?.eventStatus])
+
+  const currentUserWithStatus = useMemo(() => appointmentData.members.find(mb => mb.userId === currentUser.userId), [])
+
+  const confirmButtonText = useMemo(() => {
+    if (currentUser.userId === appointmentData.hostId) {
+      return 'Complete'
+    }
+
+    if (currentUserWithStatus.status !== Appointment.Status.WAITING) {
+      return null;
+    }
+
+    return 'Confirm'
+  }, [])
+
+  const cancelButtonText = useMemo(() => {
+    if (currentUser.userId === appointmentData.hostId) {
+      return 'Cancel'
+    }
+
+    return 'Decline'
+  }, [])
   
   return (
     <View style={[styles.safeView, { paddingLeft: insets.left, paddingRight: insets.right}]}>
       <View style={[styles.container, {paddingBottom: insets.bottom}]}>
         <View style={styles.header}>
           <Text style={styles.eventNameText}>{appointmentData.eventName}</Text>
-          <Text style={styles.eventHost}>By {appointmentData.host.hostName}</Text>
+          <Text style={styles.eventHost}>By {appointmentData.hostName}</Text>
         </View>
 
         <View style={styles.storeList}>
@@ -248,13 +302,33 @@ function AppointmentDetail() {
         />
 
         <View style={styles.buttonGroup}>
-          <TouchableOpacity style={[styles.bottomButton, {marginRight: 15}]}>
-            <Text style={styles.bottomButtonText}>Confirm</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.bottomButton, styles.buttonCancel, {marginLeft: 15}]}>
-            <Text style={styles.bottomButtonText}>Decline</Text>
-          </TouchableOpacity>
+          {!isEventDone && (
+            <React.Fragment>
+              {confirmButtonText && (
+                <TouchableOpacity style={[styles.bottomButton, {marginRight: 15}]}>
+                  <Text style={styles.bottomButtonText}>{confirmButtonText}</Text>
+                </TouchableOpacity>
+              )}
+              {cancelButtonText && (
+                <TouchableOpacity style={[styles.bottomButton, styles.buttonCancel, confirmButtonText && {marginLeft: 15}]}>
+                  <Text style={styles.bottomButtonText}>{cancelButtonText}</Text>
+                </TouchableOpacity>
+              )}
+            </React.Fragment>
+          )}
         </View>
+        {isEventDone && (
+          <Text 
+            style={[
+              styles.canceledAppointmentText, 
+              appointmentData.eventStatus === Appointment.Status.COMPLETED 
+                ? {color: Colors.completed} 
+                : {color: Colors.declined}
+            ]}
+          >
+            {`${appointmentData.eventStatus === Appointment.Status.COMPLETED ? 'Your appointment was completed!' : 'Your appointment was canceled!'}`}
+          </Text>
+        )}
       </View>
     </View>
   )
@@ -347,6 +421,7 @@ const styles = StyleSheet.create({
     minWidth: 50,
     justifyContent: 'flex-start',
     height: '100%',
+    alignItems: 'flex-end'
   },
   selectedText: {
     marginBottom: 10,
@@ -402,9 +477,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   statusCol: {
-    minWidth: 40,
+    width: 70,
     alignItems: 'center',
     justifyContent: 'center',
+    textAlign: 'center'
   },
   memberNameBox: {
     flexDirection: 'row',
@@ -412,6 +488,11 @@ const styles = StyleSheet.create({
   },
   memberName: {
     fontSize: 18,
+  },
+  canceledAppointmentText: {
+    fontStyle: 'italic',
+    fontSize: 16,
+    textAlign: 'center',
   }
 })
 
