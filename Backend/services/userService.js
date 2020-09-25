@@ -8,7 +8,11 @@ export default class UserService {
     async getContactList(phoneList) {
         const knex = this.client.connection;
         return await knex
-            .select("*")
+            .select([
+                "userId",
+                "fullName",
+                "userPhone",
+            ])
             .from("users")
             .whereIn("userPhone", phoneList);
     }

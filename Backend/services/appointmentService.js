@@ -78,12 +78,12 @@ export default class AppointmentService {
                 .select([
                     "appointmentId",
                     knex.raw(`COUNT(memberId) AS votedNumber`),
-                    knex.raw(`COUNT(IF(status = 2, 1, null)) AS selectedNumber`)
+                    knex.raw(`COALESCE(COUNT(IF(status = 2, 1, null)), 0) AS selectedNumber`)
                 ])
                 .from(knex.raw(`
                     (SELECT appointmentId, memberId, status
                     FROM appointment_members
-                    WHERE status <> 1 AND appointmentId IN (${appointments.map(_ => "?").join(",")})
+                    WHERE appointmentId IN (${appointments.map(_ => "?").join(",")})
                     GROUP BY appointmentId, memberId, status) am
                 `, [...appointments]))
                 .groupBy("appointmentId");
