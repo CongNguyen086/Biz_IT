@@ -95,7 +95,7 @@ export default function AppointmentList() {
       res = res.filter(ap => ap.status === filterByStatus && ap.type === filterByType);
     }
     return res;
-  }, [appointmentList, filterShown, filterMeetingDate])
+  }, [appointmentList, filterShown, filterMeetingDate, filterByStatus, filterByType])
 
   const onTodayPress = useCallback(() => {
     setFilterMeetingDate(new Date());
