@@ -487,4 +487,155 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-09-25  8:13:21
+--
+-- Dumping events for database 'bit_system'
+--
+
+--
+-- Dumping routines for database 'bit_system'
+--
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
+
+/*!50003 DROP PROCEDURE IF EXISTS `GetPopularDeal` */;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `GetPopularDeal`()
+BEGIN
+	SELECT
+    deal.*,
+    recommendedCategory.`rank`,
+    recommendedCategory.serviceId AS topServiceId
+FROM
+    (SELECT
+        firstjoin.*
+    FROM
+        (SELECT * FROM merchants_popular) AS firstjoin
+    LEFT OUTER JOIN
+		(SELECT * FROM merchants_popular) AS clonejoin
+    ON
+		(firstjoin.categoryId = clonejoin.categoryId AND firstjoin.`rank` > clonejoin.`rank`)
+    WHERE
+        clonejoin.categoryId IS NULL) AS recommendedCategory,
+    bit_system.deal AS deal
+WHERE
+    recommendedCategory.categoryId = deal.categoryId
+ORDER BY recommendedCategory.`rank`;
+END ;;
+DELIMITER ;
+
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
+
+/*!50003 DROP PROCEDURE IF EXISTS `GetStorePromotion` */;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `GetStorePromotion`(IN dealId INT(11))
+BEGIN
+	SELECT
+    *
+FROM
+    stores
+        JOIN
+    (SELECT
+        merchantName, icon, dealsPromotion.*
+    FROM
+        merchants
+    JOIN (SELECT
+        serviceId, `description`
+    FROM
+        promotions
+    WHERE
+        promotions.dealId = dealId) AS dealsPromotion ON merchants.serviceId = dealsPromotion.serviceId) as merchantsPromotion
+        ON
+			stores.serviceId = merchantsPromotion.serviceId;
+END ;;
+DELIMITER ;
+
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
+
+/*!50003 DROP PROCEDURE IF EXISTS `GetAppointmentList` */;
+DELIMITER ;;
+CREATE PROCEDURE `GetAppointmentList`(userId varchar(20))
+BEGIN
+	SELECT DISTINCT a.id,
+        a.eventName,
+        a.meetingDate,
+        a.hostId,
+        u.fullName AS hostName,
+        IF(a.hostId = userId, 'sent', 'received') as type,
+        IF(a.hostId = userId, ast.label, am.label) as status,
+	    am1.invitedNumber
+    FROM appointments a
+    JOIN (
+        SELECT am1.memberId, am1.appointmentId, am1.status, mt.label
+        FROM appointment_members am1
+        JOIN member_status mt ON mt.id = am1.status
+        GROUP BY am1.memberId, am1.appointmentId, am1.status
+    ) AS am ON a.id = am.appointmentId
+    join (
+        select
+               am.appointmentId,
+               count(distinct am.memberId) as invitedNumber
+        from appointment_members am
+        group by am.appointmentId
+    ) as am1 on a.id = am1.appointmentId
+    JOIN users u ON a.hostId = u.userId
+    JOIN appointment_status ast ON a.statusId = ast.id
+    WHERE a.hostId = userId OR am.memberId = userId;
+END ;;
+DELIMITER ;
+
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
+
+/*!50003 DROP PROCEDURE IF EXISTS `GetAppointmentDetails` */;
+DELIMITER ;;
+CREATE PROCEDURE `GetAppointmentDetails`(appointmentId int(11))
+BEGIN
+	SELECT
+        ast.id,
+        s.*,
+	    a.meetingDate,
+        COALESCE(ast1.selectedNumber, 0) AS selectedNumber
+    FROM appointment_stores ast
+    JOIN stores s ON ast.storeId = s.storeId
+    JOIN merchants m ON m.serviceId = s.serviceId
+    JOIN categories c ON m.categoryId = c.categoryId
+    LEFT JOIN promotions ON m.serviceId = promotions.serviceId
+    JOIN appointments a ON ast.appointmentId = a.id
+    LEFT JOIN (
+        SELECT ast.id, COUNT(*) AS selectedNumber
+        FROM appointment_stores ast
+        JOIN appointment_members am ON ast.id = am.appointmentStoreId
+        WHERE am.status = 2
+        GROUP BY ast.id
+    ) AS ast1 ON ast.id = ast1.id
+    WHERE ast.appointmentId = appointmentId;
+END ;;
+DELIMITER ;
+
+-- Dump completed on 2020-09-25  8:40:46
