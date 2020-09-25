@@ -1,6 +1,7 @@
 import { FontAwesome } from '@expo/vector-icons'
 import React, { useCallback, useMemo, useState } from 'react'
-import { StyleSheet, Text, View, Image, TouchableOpacity, FlatList } from 'react-native'
+import Modal from 'react-native-modal'
+import { StyleSheet, Text, View, Image, TouchableOpacity, FlatList, LayoutAnimation } from 'react-native'
 import { Avatar, ListItem } from 'react-native-elements'
 import {useSafeArea} from 'react-native-safe-area-context'
 import { withNavigation } from 'react-navigation'
@@ -26,7 +27,7 @@ const months = [
 ]
 
 function formatTime(date) {
-  return `${months[date.getMonth()]} ${date.getDate() + 1}, ${date.getYear()}`
+  return `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`
 }
 
 function getShortName(name = '') {
@@ -87,6 +88,8 @@ function AppointmentDetail({ navigation }) {
   const insets = useSafeArea()
   const currentUser = useSelector(getCurrentUser);
   const [appointmentData, setAppointmentData] = useState(appointmentDataSample);
+  const [selectedStore, setSelectedStore] = useState(null);
+  const [detailModalVisible, setDetailModal] = useState(false);
 
   const onSelectClick = useCallback((storeId) => {
     toggleSelect(currentUser.userId, storeId)
@@ -122,8 +125,20 @@ function AppointmentDetail({ navigation }) {
     })
   }, [appointmentData])
 
-  const onDetailClick = useCallback(() => {
+  const onDetailClick = useCallback((storeId) => {
+    const store = appointmentData.stores.find(st => st.storeId === storeId && st.selectedMembers.length > 0);
+    if (store) {
+      setSelectedStore(store);
+      setDetailModal(true);
+    }
+  }, [appointmentData.stores])
 
+  const onCloseDetail = useCallback(() => {
+    setDetailModal(false);
+  }, [])
+
+  const onModalDetailHide = useCallback(() => {
+    // setSelectedStore(null);
   }, [])
 
   const renderItem = useCallback((item, index) => {
@@ -191,7 +206,7 @@ function AppointmentDetail({ navigation }) {
         bottomDivider
       />
     )
-  }, [])
+  }, [currentUserWithStatus, appointmentData.members, appointmentData.eventStatus, currentUser.userId])
 
   const MembersHeader = useMemo(() => {
     const votedNumber = appointmentData.members.reduce((acc, current) => {
@@ -227,7 +242,7 @@ function AppointmentDetail({ navigation }) {
         bottomDivider={index !== appointmentData.members.length - 1}
         leftElement={
           <View style={styles.statusCol}>
-            {selectedIndexs.length > 0 && (
+            {member.status !== Appointment.Status.DECLINED && selectedIndexs.length > 0 && (
               <Text style={styles.storeIndex}>{selectedIndexs.map((val, index) => ((index === 0 ? '' : ',') + `${val + 1}`))}</Text>
             )}
             {isVoted && member.status === Appointment.Status.DECLINED && (
@@ -254,19 +269,33 @@ function AppointmentDetail({ navigation }) {
     )
   }, [])
 
-  const isEventDone = useMemo(() => 
-    [
-      Appointment.Status.CANCELED, 
-      Appointment.Status.COMPLETED
-    ].includes(appointmentData?.eventStatus), 
-  [appointmentData?.eventStatus])
-
   const currentUserWithStatus = useMemo(() => {
     if (currentUser.userId === appointmentData.hostId) {
       return currentUser;
     }
     return appointmentData.members.find(mb => mb.userId === currentUser.userId)
   }, [currentUser.userId, appointmentData.members, appointmentData.hostId])
+
+  const isEventDone = useMemo(() => 
+    [
+      Appointment.Status.CANCELED, 
+      Appointment.Status.COMPLETED,
+    ].includes(appointmentData?.eventStatus) || currentUserWithStatus?.status === Appointment.Status.DECLINED,
+    [appointmentData?.eventStatus, currentUserWithStatus])
+
+  const eventDoneText = useMemo(() => {
+    switch(appointmentData.eventStatus) {
+      case Appointment.Status.COMPLETED:
+        return 'Your appointment was completed!'
+      case Appointment.Status.CANCELED:
+        return 'Your appointment was canceled!'
+    }
+    if (currentUserWithStatus.status === Appointment.Status.DECLINED) {
+      return 'You declined this appointment!'
+    }
+
+    return null;
+  }, [appointmentData.eventStatus, currentUserWithStatus.status])
 
   const confirmButtonText = useMemo(() => {
     if (currentUser.userId === appointmentData.hostId) {
@@ -278,7 +307,7 @@ function AppointmentDetail({ navigation }) {
     }
 
     return 'Confirm'
-  }, [])
+  }, [currentUser.userId, appointmentData.hostId, currentUserWithStatus.status])
 
   const cancelButtonText = useMemo(() => {
     if (currentUser.userId === appointmentData.hostId) {
@@ -286,7 +315,7 @@ function AppointmentDetail({ navigation }) {
     }
 
     return 'Decline'
-  }, [])
+  }, [currentUser.userId, appointmentData.hostId])
 
   const isConfirmDisabled = useMemo(() => {
     if (currentUserWithStatus?.userId === appointmentData.hostId) {
@@ -301,17 +330,37 @@ function AppointmentDetail({ navigation }) {
   }, [currentUserWithStatus.status, currentUserWithStatus.userId, appointmentData.stores])
 
   const onConfirmPress = useCallback(() => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.spring)
     if (currentUser.userId === appointmentData.hostId) {
-      setMemberStatus(currentUser.userId, Appointment.Status.COMPLETED)
+      setAppointmentData({
+        ...appointmentData,
+        eventStatus: Appointment.Status.COMPLETED
+      })
     } else {
       setMemberStatus(currentUser.userId, Appointment.Status.SELECTED)
     }
-  }, [currentUser.userId, appointmentData.hostId])
+  }, [currentUser.userId, appointmentData])
 
   const onCancelPress = useCallback(() => {
-
-  }, [])
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.spring)
+    if (currentUser.userId === appointmentData.hostId) {
+      setAppointmentData({
+        ...appointmentData,
+        eventStatus: Appointment.Status.CANCELED
+      })
+    } else {
+      setMemberStatus(currentUser.userId, Appointment.Status.DECLINED)
+    }
+  }, [currentUser.userId, appointmentData])
   
+  const selectedMembersAtStore = useMemo(() => {
+    const memberIds = selectedStore?.selectedMembers;
+    if (memberIds && memberIds?.length > 0) {
+      return appointmentData.members.filter(mb => memberIds.includes(mb.userId))
+    }
+    return null
+  }, [appointmentData.stores, appointmentData.members, selectedStore])
+
   return (
     <View style={[styles.safeView, { paddingLeft: insets.left, paddingRight: insets.right}]}>
       <View style={[styles.container, {paddingBottom: insets.bottom}]}>
@@ -336,6 +385,7 @@ function AppointmentDetail({ navigation }) {
           data={appointmentData.members}
           renderItem={({item, index}) => renderMembers(item, index)}
           showsVerticalScrollIndicator
+          keyExtractor={item => `${item.userId}`}
         />
 
         <View style={styles.buttonGroup}>
@@ -370,10 +420,71 @@ function AppointmentDetail({ navigation }) {
                 : {color: Colors.declined}
             ]}
           >
-            {`${appointmentData.eventStatus === Appointment.Status.COMPLETED ? 'Your appointment was completed!' : 'Your appointment was canceled!'}`}
+            {eventDoneText}
           </Text>
         )}
       </View>
+      {/* modal to show detail */}
+      <Modal
+        isVisible={detailModalVisible}
+        backdropColor='rgba(0,0,0,0.8)'
+        onModalHide={onModalDetailHide}
+        animationInTiming={500}
+        animationOutTiming={500}
+      >
+        <View style={styles.modalWrapper}>
+          <Text style={styles.modalDetailTitle}>{selectedStore?.storeName}</Text>
+          <View style={styles.meetingDateBox}>
+            <Text style={styles.meetingDateTitle}>Meeting date:</Text>
+            <Text style={styles.meetingDateText}>{formatTime(appointmentData.meetingDate)}</Text>
+          </View>
+          <Text style={styles.modalDetailSelectedText}>Selected members</Text>
+          <FlatList 
+            data={selectedMembersAtStore || []}
+            keyExtractor={item => `${item.userId}`}
+            style={{marginTop: 15,}}
+            renderItem={({item: member, index}) => (
+              <ListItem 
+                style={[styles.memberItem, {paddingHorizontal: 0}]} 
+                key={member.userId}
+                containerStyle={{paddingHorizontal: 0}}
+                topDivider={index === 0}
+                bottomDivider
+                title={
+                  <View style={styles.memberNameBox}>
+                    <Avatar 
+                      rounded 
+                      title={getShortName(member.userName)} 
+                      containerStyle={{
+                        marginRight: 25,
+                      }}
+                    />
+                    <Text style={styles.memberName}>{member.userName}</Text>
+                  </View>
+                }
+                rightElement={
+                  <Text style={{fontSize: 16}}>{member.userPhone}</Text>
+                }
+              />
+            )}
+          />
+          <View style={styles.buttonGroup}>
+            <TouchableOpacity 
+              style={[styles.bottomButton]}
+              onPress={onCloseDetail}
+              activeOpacity={0.85}
+            >
+              <Text style={styles.bottomButtonText}>Close</Text>
+            </TouchableOpacity>
+            {/* <TouchableOpacity 
+              style={[styles.bottomButton, styles.buttonCancelModal, confirmButtonText && {marginLeft: 10}]}
+              onPress={onCancelPress}
+            >
+              <Text style={[styles.bottomButtonText, styles.buttonCancelModalText]}>Cancel</Text>
+            </TouchableOpacity> */}
+          </View>
+        </View>
+      </Modal>
     </View>
   )
 }
@@ -537,9 +648,33 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
   canceledAppointmentText: {
-    fontStyle: 'italic',
-    fontSize: 16,
+    // fontStyle: 'italic',
+    fontSize: 18,
     textAlign: 'center',
+  },
+  modalWrapper: {
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 5,
+  },
+  buttonCancelModal: {
+    backgroundColor: '#fff',
+    borderColor: '#ccc',
+    borderWidth: 1,
+  },
+  buttonCancelModalText: {
+    color: Colors.secondary
+  },
+  modalDetailSelectedText: {
+    fontSize: 18,
+    fontWeight: '400',
+    color: Colors.extraText,
+    marginTop: 20,
+  },
+  modalDetailTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#000',
   }
 })
 
