@@ -34,10 +34,21 @@ export const countAppointmentSelection = async (req, res) => {
     }
 }
 
-export const getAppointmentStores = async(req, res) => {
+export const getAppointmentStores = async (req, res) => {
     try {
         const stores = await storeService.getAppointmentStoresById(req.query.appointmentId);
         res.status(200).json(stores);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error });
+    }
+}
+
+export const getAppointmentStoreDetails = async (req, res) => {
+    try {
+        const { appointmentId } = req.query;
+        const appointmentDetails = await appointmentService.getAppointmentDetails(appointmentId);
+        res.status(200).json(appointmentDetails);
     } catch (error) {
         console.log(error);
         res.status(500).json({ error });
