@@ -217,7 +217,8 @@ const ContactList = ({navigation}) => {
         meta: {
           onSuccess: () => {
             navigation.pop();
-          }
+          },
+          onFailed: () => console.log('failed')
         }
       })
     }

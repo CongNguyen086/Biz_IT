@@ -3,7 +3,7 @@ import Api from '../api'
 class AppRepo {
   static async getContactList(listPhones) {
     try {
-      const { data: { contactList } } = await Api({
+      const { data } = await Api({
         method: 'post',
         url: '/user/contact',
         body: {
@@ -11,7 +11,7 @@ class AppRepo {
         }
       })
 
-      return contactList;
+      return data;
     }
     catch(e) {
       console.log("AppRepo -> e?.response", e?.response.data)
@@ -25,11 +25,11 @@ class AppRepo {
         method: 'post',
         url: '/appointment/create',
         body: {
-          userId,
+          hostId: userId,
           stores: storeIds,
           members: memberIds,
           eventName,
-          date
+          meetingDate: date
         }
       })
 
