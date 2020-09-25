@@ -62,8 +62,6 @@ export default function AppointmentListItem(
       meetingDate.getDate() + 1,
       meetingDate.getMonth() + 1,
       meetingDate.getFullYear(),
-      meetingDate.getHours(),
-      meetingDate.getMinutes(),
     ]
 
     date = date < 10 ? `0${date}` : date;
@@ -71,7 +69,8 @@ export default function AppointmentListItem(
     hours = hours < 10 ? `0${hours}` : hours;
     minutes = minutes < 10 ? `0${minutes}` : minutes;
 
-    return `${date}/${month}/${year} ${hours}:${minutes}`
+    // return `${date}/${month}/${year} ${hours}:${minutes}`
+    return `${date}/${month}/${year}`
   }, [meetingDate])
 
   return (

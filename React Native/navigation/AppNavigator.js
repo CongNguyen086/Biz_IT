@@ -123,7 +123,7 @@ const App = createStackNavigator(
     AppointmentDetail: AppointmentDetail,
   },
   {
-    initialRouteName: 'AppointmentDetail',
+    initialRouteName: 'HomePage',
     defaultNavigationOptions: {
       headerStyle: {
         backgroundColor: Colors.primary,

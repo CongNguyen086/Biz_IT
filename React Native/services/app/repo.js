@@ -40,6 +40,24 @@ class AppRepo {
       throw new Error(e?.response?.data?.message);
     }
   }
+
+  static async getAppointments({userId}) {
+    try {
+      const { data } = await Api({
+        method: 'get',
+        url: '/appointment/list',
+        params: {
+          userId
+        }
+      })
+      console.log("getAppointments -> data", data)
+
+      return data;
+    }
+    catch(e) {
+      throw new Error(e?.response?.data.message);
+    }
+  }
 }
 
 export default AppRepo;

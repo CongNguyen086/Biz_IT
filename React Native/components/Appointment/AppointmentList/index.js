@@ -1,37 +1,41 @@
 import { FontAwesome } from '@expo/vector-icons';
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { FlatList, LayoutAnimation, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, FlatList, LayoutAnimation, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import DatePicker from 'react-native-datepicker';
 import { Menu, MenuTrigger, MenuOptions, MenuOption } from 'react-native-popup-menu';
 import _ from 'lodash';
 import Colors from '../../../constants/Colors';
 import Appointment from '../../../services/app/Appointment';
 import AppointmentListItem from '../AppointmentListItem';
+import { useDispatch, useSelector } from 'react-redux';
+import { getAppointmentList } from '../../../services/app/getters';
+import NoContent from '../../NoContent';
+import { FETCH_APPOINTMENTS } from '../../../services/app/constants';
 
-const appointmentList = [
-  {
-    eventName: 'party',
-    type: "received",
-    status: 'selected',
-    date: new Date(),
-    hostId: '',
-    hostName: "Nguyen Mon",
-    votedNumber: 2,
-    selectedNumber: 2,
-    invitedNumber: 3,
-  },
-  {
-    eventName: 'party 2',
-    type: "sent",
-    status: 'waiting',
-    date: new Date(Date.now() + 24*2*60*60*1000),
-    hostId: '',
-    hostName: "Hieu Do",
-    votedNumber: 3,
-    selectedNumber: 2,
-    invitedNumber: 3,
-  },
-]
+// const appointmentList = [
+//   {
+//     eventName: 'party',
+//     type: "received",
+//     status: 'selected',
+//     date: new Date(),
+//     hostId: '',
+//     hostName: "Nguyen Mon",
+//     votedNumber: 2,
+//     selectedNumber: 2,
+//     invitedNumber: 3,
+//   },
+//   {
+//     eventName: 'party 2',
+//     type: "sent",
+//     status: 'waiting',
+//     date: new Date(Date.now() + 24*2*60*60*1000),
+//     hostId: '',
+//     hostName: "Hieu Do",
+//     votedNumber: 3,
+//     selectedNumber: 2,
+//     invitedNumber: 3,
+//   },
+// ]
 
 const FILTER_OPTIONS = {
   DATE: 'DATE',
@@ -55,7 +59,17 @@ function checkTodayOrTomorrow(date) {
   return 'Other'
 }
 
+function isInDate(date, compareWithDate = new Date()) {
+  return (
+    date.getFullYear() === compareWithDate.getFullYear()
+    && date.getMonth() === compareWithDate.getMonth()
+    && date.getDate() === compareWithDate.getDate()
+  )
+}
+
 export default function AppointmentList() {
+  const dispatch = useDispatch();
+  const {appointmentList, appointmentLoading} = useSelector(getAppointmentList);
   const [filterShown, setShowFilter] = useState(false);
   const [filterMeetingDate, setFilterMeetingDate] = useState(new Date());
   const [filterByStatus, setFilterStatus] = useState(Appointment.Status.COMPLETED);
@@ -72,8 +86,27 @@ export default function AppointmentList() {
     return [Appointment.Status.SELECTED,Appointment.Status.DECLINED, Appointment.Status.WAITING]
   }, [filterByType])
 
+  const filteredAppointmentList = useMemo(() => {
+    let res = [...appointmentList];
+    if (filterMeetingDate) {
+      res = res.filter(ap => isInDate(ap.meetingDate, filterMeetingDate));
+    }
+    if (filterShown) {
+      res = res.filter(ap => ap.status === filterByStatus && ap.type === filterByType);
+    }
+    return res;
+  }, [appointmentList, filterShown, filterMeetingDate])
+
+  const onTodayPress = useCallback(() => {
+    setFilterMeetingDate(new Date());
+  }, [])
+
+  const onTomorrowPress = useCallback(() => {
+    setFilterMeetingDate(new Date(Date.now() + 86400 * 1000));
+  }, [])
+
   const renderAppointmentItem = useCallback((item) => {
-    return <AppointmentListItem appointment={Appointment.object(item)} />
+    return <AppointmentListItem appointment={item} />
   }, [])
 
   const toggleFilter = useCallback(() => {
@@ -113,8 +146,8 @@ export default function AppointmentList() {
       return 'Tomorrow';
     }
 
-    let [date, month, year, hours, minutes] = [
-      meetingDate.getDate() + 1,
+    let [date, month, year] = [
+      meetingDate.getDate() ,
       meetingDate.getMonth() + 1,
       meetingDate.getFullYear(),
     ]
@@ -150,6 +183,24 @@ export default function AppointmentList() {
     }
   }, [filterShown])
 
+  useEffect(() => {
+    dispatch({
+      type: FETCH_APPOINTMENTS
+    })
+  }, [dispatch])
+
+  if (!appointmentLoading && (!appointmentList || appointmentList.length === 0)) {
+    return <NoContent />
+  }
+
+  if (appointmentLoading) {
+    return (
+      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+        <ActivityIndicator size='large' color={Colors.primary} />
+      </View>
+    )
+  }
+
   return (
     <View style={{flex: 1,}}>
       <View>
@@ -184,10 +235,16 @@ export default function AppointmentList() {
             date={filterMeetingDate}
             onDateChange={onFilterDateChanged}
           />
-          <TouchableOpacity style={[styles.appointmentButton, isToday && styles.filterButtonActive]}>
+          <TouchableOpacity 
+            style={[styles.appointmentButton, isToday && styles.filterButtonActive]}
+            onPress={onTodayPress}
+          >
             <Text style={styles.appointmentButtonText}>Today</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.appointmentButton, isTomorrow && styles.filterButtonActive]}>
+          <TouchableOpacity 
+            style={[styles.appointmentButton, isTomorrow && styles.filterButtonActive]}
+            onPress={onTomorrowPress}
+          >
             <Text style={styles.appointmentButtonText}>Tomorrow</Text>
           </TouchableOpacity>
           <TouchableOpacity 
@@ -299,11 +356,16 @@ export default function AppointmentList() {
           </TouchableOpacity>
         )}
       </View>
-      <FlatList
-        data={appointmentList}
-        renderItem={({item}) => renderAppointmentItem(item)}
-        style={{flex: 1}}
-      />
+      {filteredAppointmentList?.length > 0 && (
+        <FlatList
+          data={filteredAppointmentList}
+          renderItem={({item}) => renderAppointmentItem(item)}
+          style={{flex: 1}}
+        />
+      )}
+      {filteredAppointmentList.length === 0 && (
+        <Text style={{textAlign: 'center', marginTop: 30, fontSize: 16, fontStyle: 'italic'}}>No appointment in this date</Text>
+      )}
     </View>
   )
 }

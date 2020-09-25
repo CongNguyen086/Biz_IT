@@ -1,8 +1,10 @@
-import {MAX_PENDING_APPOINTMENTS, REMOVE_ALL_PENDING_APPOINTMENT, SET_CONTACTS, UPDATE_PENDING_APPOINTMENT} from './constants'
+import {ADD_APPOINTMENTS, MAX_PENDING_APPOINTMENTS, REMOVE_ALL_PENDING_APPOINTMENT, SET_CONTACTS, SET_LOADING_APPOINTMENTS, UPDATE_PENDING_APPOINTMENT} from './constants'
 
 const initialState = {
   contacts: [],
   pendingAppointmentStores: [],
+  appointmentList: [],
+  appointmentLoading: true,
 }
 
 export default function(state = initialState, action) {
@@ -35,6 +37,21 @@ export default function(state = initialState, action) {
       return {
         ...state,
         pendingAppointmentStores: []
+      }
+
+    case SET_LOADING_APPOINTMENTS:
+      const {appointmentLoading} = action.payload;
+      return {
+        ...state,
+        appointmentLoading,
+      }
+
+    case ADD_APPOINTMENTS: 
+      const {appointments} = action.payload;
+      return {
+        ...state,
+        appointmentList: appointments,
+        appointmentLoading: false,
       }
     default:
       return state

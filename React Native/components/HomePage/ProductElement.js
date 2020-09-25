@@ -5,7 +5,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
 function ElementProducts({navigation, item, style}) {
-    console.log("ElementProducts -> item", item)
     const [heart, setHeart] = useState('ios-heart-empty')
     const [heartColor, setHeartColor] = useState('black')
     const Like = () => {

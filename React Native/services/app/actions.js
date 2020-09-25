@@ -1,4 +1,4 @@
-import { SET_CONTACTS, UPDATE_PENDING_APPOINTMENT, REMOVE_ALL_PENDING_APPOINTMENT } from "./constants";
+import { SET_CONTACTS, UPDATE_PENDING_APPOINTMENT, REMOVE_ALL_PENDING_APPOINTMENT, SET_LOADING_APPOINTMENTS, ADD_APPOINTMENTS } from "./constants";
 
 export function setContactList({ contacts }) {
   return {
@@ -30,5 +30,23 @@ export function removeAppointment({store}) {
 export function removeAllPendingAppointment() {
   return {
     type: REMOVE_ALL_PENDING_APPOINTMENT
+  }
+}
+
+export function setLoadingAppointment({loading = true}) {
+  return {
+    type: SET_LOADING_APPOINTMENTS,
+    payload: {
+      appointmentLoading: loading
+    }
+  }
+}
+
+export function setAppointmentList({appointments}) {
+  return {
+    type: ADD_APPOINTMENTS,
+    payload: {
+      appointments,
+    }
   }
 }

@@ -42,7 +42,7 @@ class Appointment {
       eventName,
       type,
       status,
-      date,
+      meetingDate,
       hostId,
       hostName,
       votedNumber,
@@ -66,8 +66,8 @@ class Appointment {
       throw new Error('[Appointment] Status of `received` is not valid');
     }
 
-    const meetingDate = new Date(date);
-    if (!isDate(meetingDate)) {
+    const date = new Date(meetingDate);
+    if (!isDate(date)) {
       throw new Error('[Appointment] Meeting date is not valid');
     }
 
@@ -83,7 +83,7 @@ class Appointment {
       eventName,
       type: type || Appointment.Type.SENT,
       status: status || Appointment.Status.WAITING,
-      meetingDate,
+      meetingDate: date,
       hostId,
       hostName,
       votedNumber,
