@@ -74,6 +74,7 @@ class AppRepo {
       return data;
     }
     catch(e) {
+      console.log("e", e.response.data)
       throw new Error(e?.response?.data.message);
     }
   }
