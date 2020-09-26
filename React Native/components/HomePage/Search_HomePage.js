@@ -9,7 +9,7 @@ export default function Search_HomePage() {
             <View style={styles.searchIcon}>
                 <Ionicons name="ios-search" size={hp(3)} color="white"/>
             </View>
-            <TextInput placeholder="Tìm Kiếm" style={styles.searchBar} placeholderTextColor='#fff'/>
+            <TextInput placeholder="Find places" style={styles.searchBar} placeholderTextColor='#fff'/>
         </View>
     );
 }
