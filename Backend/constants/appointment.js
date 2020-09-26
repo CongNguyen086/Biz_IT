@@ -1,11 +1,11 @@
 export const AppointmentStatus = {
-    waiting: "waiting",
-    completed: "completed",
-    canceled: "canceled",
+    waiting: 1,
+    completed: 2,
+    canceled: 3,
 }
 
 export const MemberStatus = {
-    waiting: "waiting",
-    selected: "selected",
-    declined: "declined",
+    waiting: 1,
+    selected: 2,
+    declined: 3,
 }
