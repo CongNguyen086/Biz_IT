@@ -77,14 +77,14 @@ export default class AppointmentService {
             const query = await knex
                 .select([
                     "appointmentId",
-                    knex.raw(`COUNT(memberId) AS votedNumber`),
+                    knex.raw(`COALESCE(COUNT(IF(status <> 1, 1, null)), 0) AS votedNumber`),
                     knex.raw(`COALESCE(COUNT(IF(status = 2, 1, null)), 0) AS selectedNumber`)
                 ])
                 .from(knex.raw(`
                     (SELECT appointmentId, memberId, status
                     FROM appointment_members
                     WHERE appointmentId IN (${appointments.map(_ => "?").join(",")})
-                    GROUP BY appointmentId, memberId, status) am
+                    GROUP BY appointmentId, memberId, status) AS am
                 `, [...appointments]))
                 .groupBy("appointmentId");
             return JSON.parse(JSON.stringify(query));
