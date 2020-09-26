@@ -1,5 +1,5 @@
 import React, {useEffect, useState } from 'react'
-import {View, LayoutAnimation, ActivityIndicator } from 'react-native'
+import {View, LayoutAnimation, ActivityIndicator, Text } from 'react-native'
 import {useSafeArea} from 'react-native-safe-area-context'
 import { withNavigation } from 'react-navigation'
 import HeaderTitle from '../../components/HeaderTitle'
