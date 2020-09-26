@@ -90,7 +90,7 @@ function AppointmentDetail({ appointmentData, setAppointmentData = () => {} }) {
   }, [appointmentData])
 
   const onDetailClick = useCallback((storeId) => {
-    const store = appointmentData.stores.find(st => st.storeId === storeId && st.selectedMembers.length > 0);
+    const store = appointmentData.stores.find(st => st.storeId === storeId);
     if (store) {
       setSelectedStore(store);
       setDetailModal(true);
@@ -113,9 +113,9 @@ function AppointmentDetail({ appointmentData, setAppointmentData = () => {} }) {
     const selectable = ([
       Appointment.Status.WAITING,
     ].includes(currentUserWithStatus?.status)
-    && appointmentData.eventStatus === Appointment.Status.WAITING) 
-    || (appointmentData.hostId === currentUser.userId && !ißsISelected);
-    
+    // && appointmentData.eventStatus === Appointment.Status.WAITING
+    )|| (appointmentData.hostId === currentUser.userId && !isISelected);
+
     return (
       <ListItem
         key={item.storeId}
@@ -147,12 +147,12 @@ function AppointmentDetail({ appointmentData, setAppointmentData = () => {} }) {
         }
         rightElement={
           <View style={styles.rightElement}>
-            <TouchableOpacity 
+            {/* <TouchableOpacity 
               style={[styles.selectButton, {backgroundColor: '#fff'}]}
               onPress={() => onDetailClick(item.storeId)}
             >
               <Text style={[styles.selectButtonText, {color: Colors.primary}]}>Detail</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
 
             <Text 
               style={styles.selectedText}
@@ -329,6 +329,7 @@ function AppointmentDetail({ appointmentData, setAppointmentData = () => {} }) {
         onCancel: () => setConfirmModalVisible(false)
       })
     } else {
+      console.log("onConfirmPress -> appointmentData", appointmentData)
       setConfirmModal({
         ...confirmModalState,
         visible: true,
@@ -338,11 +339,13 @@ function AppointmentDetail({ appointmentData, setAppointmentData = () => {} }) {
           dispatch({
             type: SELECT_APPOINTMENT_STORES,
             payload: {
-              appointmentId: appointmentData.id,
+              appointmentId: appointmentData.appointmentId,
               storeIds: selectedStoreIds
+            },
+            meta: {
+              onSuccess: () => setMemberStatus(currentUser.userId, Appointment.Status.SELECTED)
             }
           })
-          setMemberStatus(currentUser.userId, Appointment.Status.SELECTED)
         },
         onCancel: () => setConfirmModalVisible(false)
       })
@@ -388,6 +391,7 @@ function AppointmentDetail({ appointmentData, setAppointmentData = () => {} }) {
     }
     return null
   }, [appointmentData.stores, appointmentData.members, selectedStore])
+    console.log("selectedMembersAtStore -> selectedMembersAtStore", selectedMembersAtStore)
 
   return (
     <React.Fragment>
@@ -466,36 +470,43 @@ function AppointmentDetail({ appointmentData, setAppointmentData = () => {} }) {
             <Text style={styles.meetingDateTitle}>Meeting date:</Text>
             <Text style={styles.meetingDateText}>{formatTime(appointmentData.meetingDate)}</Text>
           </View>
-          <Text style={styles.modalDetailSelectedText}>Selected members</Text>
-          <FlatList 
-            data={selectedMembersAtStore || []}
-            keyExtractor={item => `${item.userId}`}
-            style={{marginTop: 15,}}
-            renderItem={({item: member, index}) => (
-              <ListItem 
-                style={[styles.memberItem, {paddingHorizontal: 0}]} 
-                key={member.userId}
-                containerStyle={{paddingHorizontal: 0}}
-                topDivider={index === 0}
-                bottomDivider
-                title={
-                  <View style={styles.memberNameBox}>
-                    <Avatar 
-                      rounded 
-                      title={getShortName(member.fullName)} 
-                      containerStyle={{
-                        marginRight: 25,
-                      }}
-                    />
-                    <Text style={styles.memberName}>{member.fullName}</Text>
-                  </View>
-                }
-                rightElement={
-                  <Text style={{fontSize: 16}}>{member.userPhone}</Text>
-                }
+          {(!selectedMembersAtStore || selectedMembersAtStore?.length === 0) && (
+            <Text style={{marginHorizontal: 15, fontSize: 18, fontStyle: 'italic', textAlign: 'center'}}>No one select this store</Text>
+          )}
+          {selectedMembersAtStore?.length > 0 && (
+            <React.Fragment>
+              <Text style={styles.modalDetailSelectedText}>Selected members</Text>
+              <FlatList
+                data={selectedMembersAtStore || []}
+                keyExtractor={item => `${item.userId}`}
+                style={{marginTop: 15,}}
+                renderItem={({item: member, index}) => (
+                  <ListItem 
+                    style={[styles.memberItem, {paddingHorizontal: 0}]} 
+                    key={member.userId}
+                    containerStyle={{paddingHorizontal: 0}}
+                    topDivider={index === 0}
+                    bottomDivider
+                    title={
+                      <View style={styles.memberNameBox}>
+                        <Avatar 
+                          rounded 
+                          title={getShortName(member.fullName)} 
+                          containerStyle={{
+                            marginRight: 25,
+                          }}
+                        />
+                        <Text style={styles.memberName}>{member.fullName}</Text>
+                      </View>
+                    }
+                    rightElement={
+                      <Text style={{fontSize: 16}}>{member.userPhone}</Text>
+                    }
+                  />
+                )}
               />
-            )}
-          />
+            </React.Fragment>
+          )}
           <View style={styles.buttonGroup}>
             <TouchableOpacity 
               style={[styles.bottomButton]}
