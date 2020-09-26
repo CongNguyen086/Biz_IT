@@ -70,13 +70,16 @@ function* selectAppointmentStoresSaga({
   } = {}
 }) {
   try {
+    console.log("appointmentId", appointmentId)
+    console.log("storeIds", storeIds)
     const currentUser = yield select(getCurrentUser);
 
     if (!currentUser || !currentUser.userId) {
       throw new Error('Not have current user');
     }
 
-    yield call(AppRepo.selectAppointmentStores, {appointmentId, userId: currentUser.userId, storeIds});
+    const data = yield call(AppRepo.selectAppointmentStores, {appointmentId, userId: currentUser.userId, storeIds});
+    console.log("onFailed -> data", data)
 
     // update appointment list in redux
     // yield put(updateAppointment({
