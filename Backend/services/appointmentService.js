@@ -94,22 +94,23 @@ export default class AppointmentService {
         }
     }
 
-    async getAppointmentList(userId) {
+    async getAppointmentList(userId, appointmentId) {
         try {
             const knex = this.client.connection;
+            const param = appointmentId ? [userId, appointmentId] : [userId, null];
             const query = await knex
                 .raw(`
-                    CALL GetAppointmentList(?)
-                `, [userId]);
+                    CALL GetAppointmentList(?, ?)
+                `, param);
             // Return appointment list info
             const appointments = JSON.parse(JSON.stringify(query[0][0]));
             // Get appointment number of voted member & number of selected member
             const appointmentStatistic = await this.countAppointmentSelection(
-                appointments.map(appointment => appointment.id)
+                appointments.map(appointment => appointment.appointmentId)
             );
             return appointments.map(element => {
-                const correspondingStatistic = appointmentStatistic.filter(item => item.appointmentId === element.id);
-                return Object.assign({}, element, correspondingStatistic[0]);
+                const correspondingStatistic = appointmentStatistic.find(item => item.appointmentId === element.appointmentId);
+                return Object.assign({}, correspondingStatistic, element);
             });
         } catch (error) {
             throw new ResponseError(error);
@@ -148,7 +149,7 @@ export default class AppointmentService {
     async selectAppointmentStores(appointmentId, memberId, storeIds) {
         try {
             const knex = this.client.connection;
-            const appointment = await this.getAppointmentById(appointmentId);
+            let appointment = await this.getAppointmentById(appointmentId);
             console.log("AppointmentService -> selectAppointmentStores -> appointment", appointment)
             if (appointment?.statusId !== AppointmentStatus.waiting) {
                 return new ResponseError("The appointment does not exist or has ended");
@@ -190,7 +191,10 @@ export default class AppointmentService {
                 });
             }));
             await knex.insert(inserted).into("appointment_members");
-            return inserted;
+
+            appointment = await this.getAppointmentList(memberId, appointmentId);
+            const appointmentDetails = await this.getAppointmentDetails(appointmentId);
+            return Object.assign({}, appointment[0], appointmentDetails);
         } catch (error) {
             throw new ResponseError(error);
         }
@@ -199,7 +203,7 @@ export default class AppointmentService {
     async declineAppointment(appointmentId, memberId) {
         try {
             const knex = this.client.connection;
-            const appointment = await this.getAppointmentById(appointmentId);
+            let appointment = await this.getAppointmentById(appointmentId);
             console.log("AppointmentService -> selectAppointmentStores -> appointment", appointment)
             if (appointment?.statusId !== AppointmentStatus.waiting) {
                 return new ResponseError("The appointment does not exist or has ended");
@@ -215,12 +219,16 @@ export default class AppointmentService {
                 return new ResponseError("You have interacted with this appointment");
             }
 
-            return await knex.update({ status: MemberStatus.declined })
+            await knex.update({ status: MemberStatus.declined })
                 .into("appointment_members")
                 .where({
                     appointmentId,
                     memberId
                 });
+
+            appointment = await this.getAppointmentList(memberId, appointmentId);
+            const appointmentDetails = await this.getAppointmentDetails(appointmentId);
+            return Object.assign({}, appointment[0], appointmentDetails);
         } catch (error) {
             throw new ResponseError(error);
         }
@@ -271,16 +279,20 @@ export default class AppointmentService {
             const appointmentInfo = await knex
                 .select([
                     "a.*",
-                    "u.fullName",
+                    "u.fullName AS hostName",
                     "ast.label AS eventStatus",
                     "s.storeName",
-                    "s.storeAddress"
+                    "s.storeAddress AS meetingPlace"
                 ])
                 .from("appointments AS a")
                 .join("appointment_status AS ast", "a.statusId", "ast.id")
                 .join("users AS u", "a.hostId", "u.userId")
                 .join("stores AS s", "a.appointmentStore", "s.storeId")
                 .where("a.id", appointmentId);
+            appointmentInfo.forEach(a => {
+                a.appointmentId = a.id;
+                delete a.id;
+            });
             const appointmentMembers = await this.getAppointmentMembers(appointmentId);
             const appointmentMemberStoreDetails = await this.getAppointmentMemberStoreDetails(appointmentId);
             // Get stores info including basic info and a list of selected members' ids
@@ -319,7 +331,7 @@ export default class AppointmentService {
             if (!AppointmentStatus.hasOwnProperty(status)) {
                 return new ResponseError("Wrong status for appointment");
             }
-            const appointment = await this.getAppointmentById(appointmentId);
+            let appointment = await this.getAppointmentById(appointmentId);
             const appointmentStatus = appointment.statusId;
             console.log("AppointmentService -> selectAppointmentStores -> appointment", appointment)
 
@@ -339,9 +351,13 @@ export default class AppointmentService {
             const patch = { statusId: AppointmentStatus[status] };
             if (storeId && status === "completed") patch.appointmentStore = storeId;
 
-            return await knex.update(patch)
+            await knex.update(patch)
                 .into("appointments")
                 .where("id", appointmentId);
+
+            appointment = await this.getAppointmentList(userId, appointmentId);
+            const appointmentDetails = await this.getAppointmentDetails(appointmentId);
+            return Object.assign({}, appointment[0], appointmentDetails);
         } catch (error) {
             throw new ResponseError(error);
         }
