@@ -39,6 +39,7 @@ class Appointment {
 
   static object(payload) {
     const {
+      id,
       eventName,
       type,
       status,
@@ -80,6 +81,7 @@ class Appointment {
     }
 
     return {
+      id,
       eventName,
       type: type || Appointment.Type.SENT,
       status: status || Appointment.Status.WAITING,

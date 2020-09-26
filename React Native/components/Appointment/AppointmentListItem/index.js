@@ -34,7 +34,6 @@ export default function AppointmentListItem(
       type,
       status,
       meetingDate,
-      hostId,
       hostName,
       votedNumber,
       selectedNumber,

@@ -87,7 +87,7 @@ const appointmentDataSample = {
 function AppointmentDetail({ navigation }) {
   const insets = useSafeArea()
   const currentUser = useSelector(getCurrentUser);
-  const [appointmentData, setAppointmentData] = useState(appointmentDataSample);
+  const [appointmentData, setAppointmentData] = useState({...appointmentDataSample});
   const [selectedStore, setSelectedStore] = useState(null);
   const [detailModalVisible, setDetailModal] = useState(false);
 

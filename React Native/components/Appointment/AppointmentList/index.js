@@ -11,31 +11,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getAppointmentList } from '../../../services/app/getters';
 import NoContent from '../../NoContent';
 import { FETCH_APPOINTMENTS } from '../../../services/app/constants';
-
-// const appointmentList = [
-//   {
-//     eventName: 'party',
-//     type: "received",
-//     status: 'selected',
-//     date: new Date(),
-//     hostId: '',
-//     hostName: "Nguyen Mon",
-//     votedNumber: 2,
-//     selectedNumber: 2,
-//     invitedNumber: 3,
-//   },
-//   {
-//     eventName: 'party 2',
-//     type: "sent",
-//     status: 'waiting',
-//     date: new Date(Date.now() + 24*2*60*60*1000),
-//     hostId: '',
-//     hostName: "Hieu Do",
-//     votedNumber: 3,
-//     selectedNumber: 2,
-//     invitedNumber: 3,
-//   },
-// ]
+import { withNavigation } from 'react-navigation';
 
 const FILTER_OPTIONS = {
   DATE: 'DATE',
@@ -67,7 +43,7 @@ function isInDate(date, compareWithDate = new Date()) {
   )
 }
 
-export default function AppointmentList() {
+function AppointmentList({navigation}) {
   const dispatch = useDispatch();
   const {appointmentList, appointmentLoading} = useSelector(getAppointmentList);
   const [filterShown, setShowFilter] = useState(false);
@@ -106,7 +82,7 @@ export default function AppointmentList() {
   }, [])
 
   const renderAppointmentItem = useCallback((item) => {
-    return <AppointmentListItem appointment={item} />
+    return <AppointmentListItem appointment={item} onPress={() => onAppointmentPress(item.id)} />
   }, [])
 
   const toggleFilter = useCallback(() => {
@@ -171,6 +147,10 @@ export default function AppointmentList() {
         break;
     }
   }, [])
+
+  const onAppointmentPress = useCallback((appointmentId) => {
+    navigation.navigate('AppointmentDetail', {appointmentId})
+  }, [navigation])
 
   useEffect(() => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.spring)
@@ -360,6 +340,7 @@ export default function AppointmentList() {
         <FlatList
           data={filteredAppointmentList}
           renderItem={({item}) => renderAppointmentItem(item)}
+          keyExtractor={item => `${item.id}`}
           style={{flex: 1}}
         />
       )}
@@ -459,3 +440,5 @@ optionStyle: {
     borderBottomWidth: 1,
 }
 })
+
+export default withNavigation(AppointmentList);
