@@ -50,10 +50,12 @@ class AppRepo {
           userId
         }
       })
+      console.log("getAppointments -> data", data)
 
       return data;
     }
     catch(e) {
+      console.log("e", e.response.data)
       throw new Error(e?.response?.data.message);
     }
   }
@@ -67,7 +69,67 @@ class AppRepo {
           appointmentId
         }
       })
+
       console.log("getAppointmentDetail -> data", data)
+      return data;
+    }
+    catch(e) {
+      throw new Error(e?.response?.data.message);
+    }
+  }
+
+  static async selectAppointmentStores({appointmentId, userId, storeIds}) {
+    try {
+      const { data } = await Api({
+        method: 'post',
+        url: '/appointment/select',
+        body: {
+          appointmentId,
+          userId,
+          storeIds,
+        }
+      })
+      console.log("selectAppointmentStores -> data", data)
+
+      return data;
+    }
+    catch(e) {
+      throw new Error(e?.response?.data.message);
+    }
+  }
+
+  static async declineAppointment({appointmentId, userId}) {
+    try {
+      const { data } = await Api({
+        method: 'put',
+        url: '/appointment/decline',
+        body: {
+          appointmentId,
+          userId,
+        }
+      })
+      console.log("declineAppointment -> data", data)
+
+      return data;
+    }
+    catch(e) {
+      throw new Error(e?.response?.data.message);
+    }
+  }
+
+  static async updateEventStatus({appointmentId, userId, storeId, status}) {
+    try {
+      const { data } = await Api({
+        method: 'put',
+        url: '/appointment/update-status',
+        body: {
+          appointmentId, 
+          userId, 
+          storeId, 
+          status
+        }
+      })
+      console.log("declineAppointment -> data", data)
 
       return data;
     }

@@ -41,7 +41,7 @@ import AppRepo from '../services/app/repo'
 import HeaderTitle from '../components/HeaderTitle'
 import NoContent from '../components/NoContent'
 import { getCurrentUser } from '../services/auth/getters'
-import { CREATE_NEW_APPOINTMENT } from '../services/app/constants'
+import { CREATE_NEW_APPOINTMENT, FETCH_APPOINTMENTS } from '../services/app/constants'
 
 if (
   Platform.OS === "android" &&
@@ -217,6 +217,9 @@ const ContactList = ({navigation}) => {
         meta: {
           onSuccess: () => {
             navigation.pop();
+            dispatch({
+              type: FETCH_APPOINTMENTS,
+            })
           },
           onFailed: () => console.log('failed')
         }

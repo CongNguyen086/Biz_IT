@@ -1,4 +1,4 @@
-import { SET_CONTACTS, UPDATE_PENDING_APPOINTMENT, REMOVE_ALL_PENDING_APPOINTMENT, SET_LOADING_APPOINTMENTS, ADD_APPOINTMENTS } from "./constants";
+import { SET_CONTACTS, UPDATE_PENDING_APPOINTMENT, REMOVE_ALL_PENDING_APPOINTMENT, SET_LOADING_APPOINTMENTS, ADD_APPOINTMENTS, UPDATE_APPOINTMENT } from "./constants";
 
 export function setContactList({ contacts }) {
   return {
@@ -47,6 +47,16 @@ export function setAppointmentList({appointments}) {
     type: ADD_APPOINTMENTS,
     payload: {
       appointments,
+    }
+  }
+}
+
+export function updateAppointment({appointmentId, appointment}) {
+  return {
+    type: UPDATE_APPOINTMENT,
+    payload: {
+      appointmentId,
+      appointment
     }
   }
 }

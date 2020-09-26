@@ -1,6 +1,6 @@
 import {call, put, select, takeEvery} from 'redux-saga/effects'
-import { removeAllPendingAppointment, setAppointmentList, setLoadingAppointment } from './actions'
-import { CREATE_NEW_APPOINTMENT, FETCH_APPOINTMENTS } from './constants'
+import { removeAllPendingAppointment, setAppointmentList, setLoadingAppointment, updateAppointment } from './actions'
+import { CREATE_NEW_APPOINTMENT, FETCH_APPOINTMENTS, SELECT_APPOINTMENT_STORES } from './constants'
 import {getCurrentUser} from '../auth/getters'
 import AppRepo from './repo'
 import Appointment from './Appointment'
@@ -59,7 +59,42 @@ function* fetchAppointmentListSaga() {
   }
 }
 
+function* selectAppointmentStoresSaga({
+  payload: {
+    appointmentId,
+    storeIds
+  },
+  meta: {
+    onSuccess = () => {},
+    onFailed = () => {},
+  } = {}
+}) {
+  try {
+    const currentUser = yield select(getCurrentUser);
+
+    if (!currentUser || !currentUser.userId) {
+      throw new Error('Not have current user');
+    }
+
+    yield call(AppRepo.selectAppointmentStores, {appointmentId, userId: currentUser.userId, storeIds});
+
+    // update appointment list in redux
+    // yield put(updateAppointment({
+    //   appointmentId,
+    //   appointment: {
+
+    //   }
+    // }))
+
+    yield calll(onSuccess)
+  }
+  catch(e) {
+    yield call(onFailed)
+  }
+}
+
 export default function* () {
   yield takeEvery(CREATE_NEW_APPOINTMENT, createAppointment)
   yield takeEvery(FETCH_APPOINTMENTS, fetchAppointmentListSaga)
+  yield takeEvery(SELECT_APPOINTMENT_STORES, selectAppointmentStoresSaga)
 }

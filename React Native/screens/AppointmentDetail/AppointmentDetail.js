@@ -4,11 +4,12 @@ import Modal from 'react-native-modal'
 import { Text, View, Image, TouchableOpacity, FlatList, LayoutAnimation } from 'react-native'
 import { Avatar, ListItem } from 'react-native-elements'
 import {useSafeArea} from 'react-native-safe-area-context'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import Colors from '../../constants/Colors'
 import Appointment from '../../services/app/Appointment'
 import { getCurrentUser } from '../../services/auth/getters'
 import styles from './styles';
+import { SELECT_APPOINTMENT_STORES } from '../../services/app/constants'
 
 const months = [
   'Jan',
@@ -48,6 +49,7 @@ const confirmModalState = {
 
 function AppointmentDetail({ appointmentData, setAppointmentData = () => {} }) {
   const insets = useSafeArea()
+  const dispatch = useDispatch();
   const currentUser = useSelector(getCurrentUser);
   const [selectedStore, setSelectedStore] = useState(null);
   const [detailModalVisible, setDetailModal] = useState(false);
@@ -108,10 +110,12 @@ function AppointmentDetail({ appointmentData, setAppointmentData = () => {} }) {
     const isOpen = currentHour >= 8 && currentHour < 22
 
     const isISelected = item.selectedMembers.includes(currentUser?.userId);
-    const selectable = [
+    const selectable = ([
       Appointment.Status.WAITING,
     ].includes(currentUserWithStatus?.status)
-    && appointmentData.eventStatus === Appointment.Status.WAITING;
+    && appointmentData.eventStatus === Appointment.Status.WAITING) 
+    || (appointmentData.hostId === currentUser.userId && !ißsISelected);
+    
     return (
       <ListItem
         key={item.storeId}
@@ -303,6 +307,11 @@ function AppointmentDetail({ appointmentData, setAppointmentData = () => {} }) {
     resetConfirmModal();
   }, [resetConfirmModal])
 
+  const selectedStoreIds = useMemo(() => {
+    const stores = appointmentData.stores.filter(st => st.selectedMembers.includes(currentUser.userId))
+    return stores.map(st => st.storeId);
+  }, [appointmentData.stores, currentUser.userId])
+
   const onConfirmPress = useCallback(() => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.spring)
     if (currentUser.userId === appointmentData.hostId) {
@@ -326,6 +335,13 @@ function AppointmentDetail({ appointmentData, setAppointmentData = () => {} }) {
         title: 'Are you sure to select this appointment?',
         onConfirm: () => {
           setConfirmModalVisible(false)
+          dispatch({
+            type: SELECT_APPOINTMENT_STORES,
+            payload: {
+              appointmentId: appointmentData.id,
+              storeIds: selectedStoreIds
+            }
+          })
           setMemberStatus(currentUser.userId, Appointment.Status.SELECTED)
         },
         onCancel: () => setConfirmModalVisible(false)
@@ -378,7 +394,7 @@ function AppointmentDetail({ appointmentData, setAppointmentData = () => {} }) {
       <View style={[styles.container, {paddingBottom: insets.bottom}]}>
         <View style={styles.header}>
           <Text style={styles.eventNameText}>{appointmentData.eventName}</Text>
-          <Text style={styles.eventHost}>By {appointmentData.fullName}</Text>
+          <Text style={styles.eventHost}>By {appointmentData.hostName}</Text>
         </View>
 
         <View style={styles.storeList}>
