@@ -131,7 +131,7 @@ CREATE TABLE `appointments` (
 
 LOCK TABLES `appointments` WRITE;
 /*!40000 ALTER TABLE `appointments` DISABLE KEYS */;
-INSERT INTO `appointments` (`id`, `eventName`, `meetingDate`, `hostId`, `statusId`, `appointmentStore`) VALUES (33,'Meeting','2020-09-26','1000000000000000002',1,'1000377857974285127'),(34,'Eating with friends','2020-09-26','3646728529149882702',2,'1000377857974285127'),(35,'Meeting','2020-09-28','3646728529149882702',1,NULL);
+INSERT INTO `appointments` (`id`, `eventName`, `meetingDate`, `hostId`, `statusId`, `appointmentStore`) VALUES (33,'Meeting','2020-09-26','1000000000000000002',2,'1000377857974285127'),(34,'Eating with friends','2020-09-26','3646728529149882702',2,'1000377857974285127'),(35,'Meeting','2020-09-28','3646728529149882702',1,NULL);
 /*!40000 ALTER TABLE `appointments` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -617,7 +617,7 @@ DELIMITER ;
 
 /*!50003 DROP PROCEDURE IF EXISTS `GetAppointmentList` */;
 DELIMITER ;;
-CREATE PROCEDURE `GetAppointmentList`(userId varchar(20))
+CREATE PROCEDURE `GetAppointmentList`(userId varchar(20), filteredAppointmentId int(11))
 BEGIN
 	SELECT DISTINCT a.id,
         a.eventName,
@@ -649,7 +649,12 @@ BEGIN
     JOIN users u ON a.hostId = u.userId
     LEFT JOIN stores s ON a.appointmentStore = s.storeId
     JOIN appointment_status ast ON a.statusId = ast.id
-    WHERE a.hostId = userId OR am.memberId = userId;
+    WHERE (
+        CASE
+            WHEN filteredAppointmentId IS NOT NULL THEN a.id = filteredAppointmentId
+            ELSE true
+        END
+    ) AND (a.hostId = userId OR am.memberId = userId);
 END ;;
 DELIMITER ;
 
