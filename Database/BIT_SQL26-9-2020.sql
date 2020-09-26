@@ -621,7 +621,7 @@ DELIMITER ;
 DELIMITER ;;
 CREATE PROCEDURE `GetAppointmentList`(userId varchar(20), filteredAppointmentId int(11))
 BEGIN
-	SELECT DISTINCT a.id,
+    SELECT DISTINCT a.id AS appointmentId,
         a.eventName,
         a.meetingDate,
         a.hostId,
