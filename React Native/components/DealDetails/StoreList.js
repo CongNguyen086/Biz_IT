@@ -22,10 +22,8 @@ class StoreList extends Component {
                 pad={3}
                 onPress={() => {
                     this.props.navigation.navigate('StoreProfile', {
-                        info: item,
-                        categoryName
+                        store: {...item, categoryName: categoryName},
                     })
-                    
                 }}
             />
         )
