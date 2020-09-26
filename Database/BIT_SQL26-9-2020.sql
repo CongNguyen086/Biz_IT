@@ -279,7 +279,7 @@ DROP TABLE IF EXISTS `merchants_popular`;
 /*!50001 DROP VIEW IF EXISTS `merchants_popular`*/;
 SET @saved_cs_client     = @@character_set_client;
 /*!50503 SET character_set_client = utf8mb4 */;
-/*!50001 CREATE VIEW `merchants_popular` AS SELECT 
+/*!50001 CREATE VIEW `merchants_popular` AS SELECT
  1 AS `serviceId`,
  1 AS `merchantName`,
  1 AS `categoryId`,
@@ -415,7 +415,7 @@ DROP TABLE IF EXISTS `store_promotion`;
 /*!50001 DROP VIEW IF EXISTS `store_promotion`*/;
 SET @saved_cs_client     = @@character_set_client;
 /*!50503 SET character_set_client = utf8mb4 */;
-/*!50001 CREATE VIEW `store_promotion` AS SELECT 
+/*!50001 CREATE VIEW `store_promotion` AS SELECT
  1 AS `storeId`,
  1 AS `storeName`,
  1 AS `storeAvatar`,
@@ -621,7 +621,7 @@ DELIMITER ;
 DELIMITER ;;
 CREATE PROCEDURE `GetAppointmentList`(userId varchar(20), filteredAppointmentId int(11))
 BEGIN
-    SELECT DISTINCT a.id AS appointmentId,
+	SELECT DISTINCT a.id AS appointmentId,
         a.eventName,
         a.meetingDate,
         a.hostId,
@@ -632,7 +632,7 @@ BEGIN
         s.storeName,
 	    s.storeAddress AS meetingPlace,
         IF(a.hostId = userId, 'sent', 'received') as type,
-        am.label AS memberStatus,
+        IF(a.hostId = userId, '', am.label) AS memberStatus,
 	    am1.invitedNumber
     FROM appointments a
     JOIN (
