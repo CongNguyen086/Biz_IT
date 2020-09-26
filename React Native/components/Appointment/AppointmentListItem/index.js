@@ -5,6 +5,7 @@ import { TouchableOpacity } from 'react-native-gesture-handler'
 import Colors from '../../../constants/Colors'
 import Appointment from '../../../services/app/Appointment'
 import _ from 'lodash'
+import { FontAwesome } from '@expo/vector-icons'
 
 const tagStyleGenerator = status => {
   const style = {
@@ -116,10 +117,6 @@ export default function AppointmentListItem(
           )}
         </View>
 
-        {eventStatus === Appointment.Status.COMPLETED && (
-          <Text>{meetingPlace}</Text>
-        )}
-
         {eventStatus !== Appointment.Status.COMPLETED && (
           <View style={[styles.row, styles.rowSpaceTop]}>
             <View style={[styles.tag, tagStyleGenerator(status)]}>
@@ -135,7 +132,18 @@ export default function AppointmentListItem(
               </Text>
           </View>
         )}
+
+        {eventStatus === Appointment.Status.COMPLETED && (
+          <View style={[styles.row, styles.rowSpaceTop]}>
+            <Text style={styles.meetingPlace}>{meetingPlace}</Text>
+          </View> 
+        )}
       </View>
+      {eventStatus === Appointment.Status.COMPLETED && (
+        <View style={styles.waterMark}>
+          <FontAwesome name='check-square-o' color='rgba(31, 197, 146, 0.4)' size={50} />
+        </View>
+      )}
     </TouchableOpacity>
   )
 }
@@ -161,7 +169,6 @@ const styles = StyleSheet.create({
     color: '#000',
     fontSize: 16,
     paddingRight: 15,
-    width: '50%',
   },
   statusBtnsWrapper: {
     flexDirection: 'row',
@@ -211,5 +218,14 @@ const styles = StyleSheet.create({
     width: 4,
     height: '100%',
     marginRight: 10,
+  },
+  meetingPlace: {
+    color: Colors.extraText
+  },
+  waterMark: {
+    height: '100%',
+    paddingLeft: 20,
+    justifyContent: 'center',
+    alignItems: 'center'
   }
 })

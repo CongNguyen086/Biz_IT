@@ -41,7 +41,6 @@ function* createAppointment({
 function* fetchAppointmentListSaga() {
   try {
     const currentUser = yield select(getCurrentUser);
-    console.log("function*fetchAppointmentListSaga -> currentUser", currentUser)
 
     if (!currentUser?.userId) {
       yield put(setLoadingAppointment({loading: false}));

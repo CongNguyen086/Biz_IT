@@ -1,13 +1,13 @@
 import { SET_CURRENT_USER } from "./constants";
 
 const initialState = {
-  // currentUser: {
-  //   "fullName": "Khang",
-  //   "userId": "8159657106479438377",
-  //   "userPassword": "123",
-  //   "userPhone": "123",
-  // },
-  currentUser: null,
+  currentUser: {
+    "fullName": "Khang",
+    "userId": "8159657106479438377",
+    "userPassword": "123",
+    "userPhone": "123",
+  },
+  // currentUser: null,
 }
 
 export default function(state = initialState, action) {

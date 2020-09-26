@@ -57,9 +57,7 @@ function AppointmentList({navigation}) {
 
   const filteredAppointmentList = useMemo(() => {
     let res = [...appointmentList];
-    if (!filterShown) {
-      res = res.filter(ap => !(ap.status === Appointment.Status.DECLINED || ap.eventStatus === Appointment.Status.CANCELED))
-    }
+    res = res.filter(ap => !(ap.status === Appointment.Status.DECLINED || ap.eventStatus === Appointment.Status.CANCELED))
     if (filterMeetingDate) {
       res = res.filter(ap => isInDate(ap.meetingDate, filterMeetingDate));
     }
