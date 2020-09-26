@@ -50,7 +50,24 @@ class AppRepo {
           userId
         }
       })
-      console.log("getAppointments -> data", data)
+
+      return data;
+    }
+    catch(e) {
+      throw new Error(e?.response?.data.message);
+    }
+  }
+
+  static async getAppointmentDetail({appointmentId}) {
+    try {
+      const { data } = await Api({
+        method: 'get',
+        url: '/appointment/store/details',
+        params: {
+          appointmentId
+        }
+      })
+      console.log("getAppointmentDetail -> data", data)
 
       return data;
     }

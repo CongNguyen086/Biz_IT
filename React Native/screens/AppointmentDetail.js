@@ -1,7 +1,7 @@
 import { FontAwesome } from '@expo/vector-icons'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import Modal from 'react-native-modal'
-import { StyleSheet, Text, View, Image, TouchableOpacity, FlatList, LayoutAnimation } from 'react-native'
+import { StyleSheet, Text, View, Image, TouchableOpacity, FlatList, LayoutAnimation, ActivityIndicator } from 'react-native'
 import { Avatar, ListItem } from 'react-native-elements'
 import {useSafeArea} from 'react-native-safe-area-context'
 import { withNavigation } from 'react-navigation'
@@ -10,6 +10,7 @@ import HeaderTitle from '../components/HeaderTitle'
 import Colors from '../constants/Colors'
 import Appointment from '../services/app/Appointment'
 import { getCurrentUser } from '../services/auth/getters'
+import AppRepo from '../services/app/repo'
 
 const months = [
   'Jan',
@@ -27,7 +28,8 @@ const months = [
 ]
 
 function formatTime(date) {
-  return `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`
+  const formated = new Date(date);
+  return `${months[formated.getMonth()]} ${formated.getDate()}, ${formated.getFullYear()}`
 }
 
 function getShortName(name = '') {
@@ -38,14 +40,14 @@ const appointmentDataSample = {
   members: [
     {
       userId: '374917359715',
-      userName: 'Hieu Do',
+      fullName: 'Hieu Do',
       avatar: null,
       userPhone: '91256701248',
       status: Appointment.Status.SELECTED,
     },
     {
       userId: '8159657106479438377',
-      userName: 'Hieu 2222',
+      fullName: 'Hieu 2222',
       avatar: null,
       userPhone: '91256701249',
       status: Appointment.Status.WAITING,
@@ -57,7 +59,7 @@ const appointmentDataSample = {
       storeName: ' wehlfe jgjewlg',
       storeAvatar: "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQ_bOozfBZ1FdTnKoUwZ65LVp_HgEI-r3bW9g&usqp=CAU",
       storeRating: 4.5,
-      description: 'Discount 20% for bill whose value is from $20 above',
+      promotion: 'Discount 20% for bill whose value is from $20 above',
       selectedMembers: ['8159657106479438377']
     },
     {
@@ -65,7 +67,7 @@ const appointmentDataSample = {
       storeName: ' wehlfe jgjewlg',
       storeAvatar: "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQ_bOozfBZ1FdTnKoUwZ65LVp_HgEI-r3bW9g&usqp=CAU",
       storeRating: 4.5,
-      description: 'Discount 20% for bill whose value is from $20 above',
+      promotion: 'Discount 20% for bill whose value is from $20 above',
       selectedMembers: ['374917359715']
     },
     {
@@ -73,12 +75,12 @@ const appointmentDataSample = {
       storeName: ' wehlfe jgjewlg',
       storeAvatar: "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQ_bOozfBZ1FdTnKoUwZ65LVp_HgEI-r3bW9g&usqp=CAU",
       storeRating: 4.5,
-      description: 'Discount 20% for bill whose value is from $20 above',
+      promotion: 'Discount 20% for bill whose value is from $20 above',
       selectedMembers: []
     },
   ],
   hostId: '387915791',
-  hostName: 'Hoang Nguyen',
+  fullName: 'Hoang Nguyen',
   meetingDate: new Date(Date.now() + 86400*1000),
   eventName: 'Old friends reuinion',
   eventStatus: Appointment.Status.WAITING,
@@ -87,7 +89,8 @@ const appointmentDataSample = {
 function AppointmentDetail({ navigation }) {
   const insets = useSafeArea()
   const currentUser = useSelector(getCurrentUser);
-  const [appointmentData, setAppointmentData] = useState({...appointmentDataSample});
+  const [appointmentData, setAppointmentData] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [selectedStore, setSelectedStore] = useState(null);
   const [detailModalVisible, setDetailModal] = useState(false);
 
@@ -176,7 +179,7 @@ function AppointmentDetail({ navigation }) {
               <Text style={[styles.extraText, {color: Colors.extraText,}]}>8:00 - 22:00</Text>
               <Text style={styles.categoryName}>Cafe</Text>
             </View>
-            <Text style={styles.description}>{item.description}</Text>
+            <Text style={styles.description}>{item.promotion}</Text>
           </View>
         }
         rightElement={
@@ -218,7 +221,7 @@ function AppointmentDetail({ navigation }) {
         <Text style={{fontSize: 16,}}>{`${votedNumber}/${appointmentData.members.length} voted`}</Text>
       </View>
     )
-  })
+  }, [appointmentData])
 
   const renderMembers = useCallback((member, index) => {
     let selectedIndexs = [];
@@ -254,12 +257,12 @@ function AppointmentDetail({ navigation }) {
           <View style={styles.memberNameBox}>
             <Avatar 
               rounded 
-              title={getShortName(member.userName)} 
+              title={getShortName(member.fullName)} 
               containerStyle={{
                 marginRight: 25,
               }}
             />
-            <Text style={styles.memberName}>{member.userName}</Text>
+            <Text style={styles.memberName}>{member.fullName}</Text>
           </View>
         }
         rightElement={
@@ -267,7 +270,7 @@ function AppointmentDetail({ navigation }) {
         }
       />
     )
-  }, [])
+  }, [appointmentData])
 
   const currentUserWithStatus = useMemo(() => {
     if (currentUser.userId === appointmentData.hostId) {
@@ -361,130 +364,151 @@ function AppointmentDetail({ navigation }) {
     return null
   }, [appointmentData.stores, appointmentData.members, selectedStore])
 
+  useEffect(() => {
+    const appointmentId = navigation.getParam('appointmentId');
+    setLoading(true);
+    AppRepo.getAppointmentDetail({appointmentId})
+      .then(data => setAppointmentData(data))
+      .catch(e => console.log(e))
+      .finally(() => {
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.linear);
+        setLoading(false)
+      })
+  }, [navigation])
+
   return (
     <View style={[styles.safeView, { paddingLeft: insets.left, paddingRight: insets.right}]}>
-      <View style={[styles.container, {paddingBottom: insets.bottom}]}>
-        <View style={styles.header}>
-          <Text style={styles.eventNameText}>{appointmentData.eventName}</Text>
-          <Text style={styles.eventHost}>By {appointmentData.hostName}</Text>
+      {loading && (
+        <View style={[styles.container, {justifyContent: 'center',alignItems: 'center'}]}>
+          <ActivityIndicator size='large' color={Colors.primary} />
         </View>
+      )}
+      {!loading && (
+        <React.Fragment>
+          <View style={[styles.container, {paddingBottom: insets.bottom}]}>
+            <View style={styles.header}>
+              <Text style={styles.eventNameText}>{appointmentData.eventName}</Text>
+              <Text style={styles.eventHost}>By {appointmentData.fullName}</Text>
+            </View>
 
-        <View style={styles.storeList}>
-          {appointmentData.stores.map(renderItem)}
-        </View>
+            <View style={styles.storeList}>
+              {appointmentData.stores.map(renderItem)}
+            </View>
 
-        <View style={styles.meetingDateBox}>
-          <Text style={styles.meetingDateTitle}>Meeting date:</Text>
-          <Text style={styles.meetingDateText}>{formatTime(appointmentData.meetingDate)}</Text>
-        </View>
+            <View style={styles.meetingDateBox}>
+              <Text style={styles.meetingDateTitle}>Meeting date:</Text>
+              <Text style={styles.meetingDateText}>{formatTime(appointmentData.meetingDate)}</Text>
+            </View>
 
-        <FlatList 
-          style={styles.membersList} 
-          ListHeaderComponent={MembersHeader}
-          stickyHeaderIndices={[0]}
-          data={appointmentData.members}
-          renderItem={({item, index}) => renderMembers(item, index)}
-          showsVerticalScrollIndicator
-          keyExtractor={item => `${item.userId}`}
-        />
+            <FlatList 
+              style={styles.membersList} 
+              ListHeaderComponent={MembersHeader}
+              stickyHeaderIndices={[0]}
+              data={appointmentData.members}
+              renderItem={({item, index}) => renderMembers(item, index)}
+              showsVerticalScrollIndicator
+              keyExtractor={item => `${item.userId}`}
+            />
 
-        <View style={styles.buttonGroup}>
-          {!isEventDone && (
-            <React.Fragment>
-              {confirmButtonText && (
-                <TouchableOpacity 
-                  style={[styles.bottomButton, {marginRight: 15}, isConfirmDisabled && styles.bottomButtonDisabled]}
-                  disabled={isConfirmDisabled}
-                  onPress={onConfirmPress}
-                >
-                  <Text style={styles.bottomButtonText}>{confirmButtonText}</Text>
-                </TouchableOpacity>
+            <View style={styles.buttonGroup}>
+              {!isEventDone && (
+                <React.Fragment>
+                  {confirmButtonText && (
+                    <TouchableOpacity 
+                      style={[styles.bottomButton, {marginRight: 15}, isConfirmDisabled && styles.bottomButtonDisabled]}
+                      disabled={isConfirmDisabled}
+                      onPress={onConfirmPress}
+                    >
+                      <Text style={styles.bottomButtonText}>{confirmButtonText}</Text>
+                    </TouchableOpacity>
+                  )}
+                  {cancelButtonText && (
+                    <TouchableOpacity 
+                      style={[styles.bottomButton, styles.buttonCancel, confirmButtonText && {marginLeft: 15}]}
+                      onPress={onCancelPress}
+                    >
+                      <Text style={styles.bottomButtonText}>{cancelButtonText}</Text>
+                    </TouchableOpacity>
+                  )}
+                </React.Fragment>
               )}
-              {cancelButtonText && (
+            </View>
+            {isEventDone && (
+              <Text 
+                style={[
+                  styles.canceledAppointmentText, 
+                  appointmentData.eventStatus === Appointment.Status.COMPLETED 
+                    ? {color: Colors.completed} 
+                    : {color: Colors.declined}
+                ]}
+              >
+                {eventDoneText}
+              </Text>
+            )}
+          </View>
+          {/* modal to show detail */}
+          <Modal
+            isVisible={detailModalVisible}
+            backdropColor='rgba(0,0,0,0.8)'
+            onModalHide={onModalDetailHide}
+            animationInTiming={500}
+            animationOutTiming={500}
+          >
+            <View style={styles.modalWrapper}>
+              <Text style={styles.modalDetailTitle}>{selectedStore?.storeName}</Text>
+              <View style={styles.meetingDateBox}>
+                <Text style={styles.meetingDateTitle}>Meeting date:</Text>
+                <Text style={styles.meetingDateText}>{formatTime(appointmentData.meetingDate)}</Text>
+              </View>
+              <Text style={styles.modalDetailSelectedText}>Selected members</Text>
+              <FlatList 
+                data={selectedMembersAtStore || []}
+                keyExtractor={item => `${item.userId}`}
+                style={{marginTop: 15,}}
+                renderItem={({item: member, index}) => (
+                  <ListItem 
+                    style={[styles.memberItem, {paddingHorizontal: 0}]} 
+                    key={member.userId}
+                    containerStyle={{paddingHorizontal: 0}}
+                    topDivider={index === 0}
+                    bottomDivider
+                    title={
+                      <View style={styles.memberNameBox}>
+                        <Avatar 
+                          rounded 
+                          title={getShortName(member.fullName)} 
+                          containerStyle={{
+                            marginRight: 25,
+                          }}
+                        />
+                        <Text style={styles.memberName}>{member.fullName}</Text>
+                      </View>
+                    }
+                    rightElement={
+                      <Text style={{fontSize: 16}}>{member.userPhone}</Text>
+                    }
+                  />
+                )}
+              />
+              <View style={styles.buttonGroup}>
                 <TouchableOpacity 
-                  style={[styles.bottomButton, styles.buttonCancel, confirmButtonText && {marginLeft: 15}]}
+                  style={[styles.bottomButton]}
+                  onPress={onCloseDetail}
+                  activeOpacity={0.85}
+                >
+                  <Text style={styles.bottomButtonText}>Close</Text>
+                </TouchableOpacity>
+                {/* <TouchableOpacity 
+                  style={[styles.bottomButton, styles.buttonCancelModal, confirmButtonText && {marginLeft: 10}]}
                   onPress={onCancelPress}
                 >
-                  <Text style={styles.bottomButtonText}>{cancelButtonText}</Text>
-                </TouchableOpacity>
-              )}
-            </React.Fragment>
-          )}
-        </View>
-        {isEventDone && (
-          <Text 
-            style={[
-              styles.canceledAppointmentText, 
-              appointmentData.eventStatus === Appointment.Status.COMPLETED 
-                ? {color: Colors.completed} 
-                : {color: Colors.declined}
-            ]}
-          >
-            {eventDoneText}
-          </Text>
-        )}
-      </View>
-      {/* modal to show detail */}
-      <Modal
-        isVisible={detailModalVisible}
-        backdropColor='rgba(0,0,0,0.8)'
-        onModalHide={onModalDetailHide}
-        animationInTiming={500}
-        animationOutTiming={500}
-      >
-        <View style={styles.modalWrapper}>
-          <Text style={styles.modalDetailTitle}>{selectedStore?.storeName}</Text>
-          <View style={styles.meetingDateBox}>
-            <Text style={styles.meetingDateTitle}>Meeting date:</Text>
-            <Text style={styles.meetingDateText}>{formatTime(appointmentData.meetingDate)}</Text>
-          </View>
-          <Text style={styles.modalDetailSelectedText}>Selected members</Text>
-          <FlatList 
-            data={selectedMembersAtStore || []}
-            keyExtractor={item => `${item.userId}`}
-            style={{marginTop: 15,}}
-            renderItem={({item: member, index}) => (
-              <ListItem 
-                style={[styles.memberItem, {paddingHorizontal: 0}]} 
-                key={member.userId}
-                containerStyle={{paddingHorizontal: 0}}
-                topDivider={index === 0}
-                bottomDivider
-                title={
-                  <View style={styles.memberNameBox}>
-                    <Avatar 
-                      rounded 
-                      title={getShortName(member.userName)} 
-                      containerStyle={{
-                        marginRight: 25,
-                      }}
-                    />
-                    <Text style={styles.memberName}>{member.userName}</Text>
-                  </View>
-                }
-                rightElement={
-                  <Text style={{fontSize: 16}}>{member.userPhone}</Text>
-                }
-              />
-            )}
-          />
-          <View style={styles.buttonGroup}>
-            <TouchableOpacity 
-              style={[styles.bottomButton]}
-              onPress={onCloseDetail}
-              activeOpacity={0.85}
-            >
-              <Text style={styles.bottomButtonText}>Close</Text>
-            </TouchableOpacity>
-            {/* <TouchableOpacity 
-              style={[styles.bottomButton, styles.buttonCancelModal, confirmButtonText && {marginLeft: 10}]}
-              onPress={onCancelPress}
-            >
-              <Text style={[styles.bottomButtonText, styles.buttonCancelModalText]}>Cancel</Text>
-            </TouchableOpacity> */}
-          </View>
-        </View>
-      </Modal>
+                  <Text style={[styles.bottomButtonText, styles.buttonCancelModalText]}>Cancel</Text>
+                </TouchableOpacity> */}
+              </View>
+            </View>
+          </Modal>
+        </React.Fragment>
+      )}
     </View>
   )
 }

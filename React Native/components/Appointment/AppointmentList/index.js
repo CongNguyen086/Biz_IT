@@ -149,7 +149,7 @@ function AppointmentList({navigation}) {
   }, [])
 
   const onAppointmentPress = useCallback((appointmentId) => {
-    navigation.navigate('AppointmentDetail', {appointmentId})
+    navigation.navigate('AppointmentDetail', { appointmentId });
   }, [navigation])
 
   useEffect(() => {
