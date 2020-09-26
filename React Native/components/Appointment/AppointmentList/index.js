@@ -19,6 +19,8 @@ const FILTER_OPTIONS = {
   TYPE: 'TYPE',
 }
 
+const FILTER_BY_ALL = 'all'
+
 function checkTodayOrTomorrow(date) {
   const meetingDate = new Date(date);
   const current = new Date();
@@ -48,38 +50,39 @@ function AppointmentList({navigation}) {
   const {appointmentList, appointmentLoading} = useSelector(getAppointmentList);
   const [filterShown, setShowFilter] = useState(false);
   const [filterMeetingDate, setFilterMeetingDate] = useState(new Date());
-  const [filterByStatus, setFilterStatus] = useState(Appointment.Status.COMPLETED);
-  const [filterByType, setFilterType] = useState(Appointment.Type.SENT);
+  const [filterByStatus, setFilterStatus] = useState(FILTER_BY_ALL);
+  const [filterByType, setFilterType] = useState(FILTER_BY_ALL);
 
   const isToday = useMemo(() => checkTodayOrTomorrow(filterMeetingDate) === 'Today');
-  const isTomorrow = useMemo(() => checkTodayOrTomorrow(filterMeetingDate) === 'Tomorrow');
-
-  const filterStatusMappingByType = useMemo(() => {
-    if (filterByType === Appointment.Type.SENT) {
-      return [Appointment.Status.COMPLETED,Appointment.Status.CANCELED, Appointment.Status.WAITING]
-    }
-
-    return [Appointment.Status.SELECTED,Appointment.Status.DECLINED, Appointment.Status.WAITING]
-  }, [filterByType])
 
   const filteredAppointmentList = useMemo(() => {
     let res = [...appointmentList];
+    if (!filterShown) {
+      res = res.filter(ap => !(ap.status === Appointment.Status.DECLINED || ap.eventStatus === Appointment.Status.CANCELED))
+    }
     if (filterMeetingDate) {
       res = res.filter(ap => isInDate(ap.meetingDate, filterMeetingDate));
     }
     if (filterShown) {
-      res = res.filter(ap => ap.status === filterByStatus && ap.type === filterByType);
+      // res = res.filter(ap => ap.status === filterByStatus && ap.type === filterByType);
+      if (filterByStatus !== FILTER_BY_ALL) {
+        res = res.filter(ap => ap.eventStatus === filterByStatus)
+      }
+      if (filterByType !== FILTER_BY_ALL) {
+        res = res.filter(ap => ap.type === filterByType)
+      }
     }
     return res;
   }, [appointmentList, filterShown, filterMeetingDate, filterByStatus, filterByType])
 
   const onTodayPress = useCallback(() => {
-    setFilterMeetingDate(new Date());
-  }, [])
-
-  const onTomorrowPress = useCallback(() => {
-    setFilterMeetingDate(new Date(Date.now() + 86400 * 1000));
-  }, [])
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
+    if (filterMeetingDate) {
+      setFilterMeetingDate(null)
+    } else {
+      setFilterMeetingDate(new Date());
+    }
+  }, [filterMeetingDate])
 
   const renderAppointmentItem = useCallback((item) => {
     return <AppointmentListItem appointment={item} onPress={() => onAppointmentPress(item.id)} />
@@ -96,12 +99,6 @@ function AppointmentList({navigation}) {
 
   const onFilterByTypeChanged = useCallback((data) => {
     setFilterType(data)
-    if (data === Appointment.Type.SENT) {
-      setFilterStatus(Appointment.Status.COMPLETED);
-    }
-    if (data === Appointment.Type.RECEIVED) {
-      setFilterStatus(Appointment.Status.SELECTED);
-    }
   }, [])
 
   const onFilterByStatusChanged = useCallback((data) => {
@@ -135,15 +132,16 @@ function AppointmentList({navigation}) {
   }, [filterMeetingDate])
 
   const onRemoveFilter = useCallback((option) => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
     switch(option) {
       case FILTER_OPTIONS.DATE:
         setFilterMeetingDate(null)
         break;
       case FILTER_OPTIONS.STATUS:
-        setFilterStatus(null)
+        setFilterStatus(FILTER_BY_ALL)
         break;
       case FILTER_OPTIONS.TYPE:
-        setFilterType(null)
+        setFilterType(FILTER_BY_ALL)
         break;
     }
   }, [])
@@ -158,8 +156,8 @@ function AppointmentList({navigation}) {
       setFilterStatus(null)
       setFilterType(null)
     } else {
-      setFilterStatus(Appointment.Status.COMPLETED)
-      setFilterType(Appointment.Type.SENT)
+      setFilterStatus(FILTER_BY_ALL)
+      setFilterType(FILTER_BY_ALL)
     }
   }, [filterShown])
 
@@ -193,6 +191,12 @@ function AppointmentList({navigation}) {
           Appointment date
         </Text>
         <View style={styles.dateContainer}>
+          <TouchableOpacity 
+            style={[styles.appointmentButton, isToday && styles.filterButtonActive]}
+            onPress={onTodayPress}
+          >
+            <Text style={styles.appointmentButtonText}>Today</Text>
+          </TouchableOpacity>
           <DatePicker 
             customStyles={{
               dateTouchBody: {
@@ -203,53 +207,35 @@ function AppointmentList({navigation}) {
                 borderColor: '#ccc',
                 height: 30,
               },
-              dateIcon: {
-                width: 0,
-                height: 0,
-              }
-            }}
-            iconSource={null}
-            style={{
-              width: 100,
             }}
             date={filterMeetingDate}
             onDateChange={onFilterDateChanged}
           />
-          <TouchableOpacity 
-            style={[styles.appointmentButton, isToday && styles.filterButtonActive]}
-            onPress={onTodayPress}
-          >
-            <Text style={styles.appointmentButtonText}>Today</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={[styles.appointmentButton, isTomorrow && styles.filterButtonActive]}
-            onPress={onTomorrowPress}
-          >
-            <Text style={styles.appointmentButtonText}>Tomorrow</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={[
-              styles.appointmentButton, 
-              styles.filterButton, 
-              filterShown && styles.filterButtonActive
-            ]}
-            onPress={toggleFilter}
-          >
-            <FontAwesome 
-              name='filter' 
-              size={14} 
+          <View style={styles.filterWrapper}>
+            <TouchableOpacity 
               style={[
-                {marginRight: 5}, 
-                styles.appointmentButtonText, 
-                !filterShown && {color: Colors.secondary, fontWeight: '400'}
-              ]} 
-            />
-            <Text style={[styles.appointmentButtonText, styles.appointmentButtonTextActive, !filterShown && {color: Colors.secondary}]}>Filter</Text>
-          </TouchableOpacity>
+                styles.appointmentButton, 
+                styles.filterButton,
+                filterShown && styles.filterButtonActive
+              ]}
+              onPress={toggleFilter}
+            >
+              <FontAwesome 
+                name='filter' 
+                size={14} 
+                style={[
+                  {marginRight: 5}, 
+                  styles.appointmentButtonText, 
+                  !filterShown && {color: Colors.secondary, fontWeight: '400'}
+                ]} 
+              />
+              <Text style={[styles.appointmentButtonText, styles.appointmentButtonTextActive, !filterShown && {color: Colors.secondary}]}>Filter</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
       {filterShown && (
-        <View style={[styles.dateContainer, styles.filterSection]}>
+        <View style={[styles.dateContainer, !([filterByStatus, filterByType].every(e => e === FILTER_BY_ALL) && !filterMeetingDate) && styles.filterSection]}>
           {/* type & status */}
           <View style={styles.filterItem}>
             <Text style={[styles.textGrey, {marginRight: 10}]}>Type</Text>
@@ -261,6 +247,9 @@ function AppointmentList({navigation}) {
                 </View>
               </MenuTrigger>
               <MenuOptions customStyles={{optionsWrapper: styles.optionsWrapper}}>
+                <MenuOption value={FILTER_BY_ALL} customStyles={{optionWrapper: styles.optionStyle}}>
+                  <Text>All</Text>
+                </MenuOption>
                 <MenuOption value={Appointment.Type.SENT} customStyles={{optionWrapper: styles.optionStyle}}>
                   <Text>Sent</Text>
                 </MenuOption>
@@ -283,13 +272,16 @@ function AppointmentList({navigation}) {
                 </View>
               </MenuTrigger>
               <MenuOptions customStyles={{optionsWrapper: styles.optionsWrapper}}>
-                {filterStatusMappingByType.map((status, idx) => (
+                <MenuOption value={FILTER_BY_ALL} customStyles={{optionWrapper: styles.optionStyle}}>
+                  <Text>All</Text>
+                </MenuOption>
+                {[Appointment.Status.WAITING,Appointment.Status.COMPLETED,Appointment.Status.CANCELED].map((status, idx) => (
                   <MenuOption 
                     key={status}
                     value={status} 
                     customStyles={{
                       optionWrapper: 
-                        idx !== filterStatusMappingByType.length
+                        idx !== Object.values(Appointment.Status).length
                         ? styles.optionStyle 
                         : {
                           ...styles.optionStyle,
@@ -316,7 +308,7 @@ function AppointmentList({navigation}) {
           </TouchableOpacity>
         )}
 
-        {filterByType && (
+        {filterByType && filterByType !== FILTER_BY_ALL && (
           <TouchableOpacity 
             style={styles.filterTag} 
             onPress={() => onRemoveFilter(FILTER_OPTIONS.TYPE)}
@@ -326,7 +318,7 @@ function AppointmentList({navigation}) {
           </TouchableOpacity>
         )}
 
-        {filterByStatus && (
+        {filterByStatus && filterByStatus !== FILTER_BY_ALL && (
           <TouchableOpacity 
             style={styles.filterTag} 
             onPress={() => onRemoveFilter(FILTER_OPTIONS.STATUS)}
@@ -368,7 +360,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 7,
     minHeight: 30,
-    marginLeft: 15,
+    marginRight: 15,
   },
   appointmentButtonText: {
     color: '#fff',
@@ -377,8 +369,13 @@ const styles = StyleSheet.create({
   appointmentButtonTextActive: {
     fontWeight: '700'
   },
+  filterWrapper: {
+    flex: 1,
+    alignItems: 'flex-end',
+  },
   filterButton: {
-    backgroundColor: 'transparent'
+    backgroundColor: 'transparent',
+    marginRight: 0,
   },
   filterButtonActive: {
     backgroundColor: Colors.primary,

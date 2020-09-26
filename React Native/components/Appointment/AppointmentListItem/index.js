@@ -38,11 +38,12 @@ export default function AppointmentListItem(
       votedNumber,
       selectedNumber,
       invitedNumber,
+      meetingPlace = 'Some place',
+      eventStatus,
     } = {},
     onPress = () => {}
   }
   ) {
-  
   const dateText = useMemo(() => {
     meetingDate = new Date(meetingDate);
     const current = new Date();
@@ -72,60 +73,68 @@ export default function AppointmentListItem(
     return `${date}/${month}/${year}`
   }, [meetingDate])
 
+  const lineStyle = useMemo(() => {
+    if (eventStatus === Appointment.Status.COMPLETED) {
+      return {
+        backgroundColor: Colors.completed
+      }
+    }
+    if (eventStatus === Appointment.Status.CANCELED) {
+      return {
+        backgroundColor: Colors.declined
+      }
+    }
+    return null
+  }, [eventStatus])
+
   return (
     <TouchableOpacity style={styles.container} onPress={onPress}>
-      <View style={styles.row}>
-        <Text style={styles.meetingMessage}>{eventName}</Text>
-        <View style={styles.statusBtnsWrapper}>
-          {type === Appointment.Type.SENT && (
-            <React.Fragment>
-              <TouchableOpacity style={styles.statusButton} >
-                <Text style={[styles.statusButtonText, styles.statusButtonText_Completed]}>Complete</Text>
-              </TouchableOpacity>
-              <View style={styles.statusDivider} />
-              <TouchableOpacity style={styles.statusButton} >
-                <Text style={[styles.statusButtonText, styles.statusButtonText_Declined]}>Cancel</Text>
-              </TouchableOpacity>
-              <View style={styles.statusDivider} />
-            </React.Fragment>
-          )}
-          <TouchableOpacity style={styles.statusButton} >
-            <Text style={[styles.statusButtonText, styles.statusButtonText_Details]}>Detail</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-      
-      <View style={[styles.row, styles.rowSpaceTop]}>
+      <View style={[styles.eventStatusLine, lineStyle]} />
+      <View style={{flex: 1}}>
         <View style={styles.row}>
-          <Icon 
-            type='material' 
-            name={type === Appointment.Type.SENT ? 'call-made' : 'call-received'} 
-            size={18} color={type === Appointment.Type.SENT ? Colors.waiting : Colors.completed} 
-          />
-          <Text style={styles.meetingDate}>{dateText}</Text>
+          <Text style={styles.meetingMessage}>{eventName}</Text>
         </View>
-        <Text 
-          style={[
-            styles.rightText, 
-            type === Appointment.Type.RECEIVED && {fontStyle: 'italic'}
-          ]}
-        >
-          {type === Appointment.Type.RECEIVED ? hostName : `${selectedNumber}/${invitedNumber} accepted`}
-        </Text>
-      </View>
+        
+        <View style={[styles.row, styles.rowSpaceTop]}>
+          <View style={styles.row}>
+            <Icon 
+              type='material' 
+              name={type === Appointment.Type.SENT ? 'call-made' : 'call-received'} 
+              size={18} color={type === Appointment.Type.SENT ? Colors.waiting : Colors.completed} 
+            />
+            <Text style={styles.meetingDate}>{dateText}</Text>
+          </View>
+          {eventStatus !== Appointment.Status.COMPLETED && (
+            <Text 
+              style={[
+                styles.rightText, 
+                type === Appointment.Type.RECEIVED && {fontStyle: 'italic'}
+              ]}
+            >
+              {type === Appointment.Type.RECEIVED ? hostName : `${selectedNumber}/${invitedNumber} accepted`}
+            </Text>
+          )}
+        </View>
 
-      <View style={[styles.row, styles.rowSpaceTop]}>
-        <View style={[styles.tag, tagStyleGenerator(status)]}>
-          <Text style={styles.tagText}>{_.upperFirst(_.lowerCase(status))}</Text>
-        </View>
-        <Text 
-          style={[
-            styles.rightText,
-            votedNumber === invitedNumber && {color: Colors.completed}
-          ]}
-        >
-          {`${votedNumber}/${invitedNumber} voted`}
-        </Text>
+        {eventStatus === Appointment.Status.COMPLETED && (
+          <Text>{meetingPlace}</Text>
+        )}
+
+        {eventStatus !== Appointment.Status.COMPLETED && (
+          <View style={[styles.row, styles.rowSpaceTop]}>
+            <View style={[styles.tag, tagStyleGenerator(status)]}>
+              <Text style={styles.tagText}>{_.upperFirst(_.lowerCase(status))}</Text>
+            </View>
+              <Text 
+                style={[
+                  styles.rightText,
+                  votedNumber === invitedNumber && {color: Colors.completed}
+                ]}
+              >
+                {`${votedNumber}/${invitedNumber} voted`}
+              </Text>
+          </View>
+        )}
       </View>
     </TouchableOpacity>
   )
@@ -136,6 +145,8 @@ const styles = StyleSheet.create({
     borderBottomColor: '#ccc',
     borderBottomWidth: 1,
     paddingVertical: 15,
+    flexDirection: 'row',
+    width: '100%',
   },
   row: {
     flexDirection: 'row',
@@ -195,5 +206,10 @@ const styles = StyleSheet.create({
   tagText: {
     color: '#fff',
     fontWeight: '400',
+  },
+  eventStatusLine: {
+    width: 4,
+    height: '100%',
+    marginRight: 10,
   }
 })

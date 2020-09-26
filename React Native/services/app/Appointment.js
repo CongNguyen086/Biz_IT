@@ -49,6 +49,8 @@ class Appointment {
       votedNumber,
       selectedNumber,
       invitedNumber,
+      eventStatus = Appointment.Status.WAITING,
+      meetingPlace = null,
     } = payload;
 
     if (!Object.values(Appointment.Type).includes(type)) {
@@ -57,6 +59,10 @@ class Appointment {
 
     if (!Object.values(Appointment.Status).includes(status)) {
       throw new Error('[Appointment] Status is not valid');
+    }
+
+    if (![Appointment.Status.WAITING, Appointment.Status.COMPLETED, Appointment.Status.CANCELED].includes(eventStatus)) {
+      throw new Error('[Appointment] Event status is not valid');
     }
 
     if (type === Appointment.Type.SENT && ![Appointment.Status.WAITING,Appointment.Status.COMPLETED,Appointment.Status.CANCELED].includes(status)) {
@@ -91,6 +97,8 @@ class Appointment {
       votedNumber,
       selectedNumber,
       invitedNumber,
+      eventStatus,
+      meetingPlace,
     }
   }
 }
