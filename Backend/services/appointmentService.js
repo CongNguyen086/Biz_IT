@@ -272,11 +272,14 @@ export default class AppointmentService {
                 .select([
                     "a.*",
                     "u.fullName",
-                    "ast.label AS eventStatus"
+                    "ast.label AS eventStatus",
+                    "s.storeName",
+                    "s.storeAddress"
                 ])
                 .from("appointments AS a")
                 .join("appointment_status AS ast", "a.statusId", "ast.id")
                 .join("users AS u", "a.hostId", "u.userId")
+                .join("stores AS s", "a.appointmentStore", "s.storeId")
                 .where("a.id", appointmentId);
             const appointmentMembers = await this.getAppointmentMembers(appointmentId);
             const appointmentMemberStoreDetails = await this.getAppointmentMemberStoreDetails(appointmentId);
