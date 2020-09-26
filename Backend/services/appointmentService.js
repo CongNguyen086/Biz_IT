@@ -105,6 +105,9 @@ export default class AppointmentService {
             // Return appointment list info
             const appointments = JSON.parse(JSON.stringify(query[0][0]));
             // Get appointment number of voted member & number of selected member
+            if (!appointments.length) {
+                return [];
+            }
             const appointmentStatistic = await this.countAppointmentSelection(
                 appointments.map(appointment => appointment.appointmentId)
             );
