@@ -54,3 +54,14 @@ export const getAppointmentStoreDetails = async (req, res) => {
         res.status(500).json({ error });
     }
 }
+
+export const selectAppointmentOptions = async (req, res) => {
+    try {
+        const { appointmentId, userId, storeIds } = req.body;
+        const appointmentOptions = await appointmentService.selectAppointmentStores(appointmentId, userId, storeIds);
+        res.status(200).json(appointmentOptions);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error });
+    }
+}
