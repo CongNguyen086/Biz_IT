@@ -44,7 +44,7 @@ CREATE TABLE `appointment_members` (
 
 LOCK TABLES `appointment_members` WRITE;
 /*!40000 ALTER TABLE `appointment_members` DISABLE KEYS */;
-INSERT INTO `appointment_members` (`appointmentStoreId`, `memberId`, `status`, `appointmentId`) VALUES (NULL,'1000000000000000001',3,33),(44,'8159657106479438377',2,33),(NULL,'8159657106479438377',3,34),(44,'3646728529149882702',2,33),(45,'3646728529149882702',2,33),(NULL,'1000000000000000002',1,34),(NULL,'1000000000000000001',2,34),(46,'8159657106479438377',2,33),(NULL,'1000000000000000001',1,35),(NULL,'8159657106479438377',1,35);
+INSERT INTO `appointment_members` (`appointmentStoreId`, `memberId`, `status`, `appointmentId`) VALUES (NULL,'1000000000000000001',3,33),(44,'8159657106479438377',2,33),(NULL,'8159657106479438377',3,34),(44,'3646728529149882702',2,33),(45,'3646728529149882702',2,33),(NULL,'1000000000000000002',1,34),(48,'1000000000000000001',2,34),(46,'8159657106479438377',2,33),(NULL,'1000000000000000001',1,35),(NULL,'8159657106479438377',1,35);
 /*!40000 ALTER TABLE `appointment_members` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -114,10 +114,13 @@ CREATE TABLE `appointments` (
   `meetingDate` date DEFAULT NULL,
   `hostId` varchar(20) DEFAULT NULL,
   `statusId` smallint(6) DEFAULT '1',
+  `appointmentStore` varchar(20) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `appointments_users_userId_fk` (`hostId`),
   KEY `appointments_appointment_status_id_fk` (`statusId`),
+  KEY `appointments_stores_storeId_fk` (`appointmentStore`),
   CONSTRAINT `appointments_appointment_status_id_fk` FOREIGN KEY (`statusId`) REFERENCES `appointment_status` (`id`),
+  CONSTRAINT `appointments_stores_storeId_fk` FOREIGN KEY (`appointmentStore`) REFERENCES `stores` (`storeId`) ON DELETE CASCADE,
   CONSTRAINT `appointments_users_userId_fk` FOREIGN KEY (`hostId`) REFERENCES `users` (`userId`) ON DELETE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=36 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -128,7 +131,7 @@ CREATE TABLE `appointments` (
 
 LOCK TABLES `appointments` WRITE;
 /*!40000 ALTER TABLE `appointments` DISABLE KEYS */;
-INSERT INTO `appointments` (`id`, `eventName`, `meetingDate`, `hostId`, `statusId`) VALUES (33,'Meeting','2020-09-26','1000000000000000002',1),(34,'Eating with friends','2020-09-26','3646728529149882702',2),(35,'Meeting','2020-09-28','3646728529149882702',1);
+INSERT INTO `appointments` (`id`, `eventName`, `meetingDate`, `hostId`, `statusId`, `appointmentStore`) VALUES (33,'Meeting','2020-09-26','1000000000000000002',1,'1000377857974285127'),(34,'Eating with friends','2020-09-26','3646728529149882702',2,'1000377857974285127'),(35,'Meeting','2020-09-28','3646728529149882702',1,NULL);
 /*!40000 ALTER TABLE `appointments` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -620,9 +623,14 @@ BEGIN
         a.eventName,
         a.meetingDate,
         a.hostId,
-        u.fullName AS hostName,
+	    u.fullName AS hostName,
+	    a.statusId,
+	    ast.label AS eventStatus,
+	    a.appointmentStore,
+        s.storeName,
+	    s.storeAddress AS meetingPlace,
         IF(a.hostId = userId, 'sent', 'received') as type,
-        IF(a.hostId = userId, ast.label, am.label) as status,
+        am.label AS memberStatus,
 	    am1.invitedNumber
     FROM appointments a
     JOIN (
@@ -639,6 +647,7 @@ BEGIN
         group by am.appointmentId
     ) as am1 on a.id = am1.appointmentId
     JOIN users u ON a.hostId = u.userId
+    LEFT JOIN stores s ON a.appointmentStore = s.storeId
     JOIN appointment_status ast ON a.statusId = ast.id
     WHERE a.hostId = userId OR am.memberId = userId;
 END ;;
@@ -679,4 +688,4 @@ BEGIN
 END ;;
 DELIMITER ;
 
--- Dump completed on 2020-09-26  0:28:06
+-- Dump completed on 2020-09-26 12:43:03
