@@ -34,11 +34,24 @@ function getShortName(name = '') {
   return name.split(' ').map(word => word?.[0] || '').join('');
 }
 
+const confirmModalState = {
+  visible: false,
+  onConfirm: () => {},
+  onCancel: () => {},
+  confirmLabel: 'Ok',
+  cancelLabel: 'Cancel',
+  confirmStyle: {},
+  cancelStyle: {},
+  title: '',
+  description: ''
+}
+
 function AppointmentDetail({ appointmentData, setAppointmentData = () => {} }) {
   const insets = useSafeArea()
   const currentUser = useSelector(getCurrentUser);
   const [selectedStore, setSelectedStore] = useState(null);
   const [detailModalVisible, setDetailModal] = useState(false);
+  const [confirmModal, setConfirmModal] = useState({...confirmModalState});
 
   const onSelectClick = useCallback((storeId) => {
     toggleSelect(currentUser.userId, storeId)
@@ -278,27 +291,77 @@ function AppointmentDetail({ appointmentData, setAppointmentData = () => {} }) {
     return true;
   }, [currentUserWithStatus.status, currentUserWithStatus.userId, appointmentData.stores])
 
+  const resetConfirmModal = useCallback(() => {
+    setConfirmModal({...confirmModalState});
+  }, [])
+
+  const setConfirmModalVisible = useCallback((isOpen) => {
+    setConfirmModal({...confirmModal, visible: isOpen});
+  }, [confirmModal])
+
+  const onConfirmModalHide = useCallback(() => {
+    resetConfirmModal();
+  }, [resetConfirmModal])
+
   const onConfirmPress = useCallback(() => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.spring)
     if (currentUser.userId === appointmentData.hostId) {
-      setAppointmentData({
-        ...appointmentData,
-        eventStatus: Appointment.Status.COMPLETED
+      setConfirmModal({
+        ...confirmModalState,
+        visible: true,
+        title: 'Are you sure to complete this appointment?',
+        onConfirm: () => {
+          setConfirmModalVisible(false)
+          setAppointmentData({
+            ...appointmentData,
+            eventStatus: Appointment.Status.COMPLETED
+          })
+        },
+        onCancel: () => setConfirmModalVisible(false)
       })
     } else {
-      setMemberStatus(currentUser.userId, Appointment.Status.SELECTED)
+      setConfirmModal({
+        ...confirmModalState,
+        visible: true,
+        title: 'Are you sure to select this appointment?',
+        onConfirm: () => {
+          setConfirmModalVisible(false)
+          setMemberStatus(currentUser.userId, Appointment.Status.SELECTED)
+        },
+        onCancel: () => setConfirmModalVisible(false)
+      })
     }
   }, [currentUser.userId, appointmentData])
 
   const onCancelPress = useCallback(() => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.spring)
     if (currentUser.userId === appointmentData.hostId) {
-      setAppointmentData({
-        ...appointmentData,
-        eventStatus: Appointment.Status.CANCELED
+      setConfirmModal({
+        ...confirmModalState,
+        visible: true,
+        title: 'Are you sure to cancel this appointment?',
+        confirmStyle: styles.buttonCancel,
+        onConfirm: () => {
+          resetConfirmModal()
+          setAppointmentData({
+            ...appointmentData,
+            eventStatus: Appointment.Status.CANCELED
+          })
+        },
+        onCancel: resetConfirmModal
       })
     } else {
-      setMemberStatus(currentUser.userId, Appointment.Status.DECLINED)
+      setConfirmModal({
+        ...confirmModalState,
+        visible: true,
+        confirmStyle: styles.buttonCancel,
+        title: 'Are you sure to decline this appointment?',
+        onConfirm: () => {
+          resetConfirmModal()
+          setMemberStatus(currentUser.userId, Appointment.Status.DECLINED)
+        },
+        onCancel: resetConfirmModal
+      })
     }
   }, [currentUser.userId, appointmentData])
   
@@ -431,6 +494,32 @@ function AppointmentDetail({ appointmentData, setAppointmentData = () => {} }) {
             >
               <Text style={[styles.bottomButtonText, styles.buttonCancelModalText]}>Cancel</Text>
             </TouchableOpacity> */}
+          </View>
+        </View>
+      </Modal>
+      <Modal
+        isVisible={confirmModal.visible}
+        onModalHide={onConfirmModalHide}
+        backdropColor='rgba(0,0,0,0.8)'
+        animationInTiming={500}
+        animationOutTiming={500}
+      >
+        <View style={styles.modalWrapper}>
+          <Text style={[styles.modalDetailTitle, {textAlign: 'center', marginBottom: 10,}]}>{confirmModal.title}</Text>
+          <View style={styles.buttonGroup}>
+            <TouchableOpacity 
+              style={[styles.bottomButton, confirmModal.confirmStyle, {marginRight: 15},]}
+              onPress={confirmModal.onConfirm}
+              activeOpacity={0.85}
+            >
+              <Text style={styles.bottomButtonText}>{confirmModal.confirmLabel}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={[styles.bottomButton, styles.buttonCancelModal, {marginLeft: 15}]}
+              onPress={confirmModal.onCancel}
+            >
+              <Text style={[styles.bottomButtonText, styles.buttonCancelModalText]}>{confirmModal.cancelLabel}</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </Modal>
