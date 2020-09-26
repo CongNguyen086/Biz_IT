@@ -1,6 +1,7 @@
 import MysqlClient from "../config/db";
-import { MemberStatus } from "../constants/appointment";
+import { AppointmentStatus, MemberStatus } from "../constants/appointment";
 import { uniqBy } from "lodash";
+import { ResponseError } from "../models/Error";
 
 export default class AppointmentService {
     constructor() {
@@ -115,9 +116,84 @@ export default class AppointmentService {
         }
     }
 
-    // async selectAppointmentStores(userId, storeIds) {
+    async getAppointmentById(id) {
+        try {
+            const knex = this.client.connection;
+            const query = await knex
+                .select("*")
+                .from("appointments")
+                .where("id", id)
+                .first();
+            return JSON.parse(JSON.stringify(query));
+        } catch (error) {
+            throw new Error(error);
+        }
+    }
 
-    // }
+    async getAppointmentMemberInfo(appointmentId, memberId) {
+        try {
+            const knex = this.client.connection;
+            const query = await knex.raw(`
+                SELECT appointmentId, memberId, status
+                FROM appointment_members
+                WHERE appointmentId = ? AND memberId = ?
+                GROUP BY appointmentId, memberId, status
+            `, [appointmentId, memberId]);
+            return JSON.parse(JSON.stringify(query[0][0]));
+        } catch (error) {
+            throw new Error(error);
+        }
+    }
+
+    async selectAppointmentStores(appointmentId, memberId, storeIds) {
+        try {
+            const knex = this.client.connection;
+            const appointment = await this.getAppointmentById(appointmentId);
+            console.log("AppointmentService -> selectAppointmentStores -> appointment", appointment)
+            if (appointment?.statusId !== AppointmentStatus.waiting) {
+                return new ResponseError("The appointment does not exist or has ended");
+            }
+            const appointmentInfo = await this.getAppointmentMemberInfo(appointmentId, memberId);
+            console.log("AppointmentService -> selectAppointmentStores -> appointmentInfo", appointmentInfo);
+            if (!appointmentInfo?.memberId) {
+                return new ResponseError("You are not a participant of this appointment");
+            }
+
+            if (appointmentInfo.status !== MemberStatus.waiting) {
+                return new ResponseError("You have interacted with this appointment");
+            }
+
+            const inserted = [];
+            await Promise.all(storeIds.map(async (storeId) => {
+                await knex
+                    .delete("*")
+                    .from("appointment_members")
+                    .where({
+                        appointmentId,
+                        memberId
+                    })
+                const query = await knex
+                    .select("*")
+                    .from("appointment_stores")
+                    .where({
+                        storeId,
+                        appointmentId
+                    })
+                    .first();
+                const store = JSON.parse(JSON.stringify(query));
+                inserted.push({
+                    appointmentStoreId: store.id,
+                    memberId,
+                    appointmentId,
+                    status: MemberStatus.selected
+                });
+            }));
+            await knex.insert(inserted).into("appointment_members");
+            return inserted;
+        } catch (error) {
+            throw new Error(error);
+        }
+    }
 
     async getAppointmentMembers(appointmentId) {
         try {
@@ -178,7 +254,7 @@ export default class AppointmentService {
             appointmentMemberStoreDetails.map(item => {
                 const foundStoreDetails = stores.find(element => element.storeId === item.storeId);
                 const memberId = item.memberId;
-                const member = appointmentMembers.find(member => (member.userId === memberId && member.status === MemberStatus.selected));
+                const member = appointmentMembers.find(member => (member.userId === memberId && member.statusId === MemberStatus.selected));
                 delete item.memberId;
                 if (!foundStoreDetails) {
                     if (member) {
