@@ -16,8 +16,10 @@ import config from '../constants/config'
 import Header_HomePage from '../components/HomePage/Header_HomePage'
 import ProductsContainer from '../components/HomePage/ProductsContainer'
 import Colors from '../constants/Colors'
+import { CONNTECT_SOCKET } from '../services/socket/constants';
+import { connect } from 'react-redux';
 
-export default class HomePage extends Component {
+class HomePage extends Component {
   constructor(props) {
     super(props)
     this.state = {
@@ -46,6 +48,9 @@ export default class HomePage extends Component {
 
   componentDidMount() {
     this.getPopular();
+    this.props.dispatch({
+      type: CONNTECT_SOCKET,
+    })
   }
   render() {
     const {products, loading} = this.state;
@@ -86,6 +91,8 @@ export default class HomePage extends Component {
 HomePage.navigationOptions = {
   header: null
 };
+
+export default connect(null, null)(HomePage)
 
 const styles = StyleSheet.create({
   safeAreaViewStyle: {
