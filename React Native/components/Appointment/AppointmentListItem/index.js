@@ -223,7 +223,6 @@ const styles = StyleSheet.create({
     color: Colors.extraText
   },
   waterMark: {
-    height: '100%',
     paddingLeft: 20,
     justifyContent: 'center',
     alignItems: 'center'
