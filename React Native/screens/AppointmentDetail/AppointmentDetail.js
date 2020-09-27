@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { FontAwesome } from '@expo/vector-icons'
 import Modal from 'react-native-modal'
 import { Text, View, Image, TouchableOpacity, FlatList, LayoutAnimation, Alert } from 'react-native'
@@ -10,6 +10,8 @@ import Appointment from '../../services/app/Appointment'
 import { getCurrentUser } from '../../services/auth/getters'
 import styles from './styles';
 import { DECLINE_APPOINTMENT, SELECT_APPOINTMENT_STORES, UPDATE_APPOINTMENT_STATUS } from '../../services/app/constants'
+import AppSocket from '../../services/socket'
+import { APPOINTMENT_CHANGE } from '../../services/socket/constants'
 
 const months = [
   'Jan',
@@ -483,6 +485,17 @@ function AppointmentDetail({ appointmentData, setAppointmentData = () => {} }) {
     }
     return null
   }, [appointmentData.stores, appointmentData.members, selectedStore])
+
+  const onAppointmentChange = useCallback((payload) => {
+    setAppointmentData(payload);
+  }, [])
+
+  useEffect(() => {
+    AppSocket.on(APPOINTMENT_CHANGE, onAppointmentChange);
+    return () => {
+      AppSocket.off(APPOINTMENT_CHANGE, onAppointmentChange);
+    }
+  }, [])
 
   return (
     <React.Fragment>

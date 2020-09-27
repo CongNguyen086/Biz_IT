@@ -1,6 +1,9 @@
 import io from 'socket.io-client'
 import config from '../../constants/config'
-import { CONNTECT_SOCKET, CONNECT, DISCONNECT } from './constants'
+import { updateAppointment } from '../app/actions'
+import Appointment from '../app/Appointment'
+import { CONNTECT_SOCKET, CONNECT, DISCONNECT, APPOINTMENT_CHANGE } from './constants'
+
 
 class AppSocket {
   static instance = null
@@ -87,6 +90,20 @@ class AppSocket {
     console.log(`Disconnected: ${reason}`)
   }
 
+  static onAppointmentChange(payload) {
+    try {
+      const appointment = Appointment.object(payload)
+
+      AppSocket.reduxStore.dispatch(updateAppointment({
+        appointmentId: appointment.id,
+        appointment
+      }))
+    }
+    catch(e) {
+      console.log("AppSocket -> onAppointmentChange -> e", e)
+    }
+  }
+
   static createSocketMiddleware() {
     return store => next => action => {
       switch(action.type) {
@@ -97,6 +114,7 @@ class AppSocket {
 
             AppSocket.on(CONNECT, AppSocket.onConnect)
             AppSocket.on(DISCONNECT, AppSocket.onDisconnect)
+            AppSocket.on(APPOINTMENT_CHANGE, AppSocket.onAppointmentChange)
           }
         }
       }
