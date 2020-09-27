@@ -290,12 +290,15 @@ export default class AppointmentService {
                 .from("appointments AS a")
                 .join("appointment_status AS ast", "a.statusId", "ast.id")
                 .join("users AS u", "a.hostId", "u.userId")
-                .join("stores AS s", "a.appointmentStore", "s.storeId")
-                .where("a.id", appointmentId);
-            appointmentInfo.forEach(a => {
-                a.appointmentId = a.id;
-                delete a.id;
-            });
+                .leftJoin("stores AS s", "a.appointmentStore", "s.storeId")
+                .where("a.id", appointmentId)
+                .first();
+            if (!appointmentInfo) {
+                return new ResponseError("Appointment does not exist");
+            }
+            appointmentInfo.appointmentId = appointmentInfo.id;
+            delete appointmentInfo.id;
+            console.log("AppointmentService -> getAppointmentDetails -> appointmentInfo", appointmentInfo)
             const appointmentMembers = await this.getAppointmentMembers(appointmentId);
             const appointmentMemberStoreDetails = await this.getAppointmentMemberStoreDetails(appointmentId);
             // Get stores info including basic info and a list of selected members' ids
@@ -319,7 +322,7 @@ export default class AppointmentService {
                 }
             });
             return {
-                ...appointmentInfo[0],
+                ...appointmentInfo,
                 members: uniqBy(appointmentMembers, "userId"),
                 stores,
             };
