@@ -9,7 +9,7 @@ import Colors from '../../constants/Colors'
 import Appointment from '../../services/app/Appointment'
 import { getCurrentUser } from '../../services/auth/getters'
 import styles from './styles';
-import { SELECT_APPOINTMENT_STORES } from '../../services/app/constants'
+import { DECLINE_APPOINTMENT, SELECT_APPOINTMENT_STORES, UPDATE_APPOINTMENT_STATUS } from '../../services/app/constants'
 
 const months = [
   'Jan',
@@ -201,7 +201,6 @@ function AppointmentDetail({ appointmentData, setAppointmentData = () => {} }) {
     }
   }, [appointmentData.stores,isRealyCompleted, appointmentVotedNumber])
 
-
   const MembersHeader = useMemo(() => {
     const subText = goingMembers?.length > 0 ? 'will take part in' : 'voted';
     return (
@@ -289,7 +288,9 @@ function AppointmentDetail({ appointmentData, setAppointmentData = () => {} }) {
     [
       Appointment.Status.CANCELED, 
       Appointment.Status.COMPLETED,
-    ].includes(appointmentData?.eventStatus) || currentUserWithStatus?.status === Appointment.Status.DECLINED,
+    ].includes(appointmentData?.eventStatus) 
+      || currentUserWithStatus?.status === Appointment.Status.DECLINED
+      || currentUserWithStatus?.status === Appointment.Status.SELECTED,
     [appointmentData?.eventStatus, currentUserWithStatus])
 
   const eventDoneText = useMemo(() => {
@@ -301,6 +302,9 @@ function AppointmentDetail({ appointmentData, setAppointmentData = () => {} }) {
     }
     if (currentUserWithStatus.status === Appointment.Status.DECLINED) {
       return 'You declined this appointment!'
+    }
+    if (currentUserWithStatus.status === Appointment.Status.SELECTED) {
+      return 'You selected stores in this appointment!'
     }
 
     return null;
@@ -355,6 +359,21 @@ function AppointmentDetail({ appointmentData, setAppointmentData = () => {} }) {
     return stores.map(st => st.storeId);
   }, [appointmentData.stores, currentUser.userId])
 
+  const updateAppointmentStatus = useCallback((status) => {
+    dispatch({
+      type: UPDATE_APPOINTMENT_STATUS,
+      payload: {
+        appointmentId: appointmentData.appointmentId,
+        status,
+        storeId: selectedStoreIds?.[0],
+      },
+      meta: {
+        onSuccess: (newAppointmentData) => setAppointmentData(newAppointmentData),
+        onFailed: () => Alert.alert('Error', "Can't select appointment")
+      }
+    })
+  }, [appointmentData,dispatch])
+
   const onConfirmPress = useCallback(() => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.spring)
     if (currentUser.userId === appointmentData.hostId) {
@@ -364,10 +383,7 @@ function AppointmentDetail({ appointmentData, setAppointmentData = () => {} }) {
         title: 'Are you sure to complete this appointment?',
         onConfirm: () => {
           setConfirmModalVisible(false)
-          setAppointmentData({
-            ...appointmentData,
-            eventStatus: Appointment.Status.COMPLETED
-          })
+          updateAppointmentStatus(Appointment.Status.COMPLETED)
         },
         onCancel: () => setConfirmModalVisible(false)
       })
@@ -405,10 +421,7 @@ function AppointmentDetail({ appointmentData, setAppointmentData = () => {} }) {
         confirmStyle: styles.buttonCancel,
         onConfirm: () => {
           resetConfirmModal()
-          setAppointmentData({
-            ...appointmentData,
-            eventStatus: Appointment.Status.CANCELED
-          })
+          updateAppointmentStatus(Appointment.Status.CANCELED)
         },
         onCancel: resetConfirmModal
       })
@@ -420,7 +433,16 @@ function AppointmentDetail({ appointmentData, setAppointmentData = () => {} }) {
         title: 'Are you sure to decline this appointment?',
         onConfirm: () => {
           resetConfirmModal()
-          setMemberStatus(currentUser.userId, Appointment.Status.DECLINED)
+          dispatch({
+            type: DECLINE_APPOINTMENT,
+            payload: {
+              appointmentId: appointmentData.appointmentId,
+            },
+            meta: {
+              onSuccess: (newAppointmentData) => setAppointmentData(newAppointmentData),
+              onFailed: () => Alert.alert('Error', "Can't select appointment")
+            }
+          })
         },
         onCancel: resetConfirmModal
       })
@@ -505,7 +527,8 @@ function AppointmentDetail({ appointmentData, setAppointmentData = () => {} }) {
           <Text 
             style={[
               styles.canceledAppointmentText, 
-              appointmentData.eventStatus === Appointment.Status.COMPLETED 
+              Appointment.Status.COMPLETED === appointmentData.eventStatus 
+                || currentUserWithStatus?.status === Appointment.Status.SELECTED
                 ? {color: Colors.completed} 
                 : {color: Colors.declined}
             ]}

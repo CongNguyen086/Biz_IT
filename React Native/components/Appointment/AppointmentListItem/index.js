@@ -60,7 +60,7 @@ export default function AppointmentListItem(
     }
 
     let [date, month, year, hours, minutes] = [
-      meetingDate.getDate() + 1,
+      meetingDate.getDate(),
       meetingDate.getMonth() + 1,
       meetingDate.getFullYear(),
     ]

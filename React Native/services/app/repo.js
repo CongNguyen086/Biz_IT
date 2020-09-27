@@ -50,7 +50,6 @@ class AppRepo {
           userId
         }
       })
-      console.log("getAppointments -> data", data)
 
       return data;
     }
@@ -107,7 +106,6 @@ class AppRepo {
           userId,
         }
       })
-      console.log("declineAppointment -> data", data)
 
       return data;
     }
