@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useState } from 'react'
 import { FontAwesome } from '@expo/vector-icons'
 import Modal from 'react-native-modal'
-import { Text, View, Image, TouchableOpacity, FlatList, LayoutAnimation } from 'react-native'
+import { Text, View, Image, TouchableOpacity, FlatList, LayoutAnimation, Alert } from 'react-native'
 import { Avatar, ListItem } from 'react-native-elements'
 import {useSafeArea} from 'react-native-safe-area-context'
 import { useDispatch, useSelector } from 'react-redux'
@@ -283,7 +283,7 @@ function AppointmentDetail({ appointmentData, setAppointmentData = () => {} }) {
       return currentUser;
     }
     return appointmentData.members.find(mb => mb.userId === currentUser.userId)
-  }, [currentUser.userId, appointmentData.members, appointmentData.hostId])
+  }, [currentUser.userId, appointmentData])
 
   const isEventDone = useMemo(() => 
     [
@@ -372,7 +372,6 @@ function AppointmentDetail({ appointmentData, setAppointmentData = () => {} }) {
         onCancel: () => setConfirmModalVisible(false)
       })
     } else {
-      console.log("onConfirmPress -> appointmentData", appointmentData)
       setConfirmModal({
         ...confirmModalState,
         visible: true,
@@ -386,7 +385,8 @@ function AppointmentDetail({ appointmentData, setAppointmentData = () => {} }) {
               storeIds: selectedStoreIds
             },
             meta: {
-              onSuccess: () => setMemberStatus(currentUser.userId, Appointment.Status.SELECTED)
+              onSuccess: (newAppointmentData) => setAppointmentData(newAppointmentData),
+              onFailed: () => Alert.alert('Error', "Can't select appointment")
             }
           })
         },

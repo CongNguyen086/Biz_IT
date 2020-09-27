@@ -70,8 +70,6 @@ function* selectAppointmentStoresSaga({
   } = {}
 }) {
   try {
-    console.log("appointmentId", appointmentId)
-    console.log("storeIds", storeIds)
     const currentUser = yield select(getCurrentUser);
 
     if (!currentUser || !currentUser.userId) {
@@ -79,17 +77,17 @@ function* selectAppointmentStoresSaga({
     }
 
     const data = yield call(AppRepo.selectAppointmentStores, {appointmentId, userId: currentUser.userId, storeIds});
-    console.log("onFailed -> data", data)
 
     // update appointment list in redux
-    // yield put(updateAppointment({
-    //   appointmentId,
-    //   appointment: {
+    const appontmentItem = Appointment.object(data);
+    if (appontmentItem) {
+      yield put(updateAppointment({
+        appointmentId,
+        appointment: appontmentItem,
+      }))
+    }
 
-    //   }
-    // }))
-
-    yield calll(onSuccess)
+    yield call(onSuccess, data)
   }
   catch(e) {
     yield call(onFailed)
