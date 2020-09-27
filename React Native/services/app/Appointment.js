@@ -39,30 +39,37 @@ class Appointment {
 
   static object(payload) {
     const {
+      appointmentId,
       eventName,
       type,
-      status,
+      memberStatus,
       meetingDate,
       hostId,
       hostName,
       votedNumber,
       selectedNumber,
       invitedNumber,
+      eventStatus = Appointment.Status.WAITING,
+      meetingPlace = null,
     } = payload;
 
     if (!Object.values(Appointment.Type).includes(type)) {
       throw new Error('[Appointment] Type is not valid');
     }
 
-    if (!Object.values(Appointment.Status).includes(status)) {
+    if (!Object.values(Appointment.Status).includes(memberStatus)) {
       throw new Error('[Appointment] Status is not valid');
     }
 
-    if (type === Appointment.Type.SENT && ![Appointment.Status.WAITING,Appointment.Status.COMPLETED,Appointment.Status.CANCELED].includes(status)) {
+    if (![Appointment.Status.WAITING, Appointment.Status.COMPLETED, Appointment.Status.CANCELED].includes(eventStatus)) {
+      throw new Error('[Appointment] Event status is not valid');
+    }
+
+    if (type === Appointment.Type.SENT && ![Appointment.Status.WAITING,Appointment.Status.COMPLETED,Appointment.Status.CANCELED].includes(memberStatus)) {
       throw new Error('[Appointment] Status of `sent` is not valid');
     }
 
-    if (type === Appointment.Type.RECEIVED && ![Appointment.Status.WAITING,Appointment.Status.SELECTED,Appointment.Status.DECLINED].includes(status)) {
+    if (type === Appointment.Type.RECEIVED && ![Appointment.Status.WAITING,Appointment.Status.SELECTED,Appointment.Status.DECLINED].includes(memberStatus)) {
       throw new Error('[Appointment] Status of `received` is not valid');
     }
 
@@ -80,15 +87,18 @@ class Appointment {
     }
 
     return {
+      id: appointmentId,
       eventName,
       type: type || Appointment.Type.SENT,
-      status: status || Appointment.Status.WAITING,
+      status: memberStatus || Appointment.Status.WAITING,
       meetingDate: date,
       hostId,
       hostName,
       votedNumber,
       selectedNumber,
       invitedNumber,
+      eventStatus,
+      meetingPlace,
     }
   }
 }

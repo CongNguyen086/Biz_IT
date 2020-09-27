@@ -1,15 +1,15 @@
-import { FontAwesome } from '@expo/vector-icons'
 import React, { useCallback, useMemo, useState } from 'react'
+import { FontAwesome } from '@expo/vector-icons'
 import Modal from 'react-native-modal'
-import { StyleSheet, Text, View, Image, TouchableOpacity, FlatList, LayoutAnimation } from 'react-native'
+import { Text, View, Image, TouchableOpacity, FlatList, LayoutAnimation } from 'react-native'
 import { Avatar, ListItem } from 'react-native-elements'
 import {useSafeArea} from 'react-native-safe-area-context'
-import { withNavigation } from 'react-navigation'
-import { useSelector } from 'react-redux'
-import HeaderTitle from '../components/HeaderTitle'
-import Colors from '../constants/Colors'
-import Appointment from '../services/app/Appointment'
-import { getCurrentUser } from '../services/auth/getters'
+import { useDispatch, useSelector } from 'react-redux'
+import Colors from '../../constants/Colors'
+import Appointment from '../../services/app/Appointment'
+import { getCurrentUser } from '../../services/auth/getters'
+import styles from './styles';
+import { SELECT_APPOINTMENT_STORES } from '../../services/app/constants'
 
 const months = [
   'Jan',
@@ -27,69 +27,33 @@ const months = [
 ]
 
 function formatTime(date) {
-  return `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`
+  const formated = new Date(date);
+  return `${months[formated.getMonth()]} ${formated.getDate()}, ${formated.getFullYear()}`
 }
 
 function getShortName(name = '') {
   return name.split(' ').map(word => word?.[0] || '').join('');
 }
 
-const appointmentDataSample = {
-  members: [
-    {
-      userId: '374917359715',
-      userName: 'Hieu Do',
-      avatar: null,
-      userPhone: '91256701248',
-      status: Appointment.Status.SELECTED,
-    },
-    {
-      userId: '8159657106479438377',
-      userName: 'Hieu 2222',
-      avatar: null,
-      userPhone: '91256701249',
-      status: Appointment.Status.WAITING,
-    },
-  ],
-  stores: [
-    {
-      storeId: '8023858305',
-      storeName: ' wehlfe jgjewlg',
-      storeAvatar: "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQ_bOozfBZ1FdTnKoUwZ65LVp_HgEI-r3bW9g&usqp=CAU",
-      storeRating: 4.5,
-      description: 'Discount 20% for bill whose value is from $20 above',
-      selectedMembers: ['8159657106479438377']
-    },
-    {
-      storeId: '8023858306',
-      storeName: ' wehlfe jgjewlg',
-      storeAvatar: "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQ_bOozfBZ1FdTnKoUwZ65LVp_HgEI-r3bW9g&usqp=CAU",
-      storeRating: 4.5,
-      description: 'Discount 20% for bill whose value is from $20 above',
-      selectedMembers: ['374917359715']
-    },
-    {
-      storeId: '8023858307',
-      storeName: ' wehlfe jgjewlg',
-      storeAvatar: "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQ_bOozfBZ1FdTnKoUwZ65LVp_HgEI-r3bW9g&usqp=CAU",
-      storeRating: 4.5,
-      description: 'Discount 20% for bill whose value is from $20 above',
-      selectedMembers: []
-    },
-  ],
-  hostId: '387915791',
-  hostName: 'Hoang Nguyen',
-  meetingDate: new Date(Date.now() + 86400*1000),
-  eventName: 'Old friends reuinion',
-  eventStatus: Appointment.Status.WAITING,
+const confirmModalState = {
+  visible: false,
+  onConfirm: () => {},
+  onCancel: () => {},
+  confirmLabel: 'Ok',
+  cancelLabel: 'Cancel',
+  confirmStyle: {},
+  cancelStyle: {},
+  title: '',
+  description: ''
 }
 
-function AppointmentDetail({ navigation }) {
+function AppointmentDetail({ appointmentData, setAppointmentData = () => {} }) {
   const insets = useSafeArea()
+  const dispatch = useDispatch();
   const currentUser = useSelector(getCurrentUser);
-  const [appointmentData, setAppointmentData] = useState(appointmentDataSample);
   const [selectedStore, setSelectedStore] = useState(null);
   const [detailModalVisible, setDetailModal] = useState(false);
+  const [confirmModal, setConfirmModal] = useState({...confirmModalState});
 
   const onSelectClick = useCallback((storeId) => {
     toggleSelect(currentUser.userId, storeId)
@@ -126,7 +90,7 @@ function AppointmentDetail({ navigation }) {
   }, [appointmentData])
 
   const onDetailClick = useCallback((storeId) => {
-    const store = appointmentData.stores.find(st => st.storeId === storeId && st.selectedMembers.length > 0);
+    const store = appointmentData.stores.find(st => st.storeId === storeId);
     if (store) {
       setSelectedStore(store);
       setDetailModal(true);
@@ -146,10 +110,12 @@ function AppointmentDetail({ navigation }) {
     const isOpen = currentHour >= 8 && currentHour < 22
 
     const isISelected = item.selectedMembers.includes(currentUser?.userId);
-    const selectable = [
+    const selectable = ([
       Appointment.Status.WAITING,
     ].includes(currentUserWithStatus?.status)
-    && appointmentData.eventStatus === Appointment.Status.WAITING;
+    // && appointmentData.eventStatus === Appointment.Status.WAITING
+    )|| (appointmentData.hostId === currentUser.userId && !isISelected);
+
     return (
       <ListItem
         key={item.storeId}
@@ -176,17 +142,17 @@ function AppointmentDetail({ navigation }) {
               <Text style={[styles.extraText, {color: Colors.extraText,}]}>8:00 - 22:00</Text>
               <Text style={styles.categoryName}>Cafe</Text>
             </View>
-            <Text style={styles.description}>{item.description}</Text>
+            <Text style={styles.description}>{item.promotion}</Text>
           </View>
         }
         rightElement={
           <View style={styles.rightElement}>
-            <TouchableOpacity 
+            {/* <TouchableOpacity 
               style={[styles.selectButton, {backgroundColor: '#fff'}]}
               onPress={() => onDetailClick(item.storeId)}
             >
               <Text style={[styles.selectButtonText, {color: Colors.primary}]}>Detail</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
 
             <Text 
               style={styles.selectedText}
@@ -208,17 +174,42 @@ function AppointmentDetail({ navigation }) {
     )
   }, [currentUserWithStatus, appointmentData.members, appointmentData.eventStatus, currentUser.userId])
 
-  const MembersHeader = useMemo(() => {
+  const appointmentVotedNumber = useMemo(() => {
     const votedNumber = appointmentData.members.reduce((acc, current) => {
       acc += [Appointment.Status.DECLINED, Appointment.Status.SELECTED].includes(current.status) ? 1 : 0
       return acc;
     }, 0)
+    return votedNumber;
+  }, [appointmentData.members])
+
+  const isRealyCompleted = useMemo(() => {
+    return appointmentData.eventStatus === Appointment.Status.COMPLETED && currentUserWithStatus?.status !== Appointment.Status.DECLINED
+  }, [appointmentData, currentUserWithStatus])
+
+  const { memberHeaderVoted, goingMembers } = useMemo(() => {
+    if (isRealyCompleted) {
+      // find user 
+      const chosenStore = appointmentData.stores.find(st => st.storeId === appointmentData.appointmentStore)
+      return {
+        memberHeaderVoted: chosenStore?.selectedMembers?.length || 0,
+        goingMembers: chosenStore?.selectedMembers
+      }
+    } else {
+      return {
+        memberHeaderVoted: appointmentVotedNumber
+      };
+    }
+  }, [appointmentData.stores,isRealyCompleted, appointmentVotedNumber])
+
+
+  const MembersHeader = useMemo(() => {
+    const subText = goingMembers?.length > 0 ? 'will take part in' : 'voted';
     return (
       <View style={{padding: 10, borderBottomColor: '#ccc', borderBottomWidth: 1, backgroundColor: '#fff'}}>
-        <Text style={{fontSize: 16,}}>{`${votedNumber}/${appointmentData.members.length} voted`}</Text>
+        <Text style={{fontSize: 16,}}>{`${memberHeaderVoted}/${appointmentData.members.length} ${subText}`}</Text>
       </View>
     )
-  })
+  }, [appointmentVotedNumber, appointmentData, goingMembers])
 
   const renderMembers = useCallback((member, index) => {
     let selectedIndexs = [];
@@ -234,6 +225,18 @@ function AppointmentDetail({ navigation }) {
       }
     }
 
+    let leftIcon = null
+    let leftIconColor = null
+    if (goingMembers?.length > 0) {
+      if (goingMembers.includes(member.userId)) {
+        leftIcon = 'check';
+        leftIconColor = Colors.completed
+      } else {
+        leftIcon = 'times'
+        leftIconColor = '#FF0000'
+      }
+    }
+
     return (
       <ListItem 
         style={styles.memberItem} 
@@ -242,11 +245,17 @@ function AppointmentDetail({ navigation }) {
         bottomDivider={index !== appointmentData.members.length - 1}
         leftElement={
           <View style={styles.statusCol}>
-            {member.status !== Appointment.Status.DECLINED && selectedIndexs.length > 0 && (
-              <Text style={styles.storeIndex}>{selectedIndexs.map((val, index) => ((index === 0 ? '' : ',') + `${val + 1}`))}</Text>
-            )}
-            {isVoted && member.status === Appointment.Status.DECLINED && (
-              <FontAwesome size={20} name='times' color='#FF0000' />
+            {goingMembers?.length > 0 ? (
+              <FontAwesome size={20} name={leftIcon} color={leftIconColor} />
+            ) : (
+              <React.Fragment>
+                {member.status !== Appointment.Status.DECLINED && selectedIndexs.length > 0 && (
+                  <Text style={styles.storeIndex}>{selectedIndexs.map((val, index) => ((index === 0 ? '' : ',') + `${val + 1}`))}</Text>
+                )}
+                {isVoted && member.status === Appointment.Status.DECLINED && (
+                  <FontAwesome size={20} name='times' color='#FF0000' />
+                )}
+              </React.Fragment>
             )}
           </View>
         }
@@ -254,12 +263,12 @@ function AppointmentDetail({ navigation }) {
           <View style={styles.memberNameBox}>
             <Avatar 
               rounded 
-              title={getShortName(member.userName)} 
+              title={getShortName(member.fullName)} 
               containerStyle={{
                 marginRight: 25,
               }}
             />
-            <Text style={styles.memberName}>{member.userName}</Text>
+            <Text style={styles.memberName}>{member.fullName}</Text>
           </View>
         }
         rightElement={
@@ -267,7 +276,7 @@ function AppointmentDetail({ navigation }) {
         }
       />
     )
-  }, [])
+  }, [appointmentData, goingMembers])
 
   const currentUserWithStatus = useMemo(() => {
     if (currentUser.userId === appointmentData.hostId) {
@@ -329,27 +338,92 @@ function AppointmentDetail({ navigation }) {
     return true;
   }, [currentUserWithStatus.status, currentUserWithStatus.userId, appointmentData.stores])
 
+  const resetConfirmModal = useCallback(() => {
+    setConfirmModal({...confirmModalState});
+  }, [])
+
+  const setConfirmModalVisible = useCallback((isOpen) => {
+    setConfirmModal({...confirmModal, visible: isOpen});
+  }, [confirmModal])
+
+  const onConfirmModalHide = useCallback(() => {
+    resetConfirmModal();
+  }, [resetConfirmModal])
+
+  const selectedStoreIds = useMemo(() => {
+    const stores = appointmentData.stores.filter(st => st.selectedMembers.includes(currentUser.userId))
+    return stores.map(st => st.storeId);
+  }, [appointmentData.stores, currentUser.userId])
+
   const onConfirmPress = useCallback(() => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.spring)
     if (currentUser.userId === appointmentData.hostId) {
-      setAppointmentData({
-        ...appointmentData,
-        eventStatus: Appointment.Status.COMPLETED
+      setConfirmModal({
+        ...confirmModalState,
+        visible: true,
+        title: 'Are you sure to complete this appointment?',
+        onConfirm: () => {
+          setConfirmModalVisible(false)
+          setAppointmentData({
+            ...appointmentData,
+            eventStatus: Appointment.Status.COMPLETED
+          })
+        },
+        onCancel: () => setConfirmModalVisible(false)
       })
     } else {
-      setMemberStatus(currentUser.userId, Appointment.Status.SELECTED)
+      console.log("onConfirmPress -> appointmentData", appointmentData)
+      setConfirmModal({
+        ...confirmModalState,
+        visible: true,
+        title: 'Are you sure to select this appointment?',
+        onConfirm: () => {
+          setConfirmModalVisible(false)
+          dispatch({
+            type: SELECT_APPOINTMENT_STORES,
+            payload: {
+              appointmentId: appointmentData.appointmentId,
+              storeIds: selectedStoreIds
+            },
+            meta: {
+              onSuccess: () => setMemberStatus(currentUser.userId, Appointment.Status.SELECTED)
+            }
+          })
+        },
+        onCancel: () => setConfirmModalVisible(false)
+      })
     }
   }, [currentUser.userId, appointmentData])
 
   const onCancelPress = useCallback(() => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.spring)
     if (currentUser.userId === appointmentData.hostId) {
-      setAppointmentData({
-        ...appointmentData,
-        eventStatus: Appointment.Status.CANCELED
+      setConfirmModal({
+        ...confirmModalState,
+        visible: true,
+        title: 'Are you sure to cancel this appointment?',
+        confirmStyle: styles.buttonCancel,
+        onConfirm: () => {
+          resetConfirmModal()
+          setAppointmentData({
+            ...appointmentData,
+            eventStatus: Appointment.Status.CANCELED
+          })
+        },
+        onCancel: resetConfirmModal
       })
     } else {
-      setMemberStatus(currentUser.userId, Appointment.Status.DECLINED)
+      setConfirmModal({
+        ...confirmModalState,
+        visible: true,
+        confirmStyle: styles.buttonCancel,
+        title: 'Are you sure to decline this appointment?',
+        onConfirm: () => {
+          resetConfirmModal()
+          setMemberStatus(currentUser.userId, Appointment.Status.DECLINED)
+        },
+        onCancel: resetConfirmModal
+      })
     }
   }, [currentUser.userId, appointmentData])
   
@@ -362,16 +436,32 @@ function AppointmentDetail({ navigation }) {
   }, [appointmentData.stores, appointmentData.members, selectedStore])
 
   return (
-    <View style={[styles.safeView, { paddingLeft: insets.left, paddingRight: insets.right}]}>
+    <React.Fragment>
       <View style={[styles.container, {paddingBottom: insets.bottom}]}>
         <View style={styles.header}>
           <Text style={styles.eventNameText}>{appointmentData.eventName}</Text>
           <Text style={styles.eventHost}>By {appointmentData.hostName}</Text>
         </View>
 
-        <View style={styles.storeList}>
-          {appointmentData.stores.map(renderItem)}
-        </View>
+        {!isRealyCompleted && (
+          <View style={styles.storeList}>
+            {appointmentData.stores.map(renderItem)}
+          </View>
+        )}
+
+        {isRealyCompleted && (
+          <React.Fragment>
+            <View style={styles.meetingDateBox}>
+              <Text style={styles.meetingDateTitle}>Store name:</Text>
+              <Text style={styles.meetingDateText}>{appointmentData.storeName}</Text>
+            </View>
+
+            <View style={styles.meetingDateBox}>
+              <Text style={styles.meetingDateTitle}>Place:</Text>
+              <Text style={styles.meetingDateText}>{appointmentData.meetingPlace}</Text>
+            </View>
+          </React.Fragment>
+        )}
 
         <View style={styles.meetingDateBox}>
           <Text style={styles.meetingDateTitle}>Meeting date:</Text>
@@ -438,36 +528,43 @@ function AppointmentDetail({ navigation }) {
             <Text style={styles.meetingDateTitle}>Meeting date:</Text>
             <Text style={styles.meetingDateText}>{formatTime(appointmentData.meetingDate)}</Text>
           </View>
-          <Text style={styles.modalDetailSelectedText}>Selected members</Text>
-          <FlatList 
-            data={selectedMembersAtStore || []}
-            keyExtractor={item => `${item.userId}`}
-            style={{marginTop: 15,}}
-            renderItem={({item: member, index}) => (
-              <ListItem 
-                style={[styles.memberItem, {paddingHorizontal: 0}]} 
-                key={member.userId}
-                containerStyle={{paddingHorizontal: 0}}
-                topDivider={index === 0}
-                bottomDivider
-                title={
-                  <View style={styles.memberNameBox}>
-                    <Avatar 
-                      rounded 
-                      title={getShortName(member.userName)} 
-                      containerStyle={{
-                        marginRight: 25,
-                      }}
-                    />
-                    <Text style={styles.memberName}>{member.userName}</Text>
-                  </View>
-                }
-                rightElement={
-                  <Text style={{fontSize: 16}}>{member.userPhone}</Text>
-                }
+          {(!selectedMembersAtStore || selectedMembersAtStore?.length === 0) && (
+            <Text style={{marginHorizontal: 15, fontSize: 18, fontStyle: 'italic', textAlign: 'center'}}>No one select this store</Text>
+          )}
+          {selectedMembersAtStore?.length > 0 && (
+            <React.Fragment>
+              <Text style={styles.modalDetailSelectedText}>Selected members</Text>
+              <FlatList
+                data={selectedMembersAtStore || []}
+                keyExtractor={item => `${item.userId}`}
+                style={{marginTop: 15,}}
+                renderItem={({item: member, index}) => (
+                  <ListItem 
+                    style={[styles.memberItem, {paddingHorizontal: 0}]} 
+                    key={member.userId}
+                    containerStyle={{paddingHorizontal: 0}}
+                    topDivider={index === 0}
+                    bottomDivider
+                    title={
+                      <View style={styles.memberNameBox}>
+                        <Avatar 
+                          rounded 
+                          title={getShortName(member.fullName)} 
+                          containerStyle={{
+                            marginRight: 25,
+                          }}
+                        />
+                        <Text style={styles.memberName}>{member.fullName}</Text>
+                      </View>
+                    }
+                    rightElement={
+                      <Text style={{fontSize: 16}}>{member.userPhone}</Text>
+                    }
+                  />
+                )}
               />
-            )}
-          />
+            </React.Fragment>
+          )}
           <View style={styles.buttonGroup}>
             <TouchableOpacity 
               style={[styles.bottomButton]}
@@ -485,197 +582,34 @@ function AppointmentDetail({ navigation }) {
           </View>
         </View>
       </Modal>
-    </View>
+      <Modal
+        isVisible={confirmModal.visible}
+        onModalHide={onConfirmModalHide}
+        backdropColor='rgba(0,0,0,0.8)'
+        animationInTiming={500}
+        animationOutTiming={500}
+      >
+        <View style={styles.modalWrapper}>
+          <Text style={[styles.modalDetailTitle, {textAlign: 'center', marginBottom: 10,}]}>{confirmModal.title}</Text>
+          <View style={styles.buttonGroup}>
+            <TouchableOpacity 
+              style={[styles.bottomButton, confirmModal.confirmStyle, {marginRight: 15},]}
+              onPress={confirmModal.onConfirm}
+              activeOpacity={0.85}
+            >
+              <Text style={styles.bottomButtonText}>{confirmModal.confirmLabel}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={[styles.bottomButton, styles.buttonCancelModal, {marginLeft: 15}]}
+              onPress={confirmModal.onCancel}
+            >
+              <Text style={[styles.bottomButtonText, styles.buttonCancelModalText]}>{confirmModal.cancelLabel}</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+    </React.Fragment>
   )
 }
 
-AppointmentDetail.navigationOptions = {
-  headerTitle: <HeaderTitle title='Appointment detail' />
-}
-
-const styles = StyleSheet.create({
-  safeView: {
-    backgroundColor: Colors.bgColor,
-    flex: 1,
-  },
-  container: {
-    paddingHorizontal: 10,
-    marginTop: 30,
-    backgroundColor: '#fff',
-    flex: 1,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 20,
-    borderBottomColor: '#ccc',
-    borderBottomWidth: 1,
-  },
-  eventNameText: {
-    fontSize: 20,
-    fontWeight: '700',
-  },
-  eventHost: {
-    fontStyle: 'italic',
-    fontWeight: '600',
-    fontSize: 18,
-    color: '#4E5A69',
-  },
-  storeIndex: {
-    color: Colors.completed,
-    fontWeight: '600',
-    fontSize: 16,
-  },
-  storeImage: {
-    width: '20%',
-    height: '100%',
-    resizeMode: 'cover',
-  },
-  itemDetail: {
-  },
-  storeName: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  subtitle: {
-    flexDirection: 'row',
-    alignItems : 'center',
-    marginTop: 5,
-  },
-  description: {
-    marginTop: 10,
-  },
-  removeItemButton: {
-    paddingHorizontal: 5,
-  },
-  extraText: {
-    paddingHorizontal: 6,
-  },
-  categoryName: {
-    paddingHorizontal: 10,
-    fontSize: 16,
-    fontWeight: '600',
-    color: Colors.extraText,
-  },
-  selectButton: {
-    paddingHorizontal: 15,
-    paddingVertical: 5,
-    backgroundColor: Colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 5,
-  },
-  selectButtonText: {
-    color: '#fff',
-    fontWeight: '600',
-    fontSize: 16,
-  },
-  rightElement: {
-    // width: '20%',
-    minWidth: 50,
-    justifyContent: 'flex-start',
-    height: '100%',
-    alignItems: 'flex-end'
-  },
-  selectedText: {
-    marginBottom: 10,
-    color: Colors.extraText,
-    fontWeight: '400'
-  },
-  meetingDateBox: {
-    paddingVertical: 10,
-    flexDirection: 'row',
-  },
-  meetingDateTitle: {
-    color: Colors.primary,
-    fontWeight: '600',
-    fontSize: 16,
-  },
-  meetingDateText: {
-    color: Colors.extraText,
-    fontWeight: '500',
-    fontSize: 16,
-    marginLeft: 10,
-  },
-  buttonGroup: {
-    flexDirection: 'row',
-    width: '100%',
-    marginTop: 15,
-  },
-  bottomButton: {
-    borderRadius: 5,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 13,
-    flex: 1,
-    backgroundColor: Colors.primary,
-  },
-  bottomButtonText: {
-    fontWeight: '700',
-    color: '#fff',
-    fontSize: 16,
-  },
-  bottomButtonDisabled: {
-    opacity: 0.7,
-  },
-  buttonCancel: {
-    backgroundColor: '#EB5757'
-  },
-  membersList: {
-    flex: 1,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 4,
-  },
-  memberItem: {
-    flexDirection: 'row',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    alignItems: 'center',
-  },
-  statusCol: {
-    width: 70,
-    alignItems: 'center',
-    justifyContent: 'center',
-    textAlign: 'center'
-  },
-  memberNameBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  memberName: {
-    fontSize: 18,
-  },
-  canceledAppointmentText: {
-    // fontStyle: 'italic',
-    fontSize: 18,
-    textAlign: 'center',
-  },
-  modalWrapper: {
-    backgroundColor: '#fff',
-    padding: 20,
-    borderRadius: 5,
-  },
-  buttonCancelModal: {
-    backgroundColor: '#fff',
-    borderColor: '#ccc',
-    borderWidth: 1,
-  },
-  buttonCancelModalText: {
-    color: Colors.secondary
-  },
-  modalDetailSelectedText: {
-    fontSize: 18,
-    fontWeight: '400',
-    color: Colors.extraText,
-    marginTop: 20,
-  },
-  modalDetailTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#000',
-  }
-})
-
-export default withNavigation(AppointmentDetail);
+export default AppointmentDetail;

@@ -1,4 +1,4 @@
-import {ADD_APPOINTMENTS, MAX_PENDING_APPOINTMENTS, REMOVE_ALL_PENDING_APPOINTMENT, SET_CONTACTS, SET_LOADING_APPOINTMENTS, UPDATE_PENDING_APPOINTMENT} from './constants'
+import {ADD_APPOINTMENTS, MAX_PENDING_APPOINTMENTS, REMOVE_ALL_PENDING_APPOINTMENT, SET_CONTACTS, SET_LOADING_APPOINTMENTS, UPDATE_APPOINTMENT, UPDATE_PENDING_APPOINTMENT} from './constants'
 
 const initialState = {
   contacts: [],
@@ -52,6 +52,23 @@ export default function(state = initialState, action) {
         ...state,
         appointmentList: appointments,
         appointmentLoading: false,
+      }
+
+    case UPDATE_APPOINTMENT:
+      const {appointmentId, appointment} = action.payload;
+      const {appointmentList} = state;
+      const newList = appointmentList.map(ap => {
+        if (ap.id === appointmentId) {
+          return {
+            ...ap,
+            ...appointment
+          }
+        }
+        return ap;
+      })
+      return {
+        ...state,
+        appointmentList: newList,
       }
     default:
       return state

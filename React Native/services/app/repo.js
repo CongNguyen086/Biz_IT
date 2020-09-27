@@ -55,6 +55,86 @@ class AppRepo {
       return data;
     }
     catch(e) {
+      console.log("e", e.response.data)
+      throw new Error(e?.response?.data.message);
+    }
+  }
+
+  static async getAppointmentDetail({appointmentId}) {
+    try {
+      const { data } = await Api({
+        method: 'get',
+        url: '/appointment/store/details',
+        params: {
+          appointmentId
+        }
+      })
+
+      console.log("getAppointmentDetail -> data", data)
+      return data;
+    }
+    catch(e) {
+      console.log("e", e.response.data)
+      throw new Error(e?.response?.data.message);
+    }
+  }
+
+  static async selectAppointmentStores({appointmentId, userId, storeIds}) {
+    try {
+      const { data } = await Api({
+        method: 'post',
+        url: '/appointment/select',
+        body: {
+          appointmentId,
+          userId,
+          storeIds,
+        }
+      })
+      console.log("selectAppointmentStores -> data", data)
+
+      return data;
+    }
+    catch(e) {
+      throw new Error(e?.response?.data.message);
+    }
+  }
+
+  static async declineAppointment({appointmentId, userId}) {
+    try {
+      const { data } = await Api({
+        method: 'put',
+        url: '/appointment/decline',
+        body: {
+          appointmentId,
+          userId,
+        }
+      })
+      console.log("declineAppointment -> data", data)
+
+      return data;
+    }
+    catch(e) {
+      throw new Error(e?.response?.data.message);
+    }
+  }
+
+  static async updateEventStatus({appointmentId, userId, storeId, status}) {
+    try {
+      const { data } = await Api({
+        method: 'put',
+        url: '/appointment/update-status',
+        body: {
+          appointmentId, 
+          userId, 
+          storeId, 
+          status
+        }
+      })
+      console.log("declineAppointment -> data", data)
+
+      return data;
+    }
+    catch(e) {
       throw new Error(e?.response?.data.message);
     }
   }
