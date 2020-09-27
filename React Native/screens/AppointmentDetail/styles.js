@@ -17,8 +17,10 @@ export default StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingVertical: 20,
-    borderBottomColor: '#ccc',
-    borderBottomWidth: 1,
+  },
+  storeList: {
+    borderTopColor: '#ccc',
+    borderTopWidth: 1,
   },
   eventNameText: {
     fontSize: 20,
@@ -99,12 +101,14 @@ export default StyleSheet.create({
     color: Colors.primary,
     fontWeight: '600',
     fontSize: 16,
+    minWidth: 100,
   },
   meetingDateText: {
     color: Colors.extraText,
     fontWeight: '500',
     fontSize: 16,
     marginLeft: 10,
+    flex: 1,
   },
   buttonGroup: {
     flexDirection: 'row',

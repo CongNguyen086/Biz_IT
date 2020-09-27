@@ -174,17 +174,42 @@ function AppointmentDetail({ appointmentData, setAppointmentData = () => {} }) {
     )
   }, [currentUserWithStatus, appointmentData.members, appointmentData.eventStatus, currentUser.userId])
 
-  const MembersHeader = useMemo(() => {
+  const appointmentVotedNumber = useMemo(() => {
     const votedNumber = appointmentData.members.reduce((acc, current) => {
       acc += [Appointment.Status.DECLINED, Appointment.Status.SELECTED].includes(current.status) ? 1 : 0
       return acc;
     }, 0)
+    return votedNumber;
+  }, [appointmentData.members])
+
+  const isRealyCompleted = useMemo(() => {
+    return appointmentData.eventStatus === Appointment.Status.COMPLETED && currentUserWithStatus?.status !== Appointment.Status.DECLINED
+  }, [appointmentData, currentUserWithStatus])
+
+  const { memberHeaderVoted, goingMembers } = useMemo(() => {
+    if (isRealyCompleted) {
+      // find user 
+      const chosenStore = appointmentData.stores.find(st => st.storeId === appointmentData.appointmentStore)
+      return {
+        memberHeaderVoted: chosenStore?.selectedMembers?.length || 0,
+        goingMembers: chosenStore?.selectedMembers
+      }
+    } else {
+      return {
+        memberHeaderVoted: appointmentVotedNumber
+      };
+    }
+  }, [appointmentData.stores,isRealyCompleted, appointmentVotedNumber])
+
+
+  const MembersHeader = useMemo(() => {
+    const subText = goingMembers?.length > 0 ? 'will take part in' : 'voted';
     return (
       <View style={{padding: 10, borderBottomColor: '#ccc', borderBottomWidth: 1, backgroundColor: '#fff'}}>
-        <Text style={{fontSize: 16,}}>{`${votedNumber}/${appointmentData.members.length} voted`}</Text>
+        <Text style={{fontSize: 16,}}>{`${memberHeaderVoted}/${appointmentData.members.length} ${subText}`}</Text>
       </View>
     )
-  }, [appointmentData])
+  }, [appointmentVotedNumber, appointmentData, goingMembers])
 
   const renderMembers = useCallback((member, index) => {
     let selectedIndexs = [];
@@ -200,6 +225,18 @@ function AppointmentDetail({ appointmentData, setAppointmentData = () => {} }) {
       }
     }
 
+    let leftIcon = null
+    let leftIconColor = null
+    if (goingMembers?.length > 0) {
+      if (goingMembers.includes(member.userId)) {
+        leftIcon = 'check';
+        leftIconColor = Colors.completed
+      } else {
+        leftIcon = 'times'
+        leftIconColor = '#FF0000'
+      }
+    }
+
     return (
       <ListItem 
         style={styles.memberItem} 
@@ -208,11 +245,17 @@ function AppointmentDetail({ appointmentData, setAppointmentData = () => {} }) {
         bottomDivider={index !== appointmentData.members.length - 1}
         leftElement={
           <View style={styles.statusCol}>
-            {member.status !== Appointment.Status.DECLINED && selectedIndexs.length > 0 && (
-              <Text style={styles.storeIndex}>{selectedIndexs.map((val, index) => ((index === 0 ? '' : ',') + `${val + 1}`))}</Text>
-            )}
-            {isVoted && member.status === Appointment.Status.DECLINED && (
-              <FontAwesome size={20} name='times' color='#FF0000' />
+            {goingMembers?.length > 0 ? (
+              <FontAwesome size={20} name={leftIcon} color={leftIconColor} />
+            ) : (
+              <React.Fragment>
+                {member.status !== Appointment.Status.DECLINED && selectedIndexs.length > 0 && (
+                  <Text style={styles.storeIndex}>{selectedIndexs.map((val, index) => ((index === 0 ? '' : ',') + `${val + 1}`))}</Text>
+                )}
+                {isVoted && member.status === Appointment.Status.DECLINED && (
+                  <FontAwesome size={20} name='times' color='#FF0000' />
+                )}
+              </React.Fragment>
             )}
           </View>
         }
@@ -233,7 +276,7 @@ function AppointmentDetail({ appointmentData, setAppointmentData = () => {} }) {
         }
       />
     )
-  }, [appointmentData])
+  }, [appointmentData, goingMembers])
 
   const currentUserWithStatus = useMemo(() => {
     if (currentUser.userId === appointmentData.hostId) {
@@ -391,7 +434,6 @@ function AppointmentDetail({ appointmentData, setAppointmentData = () => {} }) {
     }
     return null
   }, [appointmentData.stores, appointmentData.members, selectedStore])
-    console.log("selectedMembersAtStore -> selectedMembersAtStore", selectedMembersAtStore)
 
   return (
     <React.Fragment>
@@ -401,9 +443,25 @@ function AppointmentDetail({ appointmentData, setAppointmentData = () => {} }) {
           <Text style={styles.eventHost}>By {appointmentData.hostName}</Text>
         </View>
 
-        <View style={styles.storeList}>
-          {appointmentData.stores.map(renderItem)}
-        </View>
+        {!isRealyCompleted && (
+          <View style={styles.storeList}>
+            {appointmentData.stores.map(renderItem)}
+          </View>
+        )}
+
+        {isRealyCompleted && (
+          <React.Fragment>
+            <View style={styles.meetingDateBox}>
+              <Text style={styles.meetingDateTitle}>Store name:</Text>
+              <Text style={styles.meetingDateText}>{appointmentData.storeName}</Text>
+            </View>
+
+            <View style={styles.meetingDateBox}>
+              <Text style={styles.meetingDateTitle}>Place:</Text>
+              <Text style={styles.meetingDateText}>{appointmentData.meetingPlace}</Text>
+            </View>
+          </React.Fragment>
+        )}
 
         <View style={styles.meetingDateBox}>
           <Text style={styles.meetingDateTitle}>Meeting date:</Text>
