@@ -47,6 +47,8 @@ const confirmModalState = {
   description: ''
 }
 
+const MAX_HOST_SELECT = 1
+
 function AppointmentDetail({ appointmentData, setAppointmentData = () => {} }) {
   const insets = useSafeArea()
   const dispatch = useDispatch();
@@ -105,16 +107,47 @@ function AppointmentDetail({ appointmentData, setAppointmentData = () => {} }) {
     // setSelectedStore(null);
   }, [])
 
+  const currentUserWithStatus = useMemo(() => {
+    if (currentUser.userId === appointmentData.hostId) {
+      return {
+        ...currentUser,
+        status: appointmentData.memberStatus ?? ''
+      };
+    }
+    return {
+      ...currentUser,
+      ...appointmentData.members.find(mb => mb.userId === currentUser.userId)
+    }
+  }, [currentUser, appointmentData])
+
+  const selectable = useMemo(() => {
+    if (appointmentData.eventStatus !== Appointment.Status.WAITING) return false;
+    
+    if (![
+      Appointment.Status.WAITING,
+      ...(currentUserWithStatus?.userId === appointmentData.hostId ? [""] : [])
+    ].includes(currentUserWithStatus?.status)) return false;
+    if (currentUserWithStatus?.userId === appointmentData.hostId) {
+      const {stores} =  appointmentData
+      let numberOfSelectedStores = 0;
+      for (const st of stores) {
+        if (st.selectedMembers.includes(currentUserWithStatus?.userId)) {
+          numberOfSelectedStores += 1;
+        }
+      }
+      if (numberOfSelectedStores >= MAX_HOST_SELECT) {
+        return false
+      }
+    }
+
+    return true
+  }, [currentUserWithStatus, appointmentData])
+
   const renderItem = useCallback((item, index) => {
     const currentHour = new Date().getHours()
     const isOpen = currentHour >= 8 && currentHour < 22
 
     const isISelected = item.selectedMembers.includes(currentUser?.userId);
-    const selectable = ([
-      Appointment.Status.WAITING,
-    ].includes(currentUserWithStatus?.status)
-    // && appointmentData.eventStatus === Appointment.Status.WAITING
-    )|| (appointmentData.hostId === currentUser.userId && !isISelected);
 
     return (
       <ListItem
@@ -162,8 +195,8 @@ function AppointmentDetail({ appointmentData, setAppointmentData = () => {} }) {
 
             <TouchableOpacity 
               style={[styles.selectButton, !selectable && {backgroundColor: '#ccc'}, isISelected && {backgroundColor: Colors.completed}]} 
-              onPress={!selectable ? null : () => onSelectClick(item.storeId)}
-              activeOpacity={!selectable ? 1 : 0.5}
+              onPress={!selectable && !isISelected ? null : () => onSelectClick(item.storeId)}
+              activeOpacity={!selectable && !isISelected ? 1 : 0.5}
             >
               <Text style={styles.selectButtonText}>{`${isISelected ? 'Selected': 'Select'}`}</Text>
             </TouchableOpacity>
@@ -172,7 +205,7 @@ function AppointmentDetail({ appointmentData, setAppointmentData = () => {} }) {
         bottomDivider
       />
     )
-  }, [currentUserWithStatus, appointmentData.members, appointmentData.eventStatus, currentUser.userId])
+  }, [currentUserWithStatus, appointmentData, currentUser.userId])
 
   const appointmentVotedNumber = useMemo(() => {
     const votedNumber = appointmentData.members.reduce((acc, current) => {
@@ -277,13 +310,6 @@ function AppointmentDetail({ appointmentData, setAppointmentData = () => {} }) {
     )
   }, [appointmentData, goingMembers])
 
-  const currentUserWithStatus = useMemo(() => {
-    if (currentUser.userId === appointmentData.hostId) {
-      return currentUser;
-    }
-    return appointmentData.members.find(mb => mb.userId === currentUser.userId)
-  }, [currentUser.userId, appointmentData])
-
   const isEventDone = useMemo(() => 
     [
       Appointment.Status.CANCELED, 
@@ -331,11 +357,12 @@ function AppointmentDetail({ appointmentData, setAppointmentData = () => {} }) {
   }, [currentUser.userId, appointmentData.hostId])
 
   const isConfirmDisabled = useMemo(() => {
+    if (!appointmentData.stores.find(st => st.selectedMembers.includes(currentUserWithStatus?.userId))) return true;
     if (currentUserWithStatus?.userId === appointmentData.hostId) {
       return false;
     }
 
-    if (currentUserWithStatus.status === Appointment.Status.WAITING && appointmentData.stores.find(st => st.selectedMembers.includes(currentUserWithStatus?.userId))) {
+    if (currentUserWithStatus.status === Appointment.Status.WAITING) {
       return false;
     }
 
