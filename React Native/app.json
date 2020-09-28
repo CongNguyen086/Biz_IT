@@ -10,10 +10,10 @@
     ],
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icons/icon.png",
+    "icon": "./assets/icons/aws_1.png",
     "facebookScheme": "fb621612031578384",
     "splash": {
-      "image": "./assets/icons/splash.png",
+      "image": "./assets/icons/aws_1.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -21,10 +21,16 @@
       "fallbackToCacheTimeout": 0
     },
     "assetBundlePatterns": [
-      "**/*"
+      "assets/**/*"
     ],
     "ios": {
+      "bundleIdentifier": "host.exp.awssystem",
+      "buildNumber": "1.0.0",
       "supportsTablet": true
+    },
+    "android": {
+      "package": "host.exp.awssystem",
+      "versionCode": 1
     }
   }
 }
