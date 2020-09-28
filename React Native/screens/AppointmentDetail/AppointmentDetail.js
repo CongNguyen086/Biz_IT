@@ -1,7 +1,7 @@
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { FontAwesome } from '@expo/vector-icons'
 import Modal from 'react-native-modal'
-import { Text, View, Image, TouchableOpacity, FlatList, LayoutAnimation } from 'react-native'
+import { Text, View, Image, TouchableOpacity, FlatList, LayoutAnimation, Alert } from 'react-native'
 import { Avatar, ListItem } from 'react-native-elements'
 import {useSafeArea} from 'react-native-safe-area-context'
 import { useDispatch, useSelector } from 'react-redux'
@@ -9,7 +9,9 @@ import Colors from '../../constants/Colors'
 import Appointment from '../../services/app/Appointment'
 import { getCurrentUser } from '../../services/auth/getters'
 import styles from './styles';
-import { SELECT_APPOINTMENT_STORES } from '../../services/app/constants'
+import { DECLINE_APPOINTMENT, SELECT_APPOINTMENT_STORES, UPDATE_APPOINTMENT_STATUS } from '../../services/app/constants'
+import AppSocket from '../../services/socket'
+import { APPOINTMENT_CHANGE } from '../../services/socket/constants'
 
 const months = [
   'Jan',
@@ -46,6 +48,8 @@ const confirmModalState = {
   title: '',
   description: ''
 }
+
+const MAX_HOST_SELECT = 1
 
 function AppointmentDetail({ appointmentData, setAppointmentData = () => {} }) {
   const insets = useSafeArea()
@@ -105,16 +109,47 @@ function AppointmentDetail({ appointmentData, setAppointmentData = () => {} }) {
     // setSelectedStore(null);
   }, [])
 
+  const currentUserWithStatus = useMemo(() => {
+    if (currentUser.userId === appointmentData.hostId) {
+      return {
+        ...currentUser,
+        status: appointmentData.memberStatus ?? ''
+      };
+    }
+    return {
+      ...currentUser,
+      ...appointmentData.members.find(mb => mb.userId === currentUser.userId)
+    }
+  }, [currentUser, appointmentData])
+
+  const selectable = useMemo(() => {
+    if (appointmentData.eventStatus !== Appointment.Status.WAITING) return false;
+    
+    if (![
+      Appointment.Status.WAITING,
+      ...(currentUserWithStatus?.userId === appointmentData.hostId ? [""] : [])
+    ].includes(currentUserWithStatus?.status)) return false;
+    if (currentUserWithStatus?.userId === appointmentData.hostId) {
+      const {stores} =  appointmentData
+      let numberOfSelectedStores = 0;
+      for (const st of stores) {
+        if (st.selectedMembers.includes(currentUserWithStatus?.userId)) {
+          numberOfSelectedStores += 1;
+        }
+      }
+      if (numberOfSelectedStores >= MAX_HOST_SELECT) {
+        return false
+      }
+    }
+
+    return true
+  }, [currentUserWithStatus, appointmentData])
+
   const renderItem = useCallback((item, index) => {
     const currentHour = new Date().getHours()
     const isOpen = currentHour >= 8 && currentHour < 22
 
     const isISelected = item.selectedMembers.includes(currentUser?.userId);
-    const selectable = ([
-      Appointment.Status.WAITING,
-    ].includes(currentUserWithStatus?.status)
-    // && appointmentData.eventStatus === Appointment.Status.WAITING
-    )|| (appointmentData.hostId === currentUser.userId && !isISelected);
 
     return (
       <ListItem
@@ -162,8 +197,8 @@ function AppointmentDetail({ appointmentData, setAppointmentData = () => {} }) {
 
             <TouchableOpacity 
               style={[styles.selectButton, !selectable && {backgroundColor: '#ccc'}, isISelected && {backgroundColor: Colors.completed}]} 
-              onPress={!selectable ? null : () => onSelectClick(item.storeId)}
-              activeOpacity={!selectable ? 1 : 0.5}
+              onPress={!selectable && !isISelected ? null : () => onSelectClick(item.storeId)}
+              activeOpacity={!selectable && !isISelected ? 1 : 0.5}
             >
               <Text style={styles.selectButtonText}>{`${isISelected ? 'Selected': 'Select'}`}</Text>
             </TouchableOpacity>
@@ -172,7 +207,7 @@ function AppointmentDetail({ appointmentData, setAppointmentData = () => {} }) {
         bottomDivider
       />
     )
-  }, [currentUserWithStatus, appointmentData.members, appointmentData.eventStatus, currentUser.userId])
+  }, [currentUserWithStatus, appointmentData, currentUser.userId])
 
   const appointmentVotedNumber = useMemo(() => {
     const votedNumber = appointmentData.members.reduce((acc, current) => {
@@ -200,7 +235,6 @@ function AppointmentDetail({ appointmentData, setAppointmentData = () => {} }) {
       };
     }
   }, [appointmentData.stores,isRealyCompleted, appointmentVotedNumber])
-
 
   const MembersHeader = useMemo(() => {
     const subText = goingMembers?.length > 0 ? 'will take part in' : 'voted';
@@ -278,18 +312,13 @@ function AppointmentDetail({ appointmentData, setAppointmentData = () => {} }) {
     )
   }, [appointmentData, goingMembers])
 
-  const currentUserWithStatus = useMemo(() => {
-    if (currentUser.userId === appointmentData.hostId) {
-      return currentUser;
-    }
-    return appointmentData.members.find(mb => mb.userId === currentUser.userId)
-  }, [currentUser.userId, appointmentData.members, appointmentData.hostId])
-
   const isEventDone = useMemo(() => 
     [
       Appointment.Status.CANCELED, 
       Appointment.Status.COMPLETED,
-    ].includes(appointmentData?.eventStatus) || currentUserWithStatus?.status === Appointment.Status.DECLINED,
+    ].includes(appointmentData?.eventStatus) 
+      || currentUserWithStatus?.status === Appointment.Status.DECLINED
+      || currentUserWithStatus?.status === Appointment.Status.SELECTED,
     [appointmentData?.eventStatus, currentUserWithStatus])
 
   const eventDoneText = useMemo(() => {
@@ -301,6 +330,9 @@ function AppointmentDetail({ appointmentData, setAppointmentData = () => {} }) {
     }
     if (currentUserWithStatus.status === Appointment.Status.DECLINED) {
       return 'You declined this appointment!'
+    }
+    if (currentUserWithStatus.status === Appointment.Status.SELECTED) {
+      return 'You selected stores in this appointment!'
     }
 
     return null;
@@ -327,11 +359,12 @@ function AppointmentDetail({ appointmentData, setAppointmentData = () => {} }) {
   }, [currentUser.userId, appointmentData.hostId])
 
   const isConfirmDisabled = useMemo(() => {
+    if (!appointmentData.stores.find(st => st.selectedMembers.includes(currentUserWithStatus?.userId))) return true;
     if (currentUserWithStatus?.userId === appointmentData.hostId) {
       return false;
     }
 
-    if (currentUserWithStatus.status === Appointment.Status.WAITING && appointmentData.stores.find(st => st.selectedMembers.includes(currentUserWithStatus?.userId))) {
+    if (currentUserWithStatus.status === Appointment.Status.WAITING) {
       return false;
     }
 
@@ -355,6 +388,21 @@ function AppointmentDetail({ appointmentData, setAppointmentData = () => {} }) {
     return stores.map(st => st.storeId);
   }, [appointmentData.stores, currentUser.userId])
 
+  const updateAppointmentStatus = useCallback((status) => {
+    dispatch({
+      type: UPDATE_APPOINTMENT_STATUS,
+      payload: {
+        appointmentId: appointmentData.appointmentId,
+        status,
+        storeId: selectedStoreIds?.[0],
+      },
+      meta: {
+        onSuccess: (newAppointmentData) => setAppointmentData(newAppointmentData),
+        onFailed: () => Alert.alert('Error', "Can't select appointment")
+      }
+    })
+  }, [appointmentData,dispatch])
+
   const onConfirmPress = useCallback(() => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.spring)
     if (currentUser.userId === appointmentData.hostId) {
@@ -364,15 +412,11 @@ function AppointmentDetail({ appointmentData, setAppointmentData = () => {} }) {
         title: 'Are you sure to complete this appointment?',
         onConfirm: () => {
           setConfirmModalVisible(false)
-          setAppointmentData({
-            ...appointmentData,
-            eventStatus: Appointment.Status.COMPLETED
-          })
+          updateAppointmentStatus(Appointment.Status.COMPLETED)
         },
         onCancel: () => setConfirmModalVisible(false)
       })
     } else {
-      console.log("onConfirmPress -> appointmentData", appointmentData)
       setConfirmModal({
         ...confirmModalState,
         visible: true,
@@ -386,7 +430,8 @@ function AppointmentDetail({ appointmentData, setAppointmentData = () => {} }) {
               storeIds: selectedStoreIds
             },
             meta: {
-              onSuccess: () => setMemberStatus(currentUser.userId, Appointment.Status.SELECTED)
+              onSuccess: (newAppointmentData) => setAppointmentData(newAppointmentData),
+              onFailed: () => Alert.alert('Error', "Can't select appointment")
             }
           })
         },
@@ -405,10 +450,7 @@ function AppointmentDetail({ appointmentData, setAppointmentData = () => {} }) {
         confirmStyle: styles.buttonCancel,
         onConfirm: () => {
           resetConfirmModal()
-          setAppointmentData({
-            ...appointmentData,
-            eventStatus: Appointment.Status.CANCELED
-          })
+          updateAppointmentStatus(Appointment.Status.CANCELED)
         },
         onCancel: resetConfirmModal
       })
@@ -420,7 +462,16 @@ function AppointmentDetail({ appointmentData, setAppointmentData = () => {} }) {
         title: 'Are you sure to decline this appointment?',
         onConfirm: () => {
           resetConfirmModal()
-          setMemberStatus(currentUser.userId, Appointment.Status.DECLINED)
+          dispatch({
+            type: DECLINE_APPOINTMENT,
+            payload: {
+              appointmentId: appointmentData.appointmentId,
+            },
+            meta: {
+              onSuccess: (newAppointmentData) => setAppointmentData(newAppointmentData),
+              onFailed: () => Alert.alert('Error', "Can't select appointment")
+            }
+          })
         },
         onCancel: resetConfirmModal
       })
@@ -434,6 +485,17 @@ function AppointmentDetail({ appointmentData, setAppointmentData = () => {} }) {
     }
     return null
   }, [appointmentData.stores, appointmentData.members, selectedStore])
+
+  const onAppointmentChange = useCallback((payload) => {
+    setAppointmentData(payload);
+  }, [])
+
+  useEffect(() => {
+    AppSocket.on(APPOINTMENT_CHANGE, onAppointmentChange);
+    return () => {
+      AppSocket.off(APPOINTMENT_CHANGE, onAppointmentChange);
+    }
+  }, [])
 
   return (
     <React.Fragment>
@@ -505,7 +567,8 @@ function AppointmentDetail({ appointmentData, setAppointmentData = () => {} }) {
           <Text 
             style={[
               styles.canceledAppointmentText, 
-              appointmentData.eventStatus === Appointment.Status.COMPLETED 
+              Appointment.Status.COMPLETED === appointmentData.eventStatus 
+                || currentUserWithStatus?.status === Appointment.Status.SELECTED
                 ? {color: Colors.completed} 
                 : {color: Colors.declined}
             ]}

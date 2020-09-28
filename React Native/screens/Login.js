@@ -21,6 +21,7 @@ import { connect } from 'react-redux';
 import { LOGIN_WITH_PHONE } from '../services/auth/constants';
 import { getCurrentUser } from '../services/auth/getters';
 import Colors from '../constants/Colors';
+import { withNavigation } from 'react-navigation';
 
 class LoginScreen extends Component {
   constructor(props) {
@@ -214,6 +215,7 @@ class LoginScreen extends Component {
                   title="Register"
                   activeOpacity={1}
                   disabled={!phone_valid && password.length < 8}
+                  onPress={() => this.props.navigation.navigate("Register")}
                   buttonStyle={{
                     height: 50,
                     backgroundColor: 'transparent',
@@ -240,7 +242,7 @@ const mapStateToProps = state => ({
   currentUser:  getCurrentUser(state)
 })
 
-export default connect(mapStateToProps, null)(LoginScreen)
+export default connect(mapStateToProps, null)(withNavigation(LoginScreen))
 
 const styles = StyleSheet.create({
   container: {

@@ -50,7 +50,6 @@ class AppRepo {
           userId
         }
       })
-      console.log("getAppointments -> data", data)
 
       return data;
     }
@@ -70,7 +69,6 @@ class AppRepo {
         }
       })
 
-      console.log("getAppointmentDetail -> data", data)
       return data;
     }
     catch(e) {
@@ -90,7 +88,6 @@ class AppRepo {
           storeIds,
         }
       })
-      console.log("selectAppointmentStores -> data", data)
 
       return data;
     }
@@ -109,7 +106,6 @@ class AppRepo {
           userId,
         }
       })
-      console.log("declineAppointment -> data", data)
 
       return data;
     }

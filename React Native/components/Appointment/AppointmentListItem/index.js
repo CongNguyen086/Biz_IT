@@ -60,7 +60,7 @@ export default function AppointmentListItem(
     }
 
     let [date, month, year, hours, minutes] = [
-      meetingDate.getDate() + 1,
+      meetingDate.getDate(),
       meetingDate.getMonth() + 1,
       meetingDate.getFullYear(),
     ]
@@ -223,7 +223,6 @@ const styles = StyleSheet.create({
     color: Colors.extraText
   },
   waterMark: {
-    height: '100%',
     paddingLeft: 20,
     justifyContent: 'center',
     alignItems: 'center'

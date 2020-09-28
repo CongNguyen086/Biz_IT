@@ -163,6 +163,7 @@ export default StyleSheet.create({
     // fontStyle: 'italic',
     fontSize: 18,
     textAlign: 'center',
+    fontWeight: '500'
   },
   modalWrapper: {
     backgroundColor: '#fff',

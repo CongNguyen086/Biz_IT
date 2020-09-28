@@ -2,6 +2,7 @@ import React from 'react';
 import { createAppContainer, createStackNavigator, createSwitchNavigator, createBottomTabNavigator } from 'react-navigation';
 
 import Login from '../screens/Login';
+import Register from '../screens/Register';
 import HomePage from '../screens/HomePage';
 import Loading from '../screens/Loading';
 import MapStore from '../screens/MapStore'
@@ -17,6 +18,7 @@ import ContactListScreen from '../screens/ContactList';
 import AppointmentScreen from '../screens/AppointmentScreen';
 import HeaderTitle from '../components/HeaderTitle';
 import AppointmentDetail from '../screens/AppointmentDetail';
+import Profile from '../screens/ProfileScreen';
 
 const tabBarOptions = {
   activeTintColor: Colors.primary,
@@ -67,7 +69,7 @@ const AppointmentStack = createStackNavigator(
       screen: AppointmentScreen,
       navigationOptions: {
         // title: "Appointment",
-        headerTitle: <HeaderTitle title='Appointment' />,
+        headerTitle: <HeaderTitle title='Profile' />,
         headerStyle: {
           backgroundColor: Colors.primary
         }
@@ -84,14 +86,23 @@ AppointmentStack.navigationOptions = {
   tabBarOptions
 };
 
-const WalletStack = createStackNavigator(
+const ProfileStack = createStackNavigator(
   {
-    Home: HomePage,
+    Profile: {
+      screen: Profile,
+      navigationOptions: {
+        // title: "Appointment",
+        headerTitle: <HeaderTitle title='Profile' />,
+        headerStyle: {
+          backgroundColor: Colors.primary
+        }
+      }
+    },
   }
 );
 
-WalletStack.navigationOptions = {
-  tabBarLabel: 'Account',
+ProfileStack.navigationOptions = {
+  tabBarLabel: 'Profile',
   // tabBarIcon: (<Image  style={{width: 25, height: 25}} source={require('../assets/icons/my_wallet.png')} />),
   tabBarIcon: ({ focused }) => (
     <Ionicons name='ios-person' size={30} color={focused ? Colors.primary : Colors.tabIconDefault} />
@@ -103,7 +114,7 @@ const TabNavigator = createBottomTabNavigator({
   HomeStack,
   MapStack,
   AppointmentStack,
-  WalletStack,
+  ProfileStack,
 },
 {
   navigationOptions: {
@@ -140,6 +151,7 @@ const AppNavigator = createSwitchNavigator(
   {
     Loading: Loading,
     Login: Login,
+    Register: Register,
     App: App,
   },
   {

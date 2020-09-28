@@ -1,6 +1,12 @@
 import {call, put, select, takeEvery} from 'redux-saga/effects'
 import { removeAllPendingAppointment, setAppointmentList, setLoadingAppointment, updateAppointment } from './actions'
-import { CREATE_NEW_APPOINTMENT, FETCH_APPOINTMENTS, SELECT_APPOINTMENT_STORES } from './constants'
+import { 
+  CREATE_NEW_APPOINTMENT, 
+  FETCH_APPOINTMENTS, 
+  SELECT_APPOINTMENT_STORES,
+  DECLINE_APPOINTMENT,
+  UPDATE_APPOINTMENT_STATUS
+} from './constants'
 import {getCurrentUser} from '../auth/getters'
 import AppRepo from './repo'
 import Appointment from './Appointment'
@@ -70,8 +76,6 @@ function* selectAppointmentStoresSaga({
   } = {}
 }) {
   try {
-    console.log("appointmentId", appointmentId)
-    console.log("storeIds", storeIds)
     const currentUser = yield select(getCurrentUser);
 
     if (!currentUser || !currentUser.userId) {
@@ -79,17 +83,87 @@ function* selectAppointmentStoresSaga({
     }
 
     const data = yield call(AppRepo.selectAppointmentStores, {appointmentId, userId: currentUser.userId, storeIds});
-    console.log("onFailed -> data", data)
 
     // update appointment list in redux
-    // yield put(updateAppointment({
-    //   appointmentId,
-    //   appointment: {
+    const appontmentItem = Appointment.object(data);
+    if (appontmentItem) {
+      yield put(updateAppointment({
+        appointmentId,
+        appointment: appontmentItem,
+      }))
+    }
 
-    //   }
-    // }))
+    yield call(onSuccess, data)
+  }
+  catch(e) {
+    yield call(onFailed)
+  }
+}
 
-    yield calll(onSuccess)
+function* declineAppointmentSaga({
+  payload: {
+    appointmentId,
+  },
+  meta: {
+    onSuccess = () => {},
+    onFailed = () => {},
+  } = {}
+}) {
+  try {
+    const currentUser = yield select(getCurrentUser);
+
+    if (!currentUser || !currentUser.userId) {
+      throw new Error('Not have current user');
+    }
+
+    const data = yield call(AppRepo.declineAppointment, {appointmentId, userId: currentUser.userId});
+
+    // update appointment list in redux
+    const appontmentItem = Appointment.object(data);
+    if (appontmentItem) {
+      yield put(updateAppointment({
+        appointmentId,
+        appointment: appontmentItem,
+      }))
+    }
+
+    yield call(onSuccess, data)
+  }
+  catch(e) {
+    yield call(onFailed)
+  }
+}
+
+function* updateAppointmentSaga({
+  payload: {
+    appointmentId,
+    status = Appointment.Status.COMPLETED,
+    storeId,
+  },
+  meta: {
+    onSuccess = () => {},
+    onFailed = () => {},
+  } = {}
+}) {
+  try {
+    const currentUser = yield select(getCurrentUser);
+
+    if (!currentUser || !currentUser.userId) {
+      throw new Error('Not have current user');
+    }
+
+    const data = yield call(AppRepo.updateEventStatus, {appointmentId, userId: currentUser.userId, storeId, status});
+
+    // update appointment list in redux
+    const appontmentItem = Appointment.object(data);
+    if (appontmentItem) {
+      yield put(updateAppointment({
+        appointmentId,
+        appointment: appontmentItem,
+      }))
+    }
+
+    yield call(onSuccess, data)
   }
   catch(e) {
     yield call(onFailed)
@@ -100,4 +174,6 @@ export default function* () {
   yield takeEvery(CREATE_NEW_APPOINTMENT, createAppointment)
   yield takeEvery(FETCH_APPOINTMENTS, fetchAppointmentListSaga)
   yield takeEvery(SELECT_APPOINTMENT_STORES, selectAppointmentStoresSaga)
+  yield takeEvery(DECLINE_APPOINTMENT, declineAppointmentSaga)
+  yield takeEvery(UPDATE_APPOINTMENT_STATUS, updateAppointmentSaga)
 }

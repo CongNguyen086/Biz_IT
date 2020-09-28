@@ -57,7 +57,7 @@ class Appointment {
       throw new Error('[Appointment] Type is not valid');
     }
 
-    if (!Object.values(Appointment.Status).includes(memberStatus)) {
+    if (![...Object.values(Appointment.Status), ""].includes(memberStatus)) {
       throw new Error('[Appointment] Status is not valid');
     }
 
@@ -65,7 +65,7 @@ class Appointment {
       throw new Error('[Appointment] Event status is not valid');
     }
 
-    if (type === Appointment.Type.SENT && ![Appointment.Status.WAITING,Appointment.Status.COMPLETED,Appointment.Status.CANCELED].includes(memberStatus)) {
+    if (type === Appointment.Type.SENT && ![Appointment.Status.WAITING,Appointment.Status.COMPLETED,Appointment.Status.CANCELED, ""].includes(memberStatus)) {
       throw new Error('[Appointment] Status of `sent` is not valid');
     }
 
