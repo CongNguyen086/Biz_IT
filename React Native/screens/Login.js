@@ -66,7 +66,7 @@ class LoginScreen extends Component {
       const {
         type,
         token,
-      } = await Facebook.logInWithReadPermissionsAsync(config.API_ID, 
+      } = await Facebook.logInWithReadPermissionsAsync(config.FACEBOOK_API_ID, 
       {
         permissions: [
           'public_profile',

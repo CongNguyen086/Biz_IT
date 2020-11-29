@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import CardCustom from '../CardCustom';
 
-const dealInfo_1 = 'Hoàn tiền 20-30% khi thanh toán tại quán bằng Momo'
-const dealInfo_2 = 'Từ 4/10/2019 đến 30/10/2019'
+const dealInfo_1 = 'Discount 10-20% for bill whose value is from $20 above'
+const dealInfo_2 = 'From 4/10/2020 đến 5/11/2020'
 
 class DealInfo extends Component {
     render() {

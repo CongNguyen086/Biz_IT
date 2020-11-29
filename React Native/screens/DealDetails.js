@@ -84,6 +84,7 @@ class DealDetails extends Component {
     async getStoreDealList() {
         const response = await fetch(config.ROOT + `/getstorepromotion?dealId=${this.passedData.dealId}`)
         const stores = await response.json();
+        console.log("DealDetails -> getStoreDealList -> stores", stores)
 
         return stores;
     }
@@ -94,6 +95,7 @@ class DealDetails extends Component {
             throw new Error('You must grant permission to get current location!')
         }
 
+        console.log("DealDetails -> getPosition -> await Location.getCurrentPositionAsync({})", await Location.getCurrentPositionAsync({}))
         return await Location.getCurrentPositionAsync({});
     };
 

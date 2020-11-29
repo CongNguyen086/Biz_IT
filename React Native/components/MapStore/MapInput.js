@@ -43,7 +43,7 @@ class MapInput extends Component {
             info: { title, markColor }, hideAdd, onPressAdd, onRemove } = this.props
         return (
             <GoogleAutoComplete
-                apiKey={config.API_KEY}
+                apiKey={config.GOOGLE_API_KEY}
                 debounce={300}
                 language='vi'
                 minLength={2}
