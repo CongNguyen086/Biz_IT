@@ -15,8 +15,8 @@ class Review extends Component {
         this.state = {
             loading: false,
             reviewText: '',
-            reviews: ReviewData,
-            // reviews: [],
+            // reviews: ReviewData,
+            reviews: [],
         }
     }
     componentDidMount() {
@@ -27,6 +27,7 @@ class Review extends Component {
             loading: true,
         })
         const response = await fetch(config.ROOT + `/getreview?storeId=${storeId}`);
+        console.log("🚀 ~ file: Review.js ~ line 30 ~ Review ~ getReviewData= ~ response", response)
         const jsonData = await response.json();
         this.setState({
             loading: false,

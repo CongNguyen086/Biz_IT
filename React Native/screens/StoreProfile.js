@@ -86,6 +86,7 @@ class StoreProfile extends Component {
 
     render() {
         const store = this.props.navigation.getParam('store', {});
+        console.log("🚀 ~ file: StoreProfile.js ~ line 89 ~ StoreProfile ~ render ~ store", store)
         const {keyboardFocus} = this.state;
         return (
             <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding': 'height'} style={styles.container}>
