@@ -30,7 +30,7 @@ const getStoresInRange = async (middleLat, middleLng, radius) => {
                 }
             });
         }
-        console.log(storeInRangeList)
+        // console.log(storeInRangeList)
         return storeInRangeList
     } catch (error) {
         console.log('Error: \n', err)

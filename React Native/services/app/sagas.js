@@ -31,7 +31,7 @@ function* createAppointment({
         storeIds,
         memberIds,
         eventName,
-        date: `${meetingDate.getFullYear()}-${meetingDate.getMonth() + 1}-${meetingDate.getDate() + 1}`,
+        date: `${meetingDate.getFullYear()}-${meetingDate.getMonth() + 1}-${meetingDate.getDate()}`,
       }
     )
 

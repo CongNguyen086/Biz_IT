@@ -71,7 +71,7 @@ app.get('/getstorepromotion', (req, res) => {
         if (!error) {
             var string = JSON.stringify(rows);
             var jsonRows = JSON.parse(string);
-            console.log(dealId)
+            // console.log(dealId)
             res.send(jsonRows[0])
         } else console.log(error);
     })
@@ -233,7 +233,6 @@ app.post('/getMiddlePoint', (req, res) => {
     const middleCoords = GeoCalculate.getCenterPoint(data.locationList)
     if (middleCoords !== 'undefined') {
         res.send(middleCoords)
-        console.log(middleCoords)
     }
 })
 

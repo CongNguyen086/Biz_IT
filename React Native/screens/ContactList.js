@@ -1,30 +1,30 @@
-import React, { 
-  useCallback, 
-  useEffect, 
-  useMemo, 
-  useRef, 
-  useState 
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
 } from 'react'
-import { 
-  Text, 
-  View, 
-  StyleSheet, 
-  FlatList, 
-  ActivityIndicator, 
-  KeyboardAvoidingView, 
-  Platform, 
-  LayoutAnimation, 
+import {
+  Text,
+  View,
+  StyleSheet,
+  FlatList,
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+  LayoutAnimation,
   UIManager,
-  Dimensions, 
+  Dimensions,
   TouchableOpacity,
-  ScrollView, 
+  ScrollView,
   Keyboard
 } from 'react-native'
 import {
-  Avatar, 
-  ListItem, 
-  Button, 
-  SearchBar, 
+  Avatar,
+  ListItem,
+  Button,
+  SearchBar,
   Input,
 } from 'react-native-elements'
 import * as Contacts from 'expo-contacts'
@@ -56,7 +56,7 @@ function normalizeText(text = '') {
   return text.toLowerCase()
 }
 
-const ContactList = ({navigation}) => {
+const ContactList = ({ navigation }) => {
   const [isLoading, setLoading] = useState(false)
   const [isOpenSliding, setOpenSliding] = useState(false)
   const [keyboardHeight, setKeyboardHeight] = useState(0);
@@ -100,9 +100,9 @@ const ContactList = ({navigation}) => {
           // call api to update contact list on server
           const listPhones = listContacts.reduce((list, c) => {
             return [...list, ...c.phoneNumbers]
-          },[])
+          }, [])
           const listPhoneNumber = await AppRepo.getContactList(listPhones);
-  
+
           const list = []
           // for (const phoneNumber of listPhoneNumber) {
           //   for (const c of listContacts) {
@@ -125,11 +125,11 @@ const ContactList = ({navigation}) => {
               }
             }
           }
-          dispatch(setContactList({contacts: list}))
+          dispatch(setContactList({ contacts: list }))
         }
       }
     }
-    catch(e) {
+    catch (e) {
       console.log("ContactList -> e", e.message)
     }
     finally {
@@ -146,6 +146,7 @@ const ContactList = ({navigation}) => {
   }, [])
 
   const onMeetingDateChanged = useCallback((selectedDate) => {
+    console.log("🚀 ~ file: ContactList.js ~ line 149 ~ onMeetingDateChanged ~ selectedDate", selectedDate)
     setMeetingDate(selectedDate)
   }, [])
 
@@ -154,11 +155,11 @@ const ContactList = ({navigation}) => {
       return contacts
     }
 
-    return (contacts || []).filter(c => 
+    return (contacts || []).filter(c =>
       (
-        c?.phone?.includes(searchText) || 
-        normalizeText(c?.firstName)?.includes(normalizeText(searchText)) || 
-        normalizeText(c?.lastName)?.includes(normalizeText(searchText)) || 
+        c?.phone?.includes(searchText) ||
+        normalizeText(c?.firstName)?.includes(normalizeText(searchText)) ||
+        normalizeText(c?.lastName)?.includes(normalizeText(searchText)) ||
         normalizeText(c?.fullName)?.includes(normalizeText(searchText))
       )
     )
@@ -254,40 +255,40 @@ const ContactList = ({navigation}) => {
   }, [syncContacts])
 
   return (
-    <KeyboardAvoidingView 
-      style={{flex: 1,}} 
+    <KeyboardAvoidingView
+      style={{ flex: 1, }}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <SafeAreaView style={styles.container}>
         {isLoading && (
           <Animatable.View animation='fadeIn' duration={300} style={styles.loading}>
-            <ActivityIndicator size='large' color={Colors.primary} style={{zIndex: 10}} />
+            <ActivityIndicator size='large' color={Colors.primary} style={{ zIndex: 10 }} />
           </Animatable.View>
         )}
         <SearchBar
-          placeholder='Find phone number/name' 
+          placeholder='Find phone number/name'
           round
           containerStyle={styles.searchContainer}
           inputContainerStyle={styles.searchInput}
-          inputStyle={{fontSize: 18}}
+          inputStyle={{ fontSize: 18 }}
           placeholderTextColor='#ccc'
           lightTheme
           value={searchText}
           onChangeText={onSearchChanged}
           onClear={onSearchClear}
         />
-        <View style={[styles.card, checkedUsers.length > 0 && {marginBottom: 80}]}>
+        <View style={[styles.card, checkedUsers.length > 0 && { marginBottom: 80 }]}>
           <View style={styles.header}>
             <Text style={styles.textHeader}>All contacts</Text>
-            <Button 
-              buttonStyle={styles.syncButton} 
+            <Button
+              buttonStyle={styles.syncButton}
               icon={{
                 name: "sync",
                 size: 20,
                 color: "white"
               }}
               title='Sync'
-              titleStyle={{fontSize: 20}}
+              titleStyle={{ fontSize: 20 }}
               onPress={syncContacts}
             />
           </View>
@@ -295,21 +296,21 @@ const ContactList = ({navigation}) => {
             <NoContent />
           )}
           <FlatList
-            style={{flex: 1}}
+            style={{ flex: 1 }}
             data={contactList}
-            renderItem={({item, index}) => (
+            renderItem={({ item, index }) => (
               <Animatable.View animation='fadeInUp' duration={300} delay={150 * index}>
-                <ListItem 
+                <ListItem
                   bottomDivider
-                  containerStyle={{paddingHorizontal: 0}}
+                  containerStyle={{ paddingHorizontal: 0 }}
                   leftAvatar={
                     <Avatar
                       rounded
                       source={
-                        item.avatar 
+                        item.avatar
                           ? {
                             uri: item.avatar
-                          } 
+                          }
                           : null
                       }
                       title={getShortName(item.fullName)}
@@ -333,8 +334,8 @@ const ContactList = ({navigation}) => {
         </View>
 
         {checkedUsers.length > 0 && (
-          <SlidingUpPanel 
-            ref={slidingRef} 
+          <SlidingUpPanel
+            ref={slidingRef}
             onDragEnd={onSlidingDragEnd}
             onBottomReached={onSlidingBottomReached}
             draggableRange={{ top: screenHeight - (keyboardHeight ? keyboardHeight + 10 : 100), bottom: 100 }}
@@ -343,25 +344,25 @@ const ContactList = ({navigation}) => {
               <View style={styles.minimal}>
                 <Text style={styles.selectedText}>{`${checkedUsers.length} selected`}</Text>
                 {!isOpenSliding && (
-                  <Button 
-                    title='Invite' 
-                    buttonStyle={[styles.inviteButton, {paddingVertical: 3, paddingHorizontal: 15}]}
-                    titleStyle={{fontWeight: '600'}}
+                  <Button
+                    title='Invite'
+                    buttonStyle={[styles.inviteButton, { paddingVertical: 3, paddingHorizontal: 15 }]}
+                    titleStyle={{ fontWeight: '600' }}
                     onPress={onSmallInvitePress}
                   />
                 )}
               </View>
-              <View style={[{flex: 1}, !isOpenSliding && {display: 'none'}]}>
+              <View style={[{ flex: 1 }, !isOpenSliding && { display: 'none' }]}>
                 <View style={styles.slidingSection}>
                   {selectedUsers.map(user => (
-                    <ListItem 
+                    <ListItem
                       key={user.userId}
                       bottomDivider
-                      containerStyle={{paddingHorizontal: 0}}
+                      containerStyle={{ paddingHorizontal: 0 }}
                       leftAvatar={
                         <Avatar
                           rounded
-                          source={user.avatar ? {uri: user.avatar} : null}
+                          source={user.avatar ? { uri: user.avatar } : null}
                           title={getShortName(user.fullName)}
                         />
                       }
@@ -377,18 +378,18 @@ const ContactList = ({navigation}) => {
                 </View>
                 <View style={styles.slidingSection}>
                   <View style={styles.moreInfoSection}>
-                    <Text style={{width: '35%'}}>Your event name</Text>
-                    <Input 
-                      containerStyle={{flex: 1, paddingHorizontal: 0}} 
-                      inputContainerStyle={styles.meetingPlace} 
+                    <Text style={{ width: '35%' }}>Your event name</Text>
+                    <Input
+                      containerStyle={{ flex: 1, paddingHorizontal: 0 }}
+                      inputContainerStyle={styles.meetingPlace}
                       value={meetingEventName}
                       placeholder='Event'
                       onChangeText={setEventName}
                     />
                   </View>
                   <View style={styles.moreInfoSection}>
-                    <Text style={{width: '35%'}}>Choose meeting date</Text>
-                    <DatePicker 
+                    <Text style={{ width: '35%' }}>Choose meeting date</Text>
+                    <DatePicker
                       date={meetingDate}
                       mode='date'
                       format='DD-MM-YYYY'
@@ -414,10 +415,10 @@ const ContactList = ({navigation}) => {
                     />
                   </View>
                 </View>
-                <Button 
-                  title='Invite' 
-                  buttonStyle={[styles.inviteButton, {paddingVertical: 10, width: '100%'}, styles.slidingSection]}
-                  titleStyle={{fontWeight: '600'}} 
+                <Button
+                  title='Invite'
+                  buttonStyle={[styles.inviteButton, { paddingVertical: 10, width: '100%' }, styles.slidingSection]}
+                  titleStyle={{ fontWeight: '600' }}
                   onPress={onCreateNewAppointment}
                 />
               </View>
@@ -490,10 +491,10 @@ const styles = StyleSheet.create({
     color: '#636e72'
   },
   searchContainer: {
-    marginVertical: 25, 
-    backgroundColor: 'transparent', 
-    borderTopColor: 'transparent', 
-    borderBottomColor: 'transparent', 
+    marginVertical: 25,
+    backgroundColor: 'transparent',
+    borderTopColor: 'transparent',
+    borderBottomColor: 'transparent',
     padding: 0,
   },
   searchInput: {
