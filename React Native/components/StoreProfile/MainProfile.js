@@ -35,6 +35,7 @@ class MainProfile extends Component {
         try {
             const response = await fetch(Configs.ROOT + `/getmerchantimage?serviceId=${serviceId}`);
             const jsonData = await response.json();
+            console.log("🚀 ~ file: MainProfile.js ~ line 38 ~ MainProfile ~ getMerchantImage= ~ jsonData", jsonData)
             this.setState({ reviewImage: jsonData[0].reviewImage })
         } catch (error) {
             console.log(error)

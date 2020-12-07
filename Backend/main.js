@@ -179,6 +179,7 @@ app.get('/getreview', (req, res) => {
     const storeId = req.query.storeId
 
     connection.query('SELECT reviewId, reviewRating, reviewComment, fullName FROM review INNER JOIN users ON review.userId = users.userId WHERE storeId = ?', [storeId], (error, rows, fields) => {
+        console.log("🚀 ~ file: main.js ~ line 182 ~ connection.query ~ rows", rows)
         if (!error) {
             res.send(rows)
         } else console.log(error)
