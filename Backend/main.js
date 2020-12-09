@@ -45,6 +45,7 @@ socketServer.init();
 // UserId: 8159657106479438377
 app.get('/getpopulardeal', (req, res) => {
     connection.query('CALL GetPopularDeal()', (error, rows, fields) => {
+        console.log("🚀 ~ file: main.js ~ line 48 ~ connection.query ~ rows", rows)
         if (!error) {
             res.send(rows)
         } else console.log(error);
@@ -354,6 +355,9 @@ app.post('/pushnotification', (req, res) => {
             let messages = [];
             let somePushTokens = [rows[0].userToken]
             for (let pushToken of somePushTokens) {
+            console.log("🚀 ~ file: main.js ~ line 357 ~ connection.query ~ rows", rows)
+            console.log("🚀 ~ file: main.js ~ line 357 ~ connection.query ~ rows", rows)
+            console.log("🚀 ~ file: main.js ~ line 357 ~ connection.query ~ rows", rows)
                 if (!Expo.isExpoPushToken(pushToken)) {
                     console.log(Expo.isExpoPushToken(pushToken))
                     console.error(`Push token ${pushToken} is not a valid Expo push token`);
