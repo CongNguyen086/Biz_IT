@@ -15,8 +15,8 @@ class Review extends Component {
         this.state = {
             loading: false,
             reviewText: '',
-            // reviews: ReviewData,
-            reviews: [],
+            reviews: ReviewData,
+            // reviews: [],
         }
     }
     componentDidMount() {
