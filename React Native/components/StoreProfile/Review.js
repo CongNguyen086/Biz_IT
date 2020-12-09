@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View, FlatList, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, View, FlatList, ActivityIndicator, Alert } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
-import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import {Input, Icon} from 'react-native-elements'
 
 import ReviewElement from '../StoreProfile/ReviewElement';
 import config from '../../constants/config';
@@ -13,8 +14,9 @@ class Review extends Component {
         super(props)
         this.state = {
             loading: false,
-            reviews: ReviewData,
-            // reviews: [],
+            reviewText: '',
+            // reviews: ReviewData,
+            reviews: [],
         }
     }
     componentDidMount() {
@@ -25,6 +27,7 @@ class Review extends Component {
             loading: true,
         })
         const response = await fetch(config.ROOT + `/getreview?storeId=${storeId}`);
+        console.log("🚀 ~ file: Review.js ~ line 30 ~ Review ~ getReviewData= ~ response", response)
         const jsonData = await response.json();
         this.setState({
             loading: false,
@@ -32,8 +35,19 @@ class Review extends Component {
         })
     }
 
+    onReviewMessageChanged = (text) => {
+        this.setState({
+            reviewText: text,
+        })
+    }
+
+    onReviewSubmit = () => {
+        Alert.alert('submit review')
+    }
+
     render() {
-        const {loading, reviews} = this.state
+        const {loading, reviews, reviewText} = this.state
+        const {onReviewMessageChanged, onReviewSubmit} = this
         return (
             <View style={styles.container}>
                 <View style={styles.header}>
@@ -64,6 +78,32 @@ class Review extends Component {
                         />
                     </View>
                 )}
+                <View style={styles.chatContainer}>
+                    <View style={{flex: 1}}>
+                        <Input
+                            value={reviewText}
+                            onChangeText={onReviewMessageChanged}
+                            inputContainerStyle={{
+                                borderColor: '#ccc',
+                                borderWidth: 1,
+                                borderRadius: 30,
+                            }}
+                            inputStyle={{
+                                paddingHorizontal: 20,
+                            }}
+                            placeholder='Tell us about this store'
+                        />
+                    </View>
+                    <Icon 
+                        name='send' 
+                        type='material' 
+                        size={20} 
+                        color={Colors.primary} 
+                        reverse
+                        onPress={onReviewSubmit}
+                    />
+                    <Icon name='add-a-photo' type='material' size={20} color={Colors.momoColor} reverse/>
+                </View>
             </View>
         );
     }
@@ -93,8 +133,6 @@ const styles = StyleSheet.create({
     },
     reviewElementContainer: {
         flex: 1,
-        borderBottomWidth: 1,
-        borderBottomColor: 'grey'
     },
     noReviewContainer: {
         marginTop: 25,
@@ -104,6 +142,23 @@ const styles = StyleSheet.create({
         color: Colors.extraText,
         textAlign: 'center'
     },
+    chatContainer: {
+        borderTopColor: Colors.bgColor,
+        borderTopWidth: 1,
+        shadowColor: "rgba(0,0,0,0.5)",
+        shadowOffset: {
+            width: 0,
+            height: -4,
+        },
+        shadowOpacity: 0.32,
+        elevation: 10,
+        zIndex: 10,
+        paddingTop: 10,
+        paddingHorizontal: 10,
+        flexDirection: 'row',
+        width: '100%',
+        alignItems: 'center',
+    }
 });
 
 export default Review;

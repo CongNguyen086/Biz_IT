@@ -10,7 +10,8 @@ import {
     ScrollView, 
     LayoutAnimation, 
     UIManager, 
-    TouchableOpacity
+    TouchableOpacity,
+    Alert
 } from 'react-native'
 import {SafeAreaConsumer} from 'react-native-safe-area-context'
 import MapView, { Marker, Circle, Callout } from 'react-native-maps'
@@ -385,7 +386,7 @@ class MapStore extends Component {
                                     style={styles.mapStyle}
                                     showsMyLocationButton={true}
                                     showsUserLocation={true}
-                                    followsUserLocation={true}
+                                    followsUserLocation={false}
                                     mapPadding={styles.mapPadding}
                                     onPress={Keyboard.dismiss}
                                 >

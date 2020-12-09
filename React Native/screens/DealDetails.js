@@ -93,8 +93,6 @@ class DealDetails extends Component {
         if (status !== 'granted') {
             throw new Error('You must grant permission to get current location!')
         }
-
-        console.log("DealDetails -> getPosition -> await Location.getCurrentPositionAsync({})", await Location.getCurrentPositionAsync({}))
         return await Location.getCurrentPositionAsync({});
     };
 
@@ -164,7 +162,7 @@ class DealDetails extends Component {
     }
 
     static navigationOptions = {
-        headerTitle: <HeaderTitle title='Cafe/Dessert' />,
+        headerTitle: <HeaderTitle title='Stores' />,
     };
 
     render() {
