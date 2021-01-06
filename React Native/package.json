@@ -17,7 +17,7 @@
     "@react-native-community/art": "^1.0.3",
     "@react-native-community/geolocation": "^2.0.2",
     "@react-navigation/web": "^1.0.0-alpha.9",
-    "axios": "^0.20.0",
+    "axios": "^0.21.1",
     "expo": "^36.0.0",
     "expo-asset": "~8.0.0",
     "expo-constants": "~8.0.0",
