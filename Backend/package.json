@@ -24,7 +24,7 @@
     "cors": "^2.8.5",
     "csv-parser": "^2.3.3",
     "expo-server-sdk": "^3.5.1",
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "geolib": "^3.3.1",
     "is-utf8": "^0.2.1",
     "knex": "^0.20.15",
